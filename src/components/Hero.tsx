@@ -21,22 +21,6 @@ const Hero = () => {
         {/* Animated zellij pattern */}
         <div className="absolute inset-0 zellij-pattern opacity-30 animate-pulse-slow" />
         
-        {/* Floating particles */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-primary-glow/30 rounded-full animate-float-particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${8 + Math.random() * 4}s`,
-              }}
-            />
-          ))}
-        </div>
-        
         {/* Animated light rays */}
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-1 h-full bg-gradient-to-b from-primary-glow/20 to-transparent animate-light-ray" style={{ animationDelay: '0s' }} />
