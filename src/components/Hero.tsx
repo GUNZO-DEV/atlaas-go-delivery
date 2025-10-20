@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Package, Bike } from "lucide-react";
+import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 
 const Hero = () => {
@@ -44,23 +45,27 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button 
-              size="lg" 
-              className="bg-primary hover:bg-primary-glow text-white px-8 py-6 text-lg font-semibold shadow-glow transition-all hover:scale-105"
-            >
-              <Package className="mr-2" />
-              Order Now
-              <ArrowRight className="ml-2" />
-            </Button>
+            <Link to="/auth">
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary-glow text-white px-8 py-6 text-lg font-semibold shadow-glow transition-all hover:scale-105"
+              >
+                <Package className="mr-2" />
+                Order Now
+                <ArrowRight className="ml-2" />
+              </Button>
+            </Link>
             
-            <Button 
-              size="lg"
-              variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-midnight px-8 py-6 text-lg font-semibold transition-all hover:scale-105"
-            >
-              <Bike className="mr-2" />
-              Become a Rider
-            </Button>
+            <Link to="/auth">
+              <Button 
+                size="lg"
+                variant="outline"
+                className="border-2 border-white text-white hover:bg-white hover:text-midnight px-8 py-6 text-lg font-semibold transition-all hover:scale-105"
+              >
+                <Bike className="mr-2" />
+                Become a Rider
+              </Button>
+            </Link>
           </div>
 
           {/* Stats */}
