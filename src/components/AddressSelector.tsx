@@ -1,5 +1,4 @@
-import { useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { useState, useRef, useEffect } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
@@ -28,49 +27,6 @@ const customIcon = L.divIcon({
   iconAnchor: [24, 48],
 });
 
-// Component to handle map clicks
-function MapClickHandler({ 
-  onLocationSelect 
-}: { 
-  onLocationSelect: (lat: number, lng: number) => void 
-}) {
-  useMapEvents({
-    click: (e) => {
-      onLocationSelect(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-}
-
-// Draggable marker component
-function DraggableMarker({ 
-  position, 
-  onDragEnd 
-}: { 
-  position: [number, number]; 
-  onDragEnd: (lat: number, lng: number) => void 
-}) {
-  const markerRef = useRef<L.Marker>(null);
-
-  return (
-    <Marker
-      draggable={true}
-      position={position}
-      icon={customIcon}
-      ref={markerRef}
-      eventHandlers={{
-        dragend: () => {
-          const marker = markerRef.current;
-          if (marker) {
-            const pos = marker.getLatLng();
-            onDragEnd(pos.lat, pos.lng);
-          }
-        },
-      }}
-    />
-  );
-}
-
 export default function AddressSelector({ 
   open, 
   onOpenChange, 
@@ -78,13 +34,67 @@ export default function AddressSelector({
   initialAddress 
 }: AddressSelectorProps) {
   const { toast } = useToast();
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<L.Map | null>(null);
+  const marker = useRef<L.Marker | null>(null);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAddress, setSelectedAddress] = useState(initialAddress || '');
   const [selectedCoords, setSelectedCoords] = useState<[number, number]>([33.5731, -7.5898]); // Casablanca default
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
-  const [mapKey, setMapKey] = useState(0);
+
+  // Initialize map
+  useEffect(() => {
+    if (!open || !mapContainer.current || map.current) return;
+
+    // Create map
+    map.current = L.map(mapContainer.current).setView(selectedCoords, 14);
+
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map.current);
+
+    // Add draggable marker
+    marker.current = L.marker(selectedCoords, {
+      icon: customIcon,
+      draggable: true
+    }).addTo(map.current);
+
+    // Handle marker drag
+    marker.current.on('dragend', async () => {
+      if (marker.current) {
+        const pos = marker.current.getLatLng();
+        setSelectedCoords([pos.lat, pos.lng]);
+        await reverseGeocode(pos.lat, pos.lng);
+      }
+    });
+
+    // Handle map click
+    map.current.on('click', async (e) => {
+      const { lat, lng } = e.latlng;
+      setSelectedCoords([lat, lng]);
+      marker.current?.setLatLng([lat, lng]);
+      await reverseGeocode(lat, lng);
+    });
+
+    // Get initial address
+    reverseGeocode(selectedCoords[0], selectedCoords[1]);
+
+    return () => {
+      map.current?.remove();
+      map.current = null;
+    };
+  }, [open]);
+
+  // Update marker position when coords change
+  useEffect(() => {
+    if (map.current && marker.current) {
+      marker.current.setLatLng(selectedCoords);
+      map.current.setView(selectedCoords, 14);
+    }
+  }, [selectedCoords]);
 
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
@@ -138,7 +148,6 @@ export default function AddressSelector({
         
         setSelectedCoords([lat, lng]);
         setSelectedAddress(data[0].display_name);
-        setMapKey(prev => prev + 1); // Force map re-render with new center
       } else {
         toast({
           title: 'Address not found',
@@ -175,8 +184,6 @@ export default function AddressSelector({
         const lng = position.coords.longitude;
         
         setSelectedCoords([lat, lng]);
-        setMapKey(prev => prev + 1); // Force map re-render with new center
-        
         await reverseGeocode(lat, lng);
         setIsLoadingLocation(false);
         
@@ -214,16 +221,6 @@ export default function AddressSelector({
         maximumAge: 0
       }
     );
-  };
-
-  const handleLocationSelect = async (lat: number, lng: number) => {
-    setSelectedCoords([lat, lng]);
-    await reverseGeocode(lat, lng);
-  };
-
-  const handleMarkerDragEnd = async (lat: number, lng: number) => {
-    setSelectedCoords([lat, lng]);
-    await reverseGeocode(lat, lng);
   };
 
   const handleConfirm = () => {
@@ -287,24 +284,7 @@ export default function AddressSelector({
           </div>
 
           {/* Map */}
-          <div className="flex-1 w-full">
-            {open && (
-              <MapContainer
-                key={mapKey}
-                center={selectedCoords}
-                zoom={14}
-                className="h-full w-full"
-                zoomControl={true}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <MapClickHandler onLocationSelect={handleLocationSelect} />
-                <DraggableMarker position={selectedCoords} onDragEnd={handleMarkerDragEnd} />
-              </MapContainer>
-            )}
-          </div>
+          <div ref={mapContainer} className="flex-1 w-full" />
 
           {/* Address Display & Confirm */}
           <div className="p-6 pt-4 border-t bg-background">
