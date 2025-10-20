@@ -6,15 +6,46 @@ import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay */}
+      {/* Background Image with Overlay - Fully Animated */}
       <div className="absolute inset-0 z-0">
+        {/* Base mountain image with zoom effect */}
         <img 
           src={atlasHero} 
           alt="Atlas Mountains Morocco" 
           className="w-full h-full object-cover animate-ken-burns"
         />
-        <div className="absolute inset-0 bg-gradient-hero" />
+        
+        {/* Animated gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-hero animate-gradient-shift" />
+        
+        {/* Animated zellij pattern */}
         <div className="absolute inset-0 zellij-pattern opacity-30 animate-pulse-slow" />
+        
+        {/* Floating particles */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-primary-glow/30 rounded-full animate-float-particle"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${8 + Math.random() * 4}s`,
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Animated light rays */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-1 h-full bg-gradient-to-b from-primary-glow/20 to-transparent animate-light-ray" style={{ animationDelay: '0s' }} />
+          <div className="absolute top-0 left-1/2 w-1 h-full bg-gradient-to-b from-primary-glow/20 to-transparent animate-light-ray" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-0 left-3/4 w-1 h-full bg-gradient-to-b from-primary-glow/20 to-transparent animate-light-ray" style={{ animationDelay: '4s' }} />
+        </div>
+        
+        {/* Animated fog overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 via-transparent to-transparent animate-fog-drift" />
       </div>
 
       {/* Content */}
