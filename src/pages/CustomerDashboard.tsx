@@ -21,6 +21,8 @@ interface Order {
   total_amount: number;
   delivery_fee: number;
   delivery_address: string;
+  delivery_latitude?: number;
+  delivery_longitude?: number;
   created_at: string;
   estimated_delivery_time: number;
   restaurant_id: string;
@@ -31,6 +33,8 @@ interface Order {
     id: string;
     name: string;
     image_url: string;
+    latitude?: number;
+    longitude?: number;
   };
   order_items: {
     id: string;
@@ -85,7 +89,7 @@ export default function CustomerDashboard() {
         .from("orders")
         .select(`
           *,
-          restaurant:restaurants(id, name, image_url),
+          restaurant:restaurants(id, name, image_url, latitude, longitude),
           order_items(
             id,
             quantity,
@@ -350,6 +354,17 @@ export default function CustomerDashboard() {
                           </p>
                         ))}
                       </div>
+                      {order.restaurant?.latitude && order.restaurant?.longitude && order.delivery_latitude && order.delivery_longitude && (
+                        <div className="mt-2 h-[180px] rounded-lg overflow-hidden border">
+                          <LiveTrackingMap
+                            restaurantLat={order.restaurant.latitude}
+                            restaurantLng={order.restaurant.longitude}
+                            customerLat={order.delivery_latitude}
+                            customerLng={order.delivery_longitude}
+                            deliveryAddress={order.delivery_address}
+                          />
+                        </div>
+                      )}
                       <div className="pt-4 border-t space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-muted-foreground flex items-center gap-1">
@@ -495,6 +510,17 @@ export default function CustomerDashboard() {
                           </p>
                         ))}
                       </div>
+                      {order.restaurant?.latitude && order.restaurant?.longitude && order.delivery_latitude && order.delivery_longitude && (
+                        <div className="mt-2 h-[180px] rounded-lg overflow-hidden border">
+                          <LiveTrackingMap
+                            restaurantLat={order.restaurant.latitude}
+                            restaurantLng={order.restaurant.longitude}
+                            customerLat={order.delivery_latitude}
+                            customerLng={order.delivery_longitude}
+                            deliveryAddress={order.delivery_address}
+                          />
+                        </div>
+                      )}
                       <div className="pt-4 border-t">
                         <div className="flex justify-between font-semibold">
                           <span>Total:</span>
