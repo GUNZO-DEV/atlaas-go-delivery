@@ -107,9 +107,9 @@ export default function MerchantDashboard() {
       .select("role")
       .eq("user_id", user.id)
       .eq("role", "merchant")
-      .maybeSingle();
+      .limit(1);
 
-    if (!roles) {
+    if (!roles || roles.length === 0) {
       toast({
         title: "Access Denied",
         description: "You don't have merchant access",
@@ -128,10 +128,11 @@ export default function MerchantDashboard() {
         .from("restaurants")
         .select("*")
         .eq("merchant_id", user.id)
-        .maybeSingle();
+        .order("created_at", { ascending: false })
+        .limit(1);
 
       if (error) throw error;
-      setRestaurant(data);
+      setRestaurant((data && data[0]) || null);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -166,11 +167,13 @@ export default function MerchantDashboard() {
       // Fetch customer details separately
       const ordersWithCustomers = await Promise.all(
         (ordersData || []).map(async (order) => {
-          const { data: profile } = await supabase
+          const { data: profileArr } = await supabase
             .from("profiles")
             .select("full_name, phone")
             .eq("id", order.customer_id)
-            .maybeSingle();
+            .limit(1);
+
+          const profile = profileArr?.[0];
 
           return {
             ...order,
