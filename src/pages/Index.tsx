@@ -70,13 +70,13 @@ const Index = () => {
             <p className="text-muted-foreground">Join ATLAAS GO as a restaurant or rider</p>
           </div>
           <div className="flex gap-6 justify-center flex-wrap">
-            <Card className="w-full max-w-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/merchant-auth")}>
+            <Card className="w-full max-w-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/partner-restaurant")}>
               <CardContent className="p-8 text-center">
                 <Store className="w-16 h-16 text-primary mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-2">Restaurant Login</h3>
-                <p className="text-muted-foreground mb-6">Manage your menu, orders, and earnings</p>
+                <h3 className="text-2xl font-bold mb-2">Join as Restaurant</h3>
+                <p className="text-muted-foreground mb-6">Partner with us and reach thousands of customers</p>
                 <Button className="w-full" size="lg">
-                  Restaurant Portal
+                  Apply Now
                 </Button>
               </CardContent>
             </Card>
