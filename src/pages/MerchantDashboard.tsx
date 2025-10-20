@@ -22,6 +22,8 @@ interface Restaurant {
   name: string;
   image_url: string;
   is_active: boolean;
+  address: string;
+  phone: string;
 }
 
 interface MenuItem {
@@ -274,6 +276,29 @@ export default function MerchantDashboard() {
     });
   };
 
+  const playNotificationSound = () => {
+    // Create a simple notification beep
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+      console.error("Error playing notification sound:", error);
+    }
+  };
+
   const setupRealtimeSubscription = () => {
     if (!restaurant) return;
 
@@ -282,7 +307,26 @@ export default function MerchantDashboard() {
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "INSERT",
+          schema: "public",
+          table: "orders",
+          filter: `restaurant_id=eq.${restaurant.id}`,
+        },
+        (payload) => {
+          console.log("New order received!", payload);
+          playNotificationSound();
+          toast({
+            title: "🔔 New Order Received!",
+            description: "Check your orders tab for details",
+            duration: 10000,
+          });
+          fetchOrders();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
           schema: "public",
           table: "orders",
           filter: `restaurant_id=eq.${restaurant.id}`,
@@ -418,9 +462,191 @@ export default function MerchantDashboard() {
     }
   };
 
+  const printReceipt = (order: OrderWithCustomer) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast({
+        title: "Error",
+        description: "Please allow popups to print receipts",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const receiptHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Receipt - Order #${order.id.slice(0, 8)}</title>
+          <style>
+            @media print {
+              @page { margin: 0.5cm; }
+            }
+            body {
+              font-family: 'Courier New', monospace;
+              max-width: 80mm;
+              margin: 0 auto;
+              padding: 10px;
+              font-size: 12px;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px dashed #000;
+              padding-bottom: 10px;
+            }
+            .restaurant-name {
+              font-size: 18px;
+              font-weight: bold;
+              margin-bottom: 5px;
+            }
+            .order-info {
+              margin: 15px 0;
+              border-bottom: 1px dashed #000;
+              padding-bottom: 10px;
+            }
+            .info-row {
+              display: flex;
+              justify-content: space-between;
+              margin: 5px 0;
+            }
+            .items-table {
+              width: 100%;
+              margin: 15px 0;
+              border-bottom: 1px dashed #000;
+              padding-bottom: 10px;
+            }
+            .item-row {
+              display: flex;
+              justify-content: space-between;
+              margin: 8px 0;
+            }
+            .item-name {
+              flex: 1;
+              margin-right: 10px;
+            }
+            .item-qty {
+              width: 30px;
+              text-align: center;
+            }
+            .item-price {
+              width: 80px;
+              text-align: right;
+            }
+            .totals {
+              margin-top: 15px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              margin: 5px 0;
+            }
+            .total-row.grand-total {
+              font-weight: bold;
+              font-size: 14px;
+              border-top: 2px solid #000;
+              padding-top: 8px;
+              margin-top: 8px;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 20px;
+              border-top: 2px dashed #000;
+              padding-top: 10px;
+              font-size: 11px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="restaurant-name">${restaurant.name}</div>
+            <div>${restaurant.address}</div>
+            <div>${restaurant.phone}</div>
+          </div>
+
+          <div class="order-info">
+            <div class="info-row">
+              <span>Order #:</span>
+              <span>${order.id.slice(0, 8).toUpperCase()}</span>
+            </div>
+            <div class="info-row">
+              <span>Date:</span>
+              <span>${new Date(order.created_at).toLocaleString()}</span>
+            </div>
+            <div class="info-row">
+              <span>Customer:</span>
+              <span>${order.customer?.full_name || "Unknown"}</span>
+            </div>
+            <div class="info-row">
+              <span>Phone:</span>
+              <span>${order.customer?.phone || "N/A"}</span>
+            </div>
+            <div class="info-row">
+              <span>Status:</span>
+              <span>${order.status.toUpperCase()}</span>
+            </div>
+          </div>
+
+          <div class="items-table">
+            <div class="item-row" style="font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 5px;">
+              <span class="item-name">ITEM</span>
+              <span class="item-qty">QTY</span>
+              <span class="item-price">PRICE</span>
+            </div>
+            ${order.order_items.map((item) => `
+              <div class="item-row">
+                <span class="item-name">${item.menu_item?.name}</span>
+                <span class="item-qty">${item.quantity}</span>
+                <span class="item-price">${item.price.toFixed(2)} MAD</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="totals">
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span>${order.total_amount.toFixed(2)} MAD</span>
+            </div>
+            <div class="total-row">
+              <span>Delivery Fee:</span>
+              <span>${order.delivery_fee.toFixed(2)} MAD</span>
+            </div>
+            <div class="total-row">
+              <span>Commission:</span>
+              <span>-${(order.commission_amount || 0).toFixed(2)} MAD</span>
+            </div>
+            <div class="total-row grand-total">
+              <span>TOTAL:</span>
+              <span>${(Number(order.total_amount) + Number(order.delivery_fee) - Number(order.commission_amount || 0)).toFixed(2)} MAD</span>
+            </div>
+          </div>
+
+          <div class="footer">
+            <div>Thank you for your business!</div>
+            <div style="margin-top: 5px;">Delivery Address:</div>
+            <div>${order.delivery_address}</div>
+            ${order.notes ? `<div style="margin-top: 5px;">Notes: ${order.notes}</div>` : ''}
+          </div>
+
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              };
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(receiptHTML);
+    printWindow.document.close();
+  };
+
   const exportToExcel = (order: OrderWithCustomer) => {
     const csvContent = [
-      ["Atlas Tajine House - Receipt"],
+      [`${restaurant.name} - Receipt`],
       [""],
       ["Order ID", order.id],
       ["Date", new Date(order.created_at).toLocaleString()],
@@ -447,15 +673,16 @@ export default function MerchantDashboard() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `receipt-${order.id}.csv`;
+    a.download = `receipt-${order.id.slice(0, 8)}.csv`;
     a.click();
   };
 
   const sendReceiptEmail = async (order: OrderWithCustomer) => {
     toast({
-      title: "Email Feature",
-      description: "Email functionality would be integrated with Resend here",
+      title: "Print Receipt",
+      description: "Opening print dialog...",
     });
+    printReceipt(order);
   };
 
   const handleSignOut = async () => {
@@ -769,6 +996,14 @@ export default function MerchantDashboard() {
                       </div>
 
                       <div className="flex gap-2 pt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => printReceipt(order)}
+                          className="flex-1"
+                        >
+                          Print Receipt
+                        </Button>
                         {order.status === "pending" && (
                           <>
                             <Button
@@ -986,20 +1221,18 @@ export default function MerchantDashboard() {
                           </div>
                           <div className="flex gap-2">
                             <Button
+                              size="sm"
+                              onClick={() => printReceipt(order)}
+                            >
+                              Print Receipt
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => exportToExcel(order)}
                             >
                               <Download className="h-4 w-4 mr-1" />
-                              Export
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => sendReceiptEmail(order)}
-                            >
-                              <Mail className="h-4 w-4 mr-1" />
-                              Email
+                              Export CSV
                             </Button>
                           </div>
                         </div>
