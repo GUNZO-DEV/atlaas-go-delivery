@@ -87,6 +87,8 @@ export default function MerchantDashboard() {
     image_url: "",
   });
   const [addingItem, setAddingItem] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -318,18 +320,62 @@ export default function MerchantDashboard() {
     }
   };
 
+  const handleImageUpload = async (file: File) => {
+    if (!restaurant) return null;
+
+    setUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${restaurant.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError, data } = await supabase.storage
+        .from('menu-items')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('menu-items')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error: any) {
+      toast({
+        title: "Error uploading image",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const addMenuItem = async () => {
     if (!restaurant) return;
 
     setAddingItem(true);
     try {
+      let imageUrl = newItem.image_url;
+
+      // Upload image if file is selected
+      if (imageFile) {
+        const uploadedUrl = await handleImageUpload(imageFile);
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+
       const { error } = await supabase.from("menu_items").insert({
         restaurant_id: restaurant.id,
         name: newItem.name,
         description: newItem.description,
         price: parseFloat(newItem.price),
         category: newItem.category,
-        image_url: newItem.image_url || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400`,
+        image_url: imageUrl || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400`,
         is_available: true,
       });
 
@@ -341,6 +387,7 @@ export default function MerchantDashboard() {
       });
 
       setNewItem({ name: "", description: "", price: "", category: "Main Course", image_url: "" });
+      setImageFile(null);
       fetchMenuItems();
     } catch (error: any) {
       toast({
@@ -825,20 +872,51 @@ export default function MerchantDashboard() {
                             </SelectContent>
                           </Select>
                         </div>
-                        <div>
-                          <Label>Image URL (optional)</Label>
-                          <Input
-                            value={newItem.image_url}
-                            onChange={(e) => setNewItem({ ...newItem, image_url: e.target.value })}
-                            placeholder="https://..."
-                          />
+                        <div className="space-y-2">
+                          <Label>Image</Label>
+                          <div className="space-y-2">
+                            <Input
+                              type="file"
+                              accept="image/jpeg,image/jpg,image/png,image/webp"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setImageFile(file);
+                                  setNewItem({ ...newItem, image_url: "" });
+                                }
+                              }}
+                            />
+                            {imageFile && (
+                              <p className="text-sm text-muted-foreground">
+                                Selected: {imageFile.name}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-2">
+                              <div className="h-px bg-border flex-1" />
+                              <span className="text-xs text-muted-foreground">OR</span>
+                              <div className="h-px bg-border flex-1" />
+                            </div>
+                            <Input
+                              value={newItem.image_url}
+                              onChange={(e) => {
+                                setNewItem({ ...newItem, image_url: e.target.value });
+                                setImageFile(null);
+                              }}
+                              placeholder="Paste image URL..."
+                              disabled={!!imageFile}
+                            />
+                          </div>
                         </div>
                         <Button
                           className="w-full"
                           onClick={addMenuItem}
-                          disabled={!newItem.name || !newItem.price || addingItem}
+                          disabled={!newItem.name || !newItem.price || addingItem || uploadingImage}
                         >
-                          {addingItem ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add Item"}
+                          {addingItem || uploadingImage ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "Add Item"
+                          )}
                         </Button>
                       </div>
                     </DialogContent>
