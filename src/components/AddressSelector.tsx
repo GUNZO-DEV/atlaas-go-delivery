@@ -159,15 +159,39 @@ export default function AddressSelector({
         
         await reverseGeocode(lng, lat);
         setIsLoadingLocation(false);
+        
+        toast({
+          title: 'Location found!',
+          description: 'Using your current location',
+        });
       },
       (error) => {
         console.error('Geolocation error:', error);
+        let errorMessage = 'Please enable location access in your browser settings';
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Location access denied. Please allow location access in your browser settings and try again.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information unavailable. Please try again or search for your address.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out. Please try again.';
+            break;
+        }
+        
         toast({
-          title: 'Location access denied',
-          description: 'Please enable location access in your browser',
+          title: 'Cannot access location',
+          description: errorMessage,
           variant: 'destructive',
         });
         setIsLoadingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
       }
     );
   };
