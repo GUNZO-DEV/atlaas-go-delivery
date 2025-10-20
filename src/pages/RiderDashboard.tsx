@@ -308,8 +308,27 @@ export default function RiderDashboard() {
     }
   };
 
-  const openNavigation = (lat: number, lng: number) => {
-    window.open(`https://www.openstreetmap.org/directions?to=${lat},${lng}`, "_blank");
+  const openNavigation = (lat: number | null, lng: number | null) => {
+    if (!lat || !lng) {
+      toast({
+        title: "Navigation Unavailable",
+        description: "Delivery coordinates are missing. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Use geo: protocol which opens native maps on mobile, OpenStreetMap on desktop
+    const geoUrl = `geo:${lat},${lng}`;
+    const fallbackUrl = `https://www.openstreetmap.org/directions?to=${lat},${lng}`;
+    
+    // Try geo: protocol first (works on mobile)
+    window.location.href = geoUrl;
+    
+    // Fallback to OpenStreetMap after a short delay if geo: doesn't work
+    setTimeout(() => {
+      window.open(fallbackUrl, "_blank");
+    }, 1000);
   };
 
   const handleSignOut = async () => {
