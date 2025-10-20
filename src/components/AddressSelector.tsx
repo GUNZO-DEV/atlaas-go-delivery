@@ -7,6 +7,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Search, Navigation, MapPin, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// Fix Leaflet default icon paths
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
 interface AddressSelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -14,17 +22,20 @@ interface AddressSelectorProps {
   initialAddress?: string;
 }
 
-// Custom draggable marker icon
+// Custom draggable marker icon with inline styles to ensure visibility
 const customIcon = L.divIcon({
   html: `
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M24 0C15.168 0 8 7.168 8 16C8 28 24 48 24 48C24 48 40 28 40 16C40 7.168 32.832 0 24 0Z" fill="hsl(15 75% 55%)"/>
-      <circle cx="24" cy="16" r="6" fill="white"/>
-    </svg>
+    <div style="position: relative; width: 48px; height: 48px;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+        <path d="M24 0C15.168 0 8 7.168 8 16C8 28 24 48 24 48C24 48 40 28 40 16C40 7.168 32.832 0 24 0Z" fill="#f97316"/>
+        <circle cx="24" cy="16" r="6" fill="white"/>
+      </svg>
+    </div>
   `,
-  className: 'custom-pin-icon',
+  className: '',
   iconSize: [48, 48],
   iconAnchor: [24, 48],
+  popupAnchor: [0, -48],
 });
 
 export default function AddressSelector({ 
