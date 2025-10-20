@@ -39,12 +39,40 @@ export default function OrderChat({ orderId, userType }: OrderChatProps) {
     checkAuth();
   }, [orderId]);
 
+  useEffect(() => {
+    if (!user || !orderId) return;
+
+    fetchMessages();
+    
+    const channel = supabase
+      .channel(`chat-${orderId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `order_id=eq.${orderId}`,
+        },
+        (payload) => {
+          console.log('New message received:', payload);
+          const newMsg = payload.new as Message;
+          setMessages(prev => [...prev, newMsg]);
+          scrollToBottom();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up chat subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [user, orderId]);
+
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       setUser(user);
-      fetchMessages();
-      setupRealtimeSubscription();
     }
   };
 
@@ -62,30 +90,6 @@ export default function OrderChat({ orderId, userType }: OrderChatProps) {
     } catch (error: any) {
       console.error("Error fetching messages:", error);
     }
-  };
-
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel(`chat-${orderId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-          filter: `order_id=eq.${orderId}`,
-        },
-        (payload) => {
-          const newMsg = payload.new as Message;
-          setMessages(prev => [...prev, newMsg]);
-          scrollToBottom();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   };
 
   const scrollToBottom = () => {
