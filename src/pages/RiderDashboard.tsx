@@ -309,7 +309,7 @@ export default function RiderDashboard() {
   };
 
   const openNavigation = (lat: number, lng: number) => {
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, "_blank");
+    window.open(`https://www.openstreetmap.org/directions?to=${lat},${lng}`, "_blank");
   };
 
   const handleSignOut = async () => {
