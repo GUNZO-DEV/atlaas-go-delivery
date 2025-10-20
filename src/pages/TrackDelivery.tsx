@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, MapPin, Navigation, Clock } from "lucide-react";
 import OrderChat from "@/components/OrderChat";
+import LiveTrackingMap from "@/components/LiveTrackingMap";
 
 interface TrackingData {
   status: string;
@@ -32,7 +33,15 @@ export default function TrackDelivery() {
     try {
       const { data, error } = await supabase
         .from("orders")
-        .select("*")
+        .select(`
+          *,
+          restaurant:restaurants(
+            id,
+            name,
+            latitude,
+            longitude
+          )
+        `)
         .eq("id", orderId)
         .single();
 
@@ -140,18 +149,25 @@ export default function TrackDelivery() {
               </div>
             </div>
 
-            {tracking.current_latitude && tracking.current_longitude && (
-              <div className="space-y-2">
-                <p className="font-medium flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  Current Location
-                </p>
-                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                  <p className="text-muted-foreground">
-                    Lat: {tracking.current_latitude}, Lng: {tracking.current_longitude}
-                  </p>
-                </div>
+            <div className="space-y-2">
+              <p className="font-medium flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                Live Tracking Map
+              </p>
+              <div className="h-[400px] rounded-lg overflow-hidden border border-border">
+                <LiveTrackingMap
+                  riderLat={tracking.current_latitude || undefined}
+                  riderLng={tracking.current_longitude || undefined}
+                  restaurantLat={order?.restaurant?.latitude}
+                  restaurantLng={order?.restaurant?.longitude}
+                  customerLat={order?.delivery_latitude || undefined}
+                  customerLng={order?.delivery_longitude || undefined}
+                  deliveryAddress={order?.delivery_address}
+                />
+              </div>
+              {tracking.current_latitude && tracking.current_longitude && (
                 <Button
+                  variant="outline"
                   className="w-full"
                   onClick={() =>
                     window.open(
@@ -160,10 +176,10 @@ export default function TrackDelivery() {
                     )
                   }
                 >
-                  View on Google Maps
+                  Open in Google Maps
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
 
             {order && (
               <div className="pt-4 border-t">
