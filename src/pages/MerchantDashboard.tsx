@@ -682,24 +682,33 @@ export default function MerchantDashboard() {
                   <div key={category} className="mb-6">
                     <h3 className="text-lg font-semibold mb-3">{category}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {items.map((item) => (
-                        <Card key={item.id}>
-                          <CardContent className="p-4">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <h4 className="font-semibold">{item.name}</h4>
-                                <p className="text-sm text-muted-foreground">{item.description}</p>
-                                <p className="font-bold mt-2">{item.price} MAD</p>
-                              </div>
-                              <Button
-                                variant={item.is_available ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => toggleMenuItem(item.id, item.is_available)}
-                              >
-                                {item.is_available ? "Available" : "Unavailable"}
-                              </Button>
+                       {items.map((item) => (
+                        <Card key={item.id} className="overflow-hidden">
+                          <div className="flex gap-4 p-4">
+                            <div className="w-24 h-24 flex-shrink-0">
+                              <img
+                                src={item.image_url}
+                                alt={item.name}
+                                className="w-full h-full object-cover rounded-md"
+                              />
                             </div>
-                          </CardContent>
+                            <CardContent className="p-0 flex-1">
+                              <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                  <h4 className="font-semibold">{item.name}</h4>
+                                  <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                                  <p className="font-bold mt-2">{item.price} MAD</p>
+                                </div>
+                                <Button
+                                  variant={item.is_available ? "default" : "outline"}
+                                  size="sm"
+                                  onClick={() => toggleMenuItem(item.id, item.is_available)}
+                                >
+                                  {item.is_available ? "Available" : "Unavailable"}
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </div>
                         </Card>
                       ))}
                     </div>
