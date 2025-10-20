@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import * as atlas from 'azure-maps-control';
+import 'azure-maps-control/dist/atlas.min.css';
 
 interface LiveTrackingMapProps {
   restaurantLat?: number;
@@ -22,49 +22,71 @@ const LiveTrackingMap = ({
   deliveryAddress
 }: LiveTrackingMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const riderMarker = useRef<mapboxgl.Marker | null>(null);
+  const map = useRef<atlas.Map | null>(null);
+  const riderMarker = useRef<atlas.HtmlMarker | null>(null);
+  const restaurantMarker = useRef<atlas.HtmlMarker | null>(null);
+  const customerMarker = useRef<atlas.HtmlMarker | null>(null);
+  const lineLayer = useRef<atlas.layer.LineLayer | null>(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN || '';
-
     // Initialize map centered on Morocco
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-6.8498, 34.0209], // Morocco coordinates
+    map.current = new atlas.Map(mapContainer.current, {
+      center: [-6.8498, 34.0209],
       zoom: 12,
+      language: 'en-US',
+      authOptions: {
+        authType: atlas.AuthenticationType.subscriptionKey,
+        subscriptionKey: import.meta.env.VITE_AZURE_MAPS_KEY || ''
+      }
     });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.current.events.add('ready', () => {
+      if (!map.current) return;
 
-    // Add markers when coordinates are available
-    if (restaurantLat && restaurantLng) {
-      const restaurantEl = document.createElement('div');
-      restaurantEl.className = 'w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center shadow-lg';
-      restaurantEl.innerHTML = '<span class="text-white text-xl">🍽️</span>';
-      
-      new mapboxgl.Marker(restaurantEl)
-        .setLngLat([restaurantLng, restaurantLat])
-        .setPopup(new mapboxgl.Popup().setHTML('<h3 class="font-semibold">Restaurant</h3>'))
-        .addTo(map.current);
-    }
+      // Add zoom controls
+      map.current.controls.add(new atlas.control.ZoomControl(), {
+        position: atlas.ControlPosition.TopRight
+      });
 
-    if (customerLat && customerLng) {
-      const customerEl = document.createElement('div');
-      customerEl.className = 'w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-lg';
-      customerEl.innerHTML = '<span class="text-white text-xl">📍</span>';
-      
-      new mapboxgl.Marker(customerEl)
-        .setLngLat([customerLng, customerLat])
-        .setPopup(new mapboxgl.Popup().setHTML(`<h3 class="font-semibold">Delivery Location</h3><p class="text-sm">${deliveryAddress || ''}</p>`))
-        .addTo(map.current);
-    }
+      // Add restaurant marker
+      if (restaurantLat && restaurantLng) {
+        const restaurantEl = document.createElement('div');
+        restaurantEl.className = 'w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center shadow-lg';
+        restaurantEl.innerHTML = '<span class="text-white text-xl">🍽️</span>';
+        
+        restaurantMarker.current = new atlas.HtmlMarker({
+          position: [restaurantLng, restaurantLat],
+          htmlContent: restaurantEl.outerHTML,
+          popup: new atlas.Popup({
+            content: '<div class="p-2"><h3 class="font-semibold">Restaurant</h3></div>',
+            pixelOffset: [0, -30]
+          })
+        });
+        map.current.markers.add(restaurantMarker.current);
+      }
+
+      // Add customer marker
+      if (customerLat && customerLng) {
+        const customerEl = document.createElement('div');
+        customerEl.className = 'w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-lg';
+        customerEl.innerHTML = '<span class="text-white text-xl">📍</span>';
+        
+        customerMarker.current = new atlas.HtmlMarker({
+          position: [customerLng, customerLat],
+          htmlContent: customerEl.outerHTML,
+          popup: new atlas.Popup({
+            content: `<div class="p-2"><h3 class="font-semibold">Delivery Location</h3><p class="text-sm">${deliveryAddress || ''}</p></div>`,
+            pixelOffset: [0, -30]
+          })
+        });
+        map.current.markers.add(customerMarker.current);
+      }
+    });
 
     return () => {
-      map.current?.remove();
+      map.current?.dispose();
     };
   }, []);
 
@@ -72,74 +94,71 @@ const LiveTrackingMap = ({
   useEffect(() => {
     if (!map.current || !riderLat || !riderLng) return;
 
-    if (!riderMarker.current) {
-      const riderEl = document.createElement('div');
-      riderEl.className = 'w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-xl animate-pulse';
-      riderEl.innerHTML = '<span class="text-white text-2xl">🏍️</span>';
-      
-      riderMarker.current = new mapboxgl.Marker(riderEl)
-        .setLngLat([riderLng, riderLat])
-        .setPopup(new mapboxgl.Popup().setHTML('<h3 class="font-semibold">Rider Location</h3><p class="text-sm">Live tracking</p>'))
-        .addTo(map.current);
-      
-      // Center map on rider
-      map.current.flyTo({
-        center: [riderLng, riderLat],
-        zoom: 14,
-        essential: true
-      });
-    } else {
-      // Smoothly move marker to new position
-      riderMarker.current.setLngLat([riderLng, riderLat]);
-      
-      // Keep rider in view
-      map.current.panTo([riderLng, riderLat]);
-    }
+    map.current.events.add('ready', () => {
+      if (!map.current) return;
 
-    // Draw route if all coordinates available
-    if (map.current && restaurantLat && restaurantLng && customerLat && customerLng) {
-      const coordinates = [
-        [restaurantLng, restaurantLat],
-        [riderLng, riderLat],
-        [customerLng, customerLat]
-      ];
-
-      if (map.current.getSource('route')) {
-        (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData({
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates
-          }
+      if (!riderMarker.current) {
+        const riderEl = document.createElement('div');
+        riderEl.className = 'w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-xl animate-pulse';
+        riderEl.innerHTML = '<span class="text-white text-2xl">🏍️</span>';
+        
+        riderMarker.current = new atlas.HtmlMarker({
+          position: [riderLng, riderLat],
+          htmlContent: riderEl.outerHTML,
+          popup: new atlas.Popup({
+            content: '<div class="p-2"><h3 class="font-semibold">Rider Location</h3><p class="text-sm">Live tracking</p></div>',
+            pixelOffset: [0, -30]
+          })
+        });
+        map.current.markers.add(riderMarker.current);
+        
+        // Center map on rider
+        map.current.setCamera({
+          center: [riderLng, riderLat],
+          zoom: 14
         });
       } else {
-        map.current.addLayer({
-          id: 'route',
-          type: 'line',
-          source: {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'LineString',
-                coordinates
-              }
-            }
-          },
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#10b981',
-            'line-width': 4,
-            'line-dasharray': [2, 2]
-          }
+        // Update marker position
+        riderMarker.current.setOptions({
+          position: [riderLng, riderLat]
+        });
+        
+        // Keep rider in view
+        map.current.setCamera({
+          center: [riderLng, riderLat]
         });
       }
-    }
+
+      // Draw route if all coordinates available
+      if (restaurantLat && restaurantLng && customerLat && customerLng) {
+        const dataSource = map.current.sources.getById('route-source') as atlas.source.DataSource;
+        
+        if (dataSource) {
+          dataSource.clear();
+          dataSource.add(new atlas.data.LineString([
+            [restaurantLng, restaurantLat],
+            [riderLng, riderLat],
+            [customerLng, customerLat]
+          ]));
+        } else {
+          const newDataSource = new atlas.source.DataSource('route-source');
+          map.current.sources.add(newDataSource);
+          
+          newDataSource.add(new atlas.data.LineString([
+            [restaurantLng, restaurantLat],
+            [riderLng, riderLat],
+            [customerLng, customerLat]
+          ]));
+          
+          lineLayer.current = new atlas.layer.LineLayer(newDataSource, 'route-layer', {
+            strokeColor: '#10b981',
+            strokeWidth: 4,
+            strokeDashArray: [2, 2]
+          });
+          map.current.layers.add(lineLayer.current);
+        }
+      }
+    });
   }, [riderLat, riderLng, restaurantLat, restaurantLng, customerLat, customerLng]);
 
   return (

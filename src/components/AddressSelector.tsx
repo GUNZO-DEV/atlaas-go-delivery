@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import * as atlas from 'azure-maps-control';
+import 'azure-maps-control/dist/atlas.min.css';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -21,8 +21,8 @@ export default function AddressSelector({
   initialAddress 
 }: AddressSelectorProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const marker = useRef<mapboxgl.Marker | null>(null);
+  const map = useRef<atlas.Map | null>(null);
+  const marker = useRef<atlas.HtmlMarker | null>(null);
   const { toast } = useToast();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,78 +31,90 @@ export default function AddressSelector({
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
 
+  const azureMapsKey = import.meta.env.VITE_AZURE_MAPS_KEY || '';
+
   useEffect(() => {
     if (!open || !mapContainer.current) return;
 
-    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN || '';
-
     // Initialize map
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+    map.current = new atlas.Map(mapContainer.current, {
       center: selectedCoords,
       zoom: 14,
+      language: 'en-US',
+      authOptions: {
+        authType: atlas.AuthenticationType.subscriptionKey,
+        subscriptionKey: azureMapsKey
+      }
     });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.current.events.add('ready', () => {
+      if (!map.current) return;
 
-    // Add draggable marker
-    const el = document.createElement('div');
-    el.className = 'w-12 h-12 flex items-center justify-center';
-    el.innerHTML = `
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M24 0C15.168 0 8 7.168 8 16C8 28 24 48 24 48C24 48 40 28 40 16C40 7.168 32.832 0 24 0Z" fill="hsl(15 75% 55%)"/>
-        <circle cx="24" cy="16" r="6" fill="white"/>
-      </svg>
-    `;
+      // Add zoom controls
+      map.current.controls.add(new atlas.control.ZoomControl(), {
+        position: atlas.ControlPosition.TopRight
+      });
 
-    marker.current = new mapboxgl.Marker({
-      element: el,
-      draggable: true,
-    })
-      .setLngLat(selectedCoords)
-      .addTo(map.current);
+      // Add draggable marker
+      const markerEl = document.createElement('div');
+      markerEl.innerHTML = `
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 0C15.168 0 8 7.168 8 16C8 28 24 48 24 48C24 48 40 28 40 16C40 7.168 32.832 0 24 0Z" fill="hsl(15 75% 55%)"/>
+          <circle cx="24" cy="16" r="6" fill="white"/>
+        </svg>
+      `;
 
-    // Update address when marker is dragged
-    marker.current.on('dragend', async () => {
-      const lngLat = marker.current!.getLngLat();
-      setSelectedCoords([lngLat.lng, lngLat.lat]);
-      await reverseGeocode(lngLat.lng, lngLat.lat);
+      marker.current = new atlas.HtmlMarker({
+        draggable: true,
+        position: selectedCoords,
+        htmlContent: markerEl.innerHTML
+      });
+
+      map.current.markers.add(marker.current);
+
+      // Update address when marker is dragged
+      map.current.events.add('dragend', marker.current, async () => {
+        const position = marker.current!.getOptions().position as atlas.data.Position;
+        setSelectedCoords([position[0], position[1]]);
+        await reverseGeocode(position[0], position[1]);
+      });
+
+      // Update address when map is clicked
+      map.current.events.add('click', async (e: atlas.MapMouseEvent) => {
+        if (e.position) {
+          marker.current?.setOptions({ position: e.position });
+          setSelectedCoords([e.position[0], e.position[1]]);
+          await reverseGeocode(e.position[0], e.position[1]);
+        }
+      });
+
+      // Get initial address for default location
+      reverseGeocode(selectedCoords[0], selectedCoords[1]);
     });
-
-    // Update address when map is clicked
-    map.current.on('click', async (e) => {
-      marker.current?.setLngLat([e.lngLat.lng, e.lngLat.lat]);
-      setSelectedCoords([e.lngLat.lng, e.lngLat.lat]);
-      await reverseGeocode(e.lngLat.lng, e.lngLat.lat);
-    });
-
-    // Get initial address for default location
-    reverseGeocode(selectedCoords[0], selectedCoords[1]);
 
     return () => {
-      map.current?.remove();
+      map.current?.dispose();
     };
   }, [open]);
 
   const reverseGeocode = async (lng: number, lat: number) => {
     try {
       console.log('Starting reverse geocode with:', { lng, lat });
-      console.log('Mapbox token:', mapboxgl.accessToken ? 'Token exists' : 'NO TOKEN');
+      console.log('Azure Maps key:', azureMapsKey ? 'Key exists' : 'NO KEY');
       
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}`
+        `https://atlas.microsoft.com/search/address/reverse/json?api-version=1.0&subscription-key=${azureMapsKey}&query=${lat},${lng}`
       );
       const data = await response.json();
       
       console.log('Geocoding response:', data);
       
-      if (data.features && data.features.length > 0) {
-        const address = data.features[0].place_name;
+      if (data.addresses && data.addresses.length > 0) {
+        const address = data.addresses[0].address.freeformAddress;
         console.log('Setting address:', address);
         setSelectedAddress(address);
       } else {
-        console.error('No features in geocoding response');
+        console.error('No addresses in geocoding response');
         toast({
           title: 'Address not found',
           description: 'Unable to determine address for this location',
@@ -125,18 +137,24 @@ export default function AddressSelector({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxgl.accessToken}&country=MA&proximity=-7.5898,33.5731`
+        `https://atlas.microsoft.com/search/address/json?api-version=1.0&subscription-key=${azureMapsKey}&query=${encodeURIComponent(searchQuery)}&countrySet=MA`
       );
       const data = await response.json();
 
-      if (data.features && data.features.length > 0) {
-        const [lng, lat] = data.features[0].center;
+      if (data.results && data.results.length > 0) {
+        const position = data.results[0].position;
+        const lng = position.lon;
+        const lat = position.lat;
+        
         setSelectedCoords([lng, lat]);
-        setSelectedAddress(data.features[0].place_name);
+        setSelectedAddress(data.results[0].address.freeformAddress);
         
         // Update map and marker
-        map.current?.flyTo({ center: [lng, lat], zoom: 15 });
-        marker.current?.setLngLat([lng, lat]);
+        map.current?.setCamera({ 
+          center: [lng, lat], 
+          zoom: 15 
+        });
+        marker.current?.setOptions({ position: [lng, lat] });
       } else {
         toast({
           title: 'Address not found',
@@ -173,8 +191,11 @@ export default function AddressSelector({
         const lat = position.coords.latitude;
         
         setSelectedCoords([lng, lat]);
-        map.current?.flyTo({ center: [lng, lat], zoom: 15 });
-        marker.current?.setLngLat([lng, lat]);
+        map.current?.setCamera({ 
+          center: [lng, lat], 
+          zoom: 15 
+        });
+        marker.current?.setOptions({ position: [lng, lat] });
         
         await reverseGeocode(lng, lat);
         setIsLoadingLocation(false);
