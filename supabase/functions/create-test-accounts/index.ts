@@ -53,6 +53,15 @@ serve(async (req) => {
       console.log('Created merchant:', merchantId);
     }
 
+    // Ensure merchant role is assigned
+    const { error: merchantRoleError } = await supabaseAdmin
+      .from('user_roles')
+      .upsert({ user_id: merchantId, role: 'merchant' }, { onConflict: 'user_id,role' });
+
+    if (merchantRoleError) {
+      console.error('Merchant role error:', merchantRoleError);
+    }
+
     // Create or get rider account
     let riderId: string;
     const riderExists = existingMerchant?.users.find(u => u.email === 'rider@test.com');
@@ -81,6 +90,15 @@ serve(async (req) => {
       console.log('Created rider:', riderId);
     }
 
+    // Ensure rider role is assigned
+    const { error: riderRoleError } = await supabaseAdmin
+      .from('user_roles')
+      .upsert({ user_id: riderId, role: 'rider' }, { onConflict: 'user_id,role' });
+
+    if (riderRoleError) {
+      console.error('Rider role error:', riderRoleError);
+    }
+
     // Create or get customer account
     let customerId: string;
     const customerExists = existingMerchant?.users.find(u => u.email === 'customer@test.com');
@@ -107,6 +125,15 @@ serve(async (req) => {
 
       customerId = customerAuth.user.id;
       console.log('Created customer:', customerId);
+    }
+
+    // Ensure customer role is assigned
+    const { error: customerRoleError } = await supabaseAdmin
+      .from('user_roles')
+      .upsert({ user_id: customerId, role: 'customer' }, { onConflict: 'user_id,role' });
+
+    if (customerRoleError) {
+      console.error('Customer role error:', customerRoleError);
     }
 
     // Create or get restaurant for merchant
