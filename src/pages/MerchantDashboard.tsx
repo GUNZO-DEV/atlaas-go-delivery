@@ -170,7 +170,7 @@ export default function MerchantDashboard() {
             .from("profiles")
             .select("full_name, phone")
             .eq("id", order.customer_id)
-            .single();
+            .maybeSingle();
 
           return {
             ...order,
