@@ -87,16 +87,35 @@ export default function AddressSelector({
 
   const reverseGeocode = async (lng: number, lat: number) => {
     try {
+      console.log('Starting reverse geocode with:', { lng, lat });
+      console.log('Mapbox token:', mapboxgl.accessToken ? 'Token exists' : 'NO TOKEN');
+      
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}`
       );
       const data = await response.json();
       
+      console.log('Geocoding response:', data);
+      
       if (data.features && data.features.length > 0) {
-        setSelectedAddress(data.features[0].place_name);
+        const address = data.features[0].place_name;
+        console.log('Setting address:', address);
+        setSelectedAddress(address);
+      } else {
+        console.error('No features in geocoding response');
+        toast({
+          title: 'Address not found',
+          description: 'Unable to determine address for this location',
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       console.error('Reverse geocoding error:', error);
+      toast({
+        title: 'Geocoding failed',
+        description: 'Unable to get address. Please search manually.',
+        variant: 'destructive',
+      });
     }
   };
 
