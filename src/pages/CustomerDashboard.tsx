@@ -6,11 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Package, Clock, CheckCircle, Star, RotateCcw } from "lucide-react";
+import { Loader2, MapPin, Package, Clock, CheckCircle, Star, RotateCcw, Wallet, CreditCard, Banknote, Smartphone } from "lucide-react";
 import ReviewDialog from "@/components/ReviewDialog";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
 import LoyaltyCard from "@/components/LoyaltyCard";
+import WalletCard from "@/components/WalletCard";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
 
 interface Order {
@@ -23,6 +24,8 @@ interface Order {
   estimated_delivery_time: number;
   restaurant_id: string;
   rider_id?: string;
+  payment_method?: string;
+  payment_status?: string;
   restaurant: {
     id: string;
     name: string;
@@ -156,6 +159,21 @@ export default function CustomerDashboard() {
     }
   };
 
+  const getPaymentMethodInfo = (method?: string) => {
+    switch (method) {
+      case "cash":
+        return { icon: Banknote, label: "Cash", color: "text-green-600" };
+      case "card":
+        return { icon: CreditCard, label: "Card", color: "text-blue-600" };
+      case "cih_pay":
+        return { icon: Smartphone, label: "CIH Pay", color: "text-orange-600" };
+      case "wallet":
+        return { icon: Wallet, label: "Wallet", color: "text-purple-600" };
+      default:
+        return { icon: Banknote, label: "Cash", color: "text-green-600" };
+    }
+  };
+
   const filterOrders = (status?: string) => {
     if (!status) return orders;
     return orders.filter((order) => order.status === status);
@@ -216,8 +234,9 @@ export default function CustomerDashboard() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <LoyaltyCard />
+          <WalletCard />
         </div>
 
         <Tabs defaultValue="all" className="w-full">
@@ -271,10 +290,28 @@ export default function CustomerDashboard() {
                           </p>
                         ))}
                       </div>
-                      <div className="pt-4 border-t">
-                        <div className="flex justify-between font-semibold mb-4">
-                          <span>Total:</span>
-                          <span>{order.total_amount + order.delivery_fee} MAD</span>
+                      <div className="pt-4 border-t space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground flex items-center gap-1">
+                            {(() => {
+                              const paymentInfo = getPaymentMethodInfo(order.payment_method);
+                              const PaymentIcon = paymentInfo.icon;
+                              return (
+                                <>
+                                  <PaymentIcon className={`h-4 w-4 ${paymentInfo.color}`} />
+                                  {paymentInfo.label}
+                                  {order.payment_status === "completed" && (
+                                    <Badge variant="secondary" className="ml-2 text-xs bg-green-100 text-green-800">
+                                      Paid
+                                    </Badge>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </span>
+                          <span className="font-semibold">
+                            {order.total_amount + order.delivery_fee} MAD
+                          </span>
                         </div>
                         <div className="flex gap-2">
                           {["confirmed", "preparing", "ready", "picked_up"].includes(order.status) && (

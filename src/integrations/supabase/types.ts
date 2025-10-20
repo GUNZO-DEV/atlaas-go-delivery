@@ -364,6 +364,7 @@ export type Database = {
           id: string
           notes: string | null
           payment_method: string | null
+          payment_status: string | null
           promo_code: string | null
           restaurant_id: string
           rider_id: string | null
@@ -385,6 +386,7 @@ export type Database = {
           id?: string
           notes?: string | null
           payment_method?: string | null
+          payment_status?: string | null
           promo_code?: string | null
           restaurant_id: string
           rider_id?: string | null
@@ -406,6 +408,7 @@ export type Database = {
           id?: string
           notes?: string | null
           payment_method?: string | null
+          payment_status?: string | null
           promo_code?: string | null
           restaurant_id?: string
           rider_id?: string | null
@@ -433,6 +436,7 @@ export type Database = {
           loyalty_points: number | null
           phone: string | null
           updated_at: string
+          wallet_balance: number | null
         }
         Insert: {
           avatar_url?: string | null
@@ -442,6 +446,7 @@ export type Database = {
           loyalty_points?: number | null
           phone?: string | null
           updated_at?: string
+          wallet_balance?: number | null
         }
         Update: {
           avatar_url?: string | null
@@ -451,6 +456,7 @@ export type Database = {
           loyalty_points?: number | null
           phone?: string | null
           updated_at?: string
+          wallet_balance?: number | null
         }
         Relationships: []
       }
@@ -891,6 +897,44 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          order_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -955,6 +999,7 @@ export type Database = {
         | "delivered"
         | "cancelled"
         | "picking_it_up"
+      payment_method_type: "cash" | "card" | "cih_pay" | "wallet"
       user_role: "customer" | "merchant" | "rider" | "admin"
     }
     CompositeTypes: {
@@ -1101,6 +1146,7 @@ export const Constants = {
         "cancelled",
         "picking_it_up",
       ],
+      payment_method_type: ["cash", "card", "cih_pay", "wallet"],
       user_role: ["customer", "merchant", "rider", "admin"],
     },
   },

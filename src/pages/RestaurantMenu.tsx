@@ -32,6 +32,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import AddressSelector from "@/components/AddressSelector";
+import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 
 interface MenuItem {
   id: string;
@@ -376,21 +377,31 @@ export default function RestaurantMenu() {
 
     setIsOrdering(true);
     try {
-      const { subtotal, deliveryFee } = getTotal();
+      const { subtotal, deliveryFee, total } = getTotal();
 
-      console.log("Creating order:", {
-        customer_id: user.id,
-        restaurant_id: restaurant!.id,
-        total_amount: subtotal,
-        delivery_fee: deliveryFee,
-        delivery_address: deliveryAddress,
-        notes: notes || null,
-        status: "pending",
-        scheduled_for: scheduledDate || null,
-        promo_code: appliedPromo?.code || null,
-        discount_amount: appliedPromo ? getTotal().discount : 0,
-        payment_method: paymentMethod,
-      });
+      // Handle wallet payment - check balance first
+      if (paymentMethod === "wallet") {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("wallet_balance")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        if (!profile || profile.wallet_balance < total) {
+          toast({
+            title: "Insufficient wallet balance",
+            description: "Please top up your wallet or choose another payment method",
+            variant: "destructive",
+          });
+          setIsOrdering(false);
+          return;
+        }
+      }
+
+      // Determine payment status
+      const paymentStatus = paymentMethod === "wallet" ? "completed" : "pending";
 
       // Create order
       const { data: order, error: orderError } = await supabase
@@ -401,17 +412,18 @@ export default function RestaurantMenu() {
           total_amount: subtotal,
           delivery_fee: deliveryFee,
           delivery_address: deliveryAddress,
+          delivery_latitude: deliveryLat,
+          delivery_longitude: deliveryLng,
           notes: notes || null,
           status: "pending" as const,
           scheduled_for: scheduledDate?.toISOString() || null,
           promo_code: appliedPromo?.code || null,
           discount_amount: appliedPromo ? getTotal().discount : 0,
           payment_method: paymentMethod,
+          payment_status: paymentStatus,
         }])
         .select()
         .single();
-
-      console.log("Order created:", order, "Error:", orderError);
 
       if (orderError) throw orderError;
 
@@ -424,23 +436,65 @@ export default function RestaurantMenu() {
         special_instructions: item.special_instructions || null,
       }));
 
-      console.log("Creating order items:", orderItems);
-
       const { error: itemsError } = await supabase
         .from("order_items")
         .insert(orderItems);
 
-      console.log("Order items created, Error:", itemsError);
-
       if (itemsError) throw itemsError;
 
-      toast({
-        title: "Order placed!",
-        description: "Your order has been placed successfully",
-      });
+      // Process wallet payment
+      if (paymentMethod === "wallet") {
+        // Get current balance
+        const { data: currentProfile, error: balanceError } = await supabase
+          .from("profiles")
+          .select("wallet_balance")
+          .eq("id", user.id)
+          .single();
+
+        if (balanceError) throw balanceError;
+
+        // Deduct from wallet
+        const newBalance = (currentProfile.wallet_balance || 0) - total;
+        const { error: walletError } = await supabase
+          .from("profiles")
+          .update({ wallet_balance: newBalance })
+          .eq("id", user.id);
+
+        if (walletError) throw walletError;
+
+        // Record transaction
+        const { error: txError } = await supabase
+          .from("wallet_transactions")
+          .insert({
+            user_id: user.id,
+            amount: -total,
+            transaction_type: "debit",
+            description: `Payment for order #${order.id.substring(0, 8)}`,
+            order_id: order.id,
+          });
+
+        if (txError) throw txError;
+
+        toast({
+          title: "Order placed & paid!",
+          description: `${total.toFixed(2)} MAD deducted from your wallet`,
+        });
+      } else if (paymentMethod === "cih_pay") {
+        toast({
+          title: "Order placed!",
+          description: "You'll receive a CIH Pay payment link via SMS shortly",
+        });
+      } else {
+        toast({
+          title: "Order placed!",
+          description: `Pay ${total.toFixed(2)} MAD on delivery`,
+        });
+      }
 
       setCart([]);
       setDeliveryAddress("");
+      setDeliveryLat(null);
+      setDeliveryLng(null);
       setNotes("");
       setPromoCode("");
       setAppliedPromo(null);
@@ -625,19 +679,11 @@ export default function RestaurantMenu() {
                           </Popover>
                         </div>
 
-                        <div>
-                          <Label>Payment Method</Label>
-                          <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="cash" id="cash" />
-                              <Label htmlFor="cash">Cash on Delivery</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="card" id="card" />
-                              <Label htmlFor="card">Card on Delivery</Label>
-                            </div>
-                          </RadioGroup>
-                        </div>
+                        <PaymentMethodSelector 
+                          value={paymentMethod}
+                          onChange={setPaymentMethod}
+                          orderTotal={getTotal().total}
+                        />
 
                         <div>
                           <Label htmlFor="promo">Promo Code</Label>
