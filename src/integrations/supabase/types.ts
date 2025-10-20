@@ -427,6 +427,42 @@ export type Database = {
           },
         ]
       }
+      payout_requests: {
+        Row: {
+          amount: number
+          bank_details: Json | null
+          created_at: string | null
+          id: string
+          processed_at: string | null
+          processed_by: string | null
+          rejection_reason: string | null
+          rider_id: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          bank_details?: Json | null
+          created_at?: string | null
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          rejection_reason?: string | null
+          rider_id: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          bank_details?: Json | null
+          created_at?: string | null
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          rejection_reason?: string | null
+          rider_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -667,6 +703,30 @@ export type Database = {
           },
         ]
       }
+      rider_badges: {
+        Row: {
+          badge_type: string
+          earned_at: string | null
+          id: string
+          level: number | null
+          rider_id: string
+        }
+        Insert: {
+          badge_type: string
+          earned_at?: string | null
+          id?: string
+          level?: number | null
+          rider_id: string
+        }
+        Update: {
+          badge_type?: string
+          earned_at?: string | null
+          id?: string
+          level?: number | null
+          rider_id?: string
+        }
+        Relationships: []
+      }
       rider_earnings: {
         Row: {
           base_fee: number
@@ -710,6 +770,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rider_emergency_contacts: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          phone: string
+          relationship: string | null
+          rider_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          phone: string
+          relationship?: string | null
+          rider_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          phone?: string
+          relationship?: string | null
+          rider_id?: string
+        }
+        Relationships: []
       }
       rider_profiles: {
         Row: {

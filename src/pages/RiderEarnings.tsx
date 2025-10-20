@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, DollarSign, TrendingUp, Calendar } from "lucide-react";
+import { Loader2, ArrowLeft, DollarSign, TrendingUp, Calendar, Wallet } from "lucide-react";
 
 interface Earning {
   id: string;
@@ -29,6 +29,7 @@ export default function RiderEarnings() {
     thisMonth: 0,
     pendingPayout: 0,
   });
+  const [requestingPayout, setRequestingPayout] = useState(false);
 
   useEffect(() => {
     checkAuthAndFetch();
@@ -80,6 +81,47 @@ export default function RiderEarnings() {
       .reduce((sum, e) => sum + Number(e.total_earned), 0) || 0;
 
     setStats({ totalEarned, thisWeek, thisMonth, pendingPayout });
+  };
+
+  const requestPayout = async () => {
+    if (stats.pendingPayout < 50) {
+      toast({
+        title: "Minimum payout not met",
+        description: "Minimum cash-out amount is 50 MAD",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRequestingPayout(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from("payout_requests")
+        .insert({
+          rider_id: user.id,
+          amount: stats.pendingPayout,
+          status: "pending",
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Payout requested!",
+        description: `${stats.pendingPayout.toFixed(2)} MAD will be transferred within 1-2 business days`,
+      });
+    } catch (error: any) {
+      console.error("Error requesting payout:", error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setRequestingPayout(false);
+    }
   };
 
   if (loading) {
@@ -154,10 +196,24 @@ export default function RiderEarnings() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-2">
                 <DollarSign className="h-4 w-4 text-primary" />
                 <span className="text-2xl font-bold text-primary">{stats.pendingPayout.toFixed(2)} MAD</span>
               </div>
+              <Button
+                className="w-full mt-2"
+                size="sm"
+                onClick={requestPayout}
+                disabled={stats.pendingPayout < 50 || requestingPayout}
+              >
+                <Wallet className="h-4 w-4 mr-1" />
+                {requestingPayout ? "Processing..." : "Cash Out Now"}
+              </Button>
+              {stats.pendingPayout < 50 && (
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  Minimum: 50 MAD
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>

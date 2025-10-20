@@ -6,13 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Navigation, Package, DollarSign, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, MapPin, Navigation, Package, DollarSign, Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
 import RiderApplicationForm from "@/components/RiderApplicationForm";
 import RiderNavigationMap from "@/components/RiderNavigationMap";
 import OrderStatusTimeline from "@/components/OrderStatusTimeline";
+import RiderPerformanceBadges from "@/components/RiderPerformanceBadges";
+import WeatherPrayerWidget from "@/components/WeatherPrayerWidget";
+import EmergencySOSButton from "@/components/EmergencySOSButton";
 
 interface Order {
   id: string;
@@ -476,6 +479,7 @@ export default function RiderDashboard() {
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">Rider Dashboard</h1>
             <div className="flex items-center gap-2">
+              <EmergencySOSButton />
               <Button variant="outline" size="sm" onClick={() => navigate("/rider/earnings")}>
                 <DollarSign className="h-4 w-4 mr-2" />
                 Earnings
@@ -559,6 +563,11 @@ export default function RiderDashboard() {
           </Card>
         ) : (
           <>
+            {/* Weather & Prayer Times Widget */}
+            <div className="mb-6">
+              <WeatherPrayerWidget />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <Card>
                 <CardHeader className="pb-2">
@@ -736,6 +745,11 @@ export default function RiderDashboard() {
               ))}
           </TabsContent>
         </Tabs>
+
+        {/* Performance Badges Section */}
+        <div className="mt-8">
+          <RiderPerformanceBadges />
+        </div>
           </>
         )}
       </main>
