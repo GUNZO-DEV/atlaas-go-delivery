@@ -4,9 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Navigation, Clock } from "lucide-react";
+import { Loader2, MapPin, Navigation, Clock, Phone } from "lucide-react";
 import OrderChat from "@/components/OrderChat";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
+import OrderStatusProgress from "@/components/OrderStatusProgress";
 
 interface TrackingData {
   status: string;
@@ -22,11 +23,12 @@ export default function TrackDelivery() {
   const [tracking, setTracking] = useState<TrackingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState<any>(null);
+  const [rider, setRider] = useState<any>(null);
 
   useEffect(() => {
     fetchOrder();
     fetchTracking();
-    setupRealtimeSubscription();
+    setupRealtimeSubscriptions();
   }, [orderId]);
 
   const fetchOrder = async () => {
@@ -47,6 +49,17 @@ export default function TrackDelivery() {
 
       if (error) throw error;
       setOrder(data);
+      
+      // Fetch rider details if order has a rider
+      if (data.rider_id) {
+        const { data: riderData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", data.rider_id)
+          .single();
+        
+        setRider(riderData);
+      }
     } catch (error: any) {
       console.error("Error fetching order:", error);
     }
@@ -73,8 +86,9 @@ export default function TrackDelivery() {
     }
   };
 
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
+  const setupRealtimeSubscriptions = () => {
+    // Subscribe to delivery tracking updates
+    const trackingChannel = supabase
       .channel(`tracking-${orderId}`)
       .on(
         "postgres_changes",
@@ -86,12 +100,38 @@ export default function TrackDelivery() {
         },
         () => {
           fetchTracking();
+          toast({
+            title: "Location Updated",
+            description: "Rider location has been updated",
+          });
+        }
+      )
+      .subscribe();
+
+    // Subscribe to order status updates
+    const orderChannel = supabase
+      .channel(`order-${orderId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `id=eq.${orderId}`,
+        },
+        () => {
+          fetchOrder();
+          toast({
+            title: "Order Status Updated",
+            description: "Your order status has changed",
+          });
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(trackingChannel);
+      supabase.removeChannel(orderChannel);
     };
   };
 
@@ -137,6 +177,15 @@ export default function TrackDelivery() {
             Watch your order journey from restaurant to your door. Just like magic, but better — it's real.
           </p>
         </div>
+
+        {/* Order Status Progress */}
+        {order && (
+          <Card className="mb-6 animate-fade-in">
+            <CardContent className="pt-6">
+              <OrderStatusProgress currentStatus={order.status} />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Main Tracking Card */}
         <div className="grid lg:grid-cols-3 gap-6 mb-6">
@@ -241,32 +290,44 @@ export default function TrackDelivery() {
 
           {/* Features Sidebar */}
           <div className="space-y-4">
-            <Card className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            {/* Rider Info Card */}
+            {rider && (
+              <Card className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                <CardHeader>
+                  <CardTitle className="text-lg">Your Rider</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold">
+                      {rider.full_name?.charAt(0) || '?'}
+                    </div>
+                    <div>
+                      <p className="font-medium">{rider.full_name || 'Rider'}</p>
+                      <p className="text-sm text-muted-foreground">Professional Driver</p>
+                    </div>
+                  </div>
+                  {rider.phone && (
+                    <Button variant="outline" className="w-full" asChild>
+                      <a href={`tel:${rider.phone}`}>
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call Rider
+                      </a>
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            <Card className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <CardContent className="p-6">
                 <div className="flex items-start gap-3">
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <MapPin className="h-5 w-5 text-primary animate-pulse" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Pulsing Location Pins</h3>
+                    <h3 className="font-semibold mb-1">Live Location Updates</h3>
                     <p className="text-sm text-muted-foreground">
-                      See exactly where your food is with animated markers that pulse with life.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Navigation className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Moving Driver Icon</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Watch your driver move smoothly across the map in real-time, bringing your order closer.
+                      See exactly where your food is with animated markers that update in real-time.
                     </p>
                   </div>
                 </div>
@@ -277,12 +338,12 @@ export default function TrackDelivery() {
               <CardContent className="p-6">
                 <div className="flex items-start gap-3">
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Clock className="h-5 w-5 text-primary" />
+                    <Navigation className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Live ETA Updates</h3>
+                    <h3 className="font-semibold mb-1">Moving Driver Icon</h3>
                     <p className="text-sm text-muted-foreground">
-                      Get accurate arrival times that update as your driver navigates Moroccan streets.
+                      Watch your driver move smoothly across the map in real-time.
                     </p>
                   </div>
                 </div>
@@ -293,12 +354,12 @@ export default function TrackDelivery() {
               <CardContent className="p-6">
                 <div className="flex items-start gap-3">
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Navigation className="h-5 w-5 text-primary rotate-45" />
+                    <Clock className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Order Journey</h3>
+                    <h3 className="font-semibold mb-1">Real-Time Notifications</h3>
                     <p className="text-sm text-muted-foreground">
-                      From preparation to pickup to delivery — follow every step of your order's adventure.
+                      Get instant updates when your order status changes or rider moves.
                     </p>
                   </div>
                 </div>

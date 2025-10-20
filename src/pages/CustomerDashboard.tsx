@@ -277,41 +277,57 @@ export default function CustomerDashboard() {
                           <span>{order.total_amount + order.delivery_fee} MAD</span>
                         </div>
                         <div className="flex gap-2">
-                          {(order.status === "picked_up" || order.status === "confirmed") && (
+                          {["confirmed", "preparing", "ready", "picked_up"].includes(order.status) && (
                             <>
                               <Button
                                 className="flex-1"
                                 onClick={() => navigate(`/track/${order.id}`)}
                               >
-                                Track Delivery
+                                <MapPin className="h-4 w-4 mr-2" />
+                                Track Order
                               </Button>
                               <OrderChat orderId={order.id} userType="customer" />
                             </>
                           )}
                           {order.status === "delivered" && (
+                            <>
+                              <Button
+                                variant="outline"
+                                className="flex-1"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openReviewDialog(order);
+                                }}
+                              >
+                                <Star className="h-4 w-4 mr-2" />
+                                Write Review
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="flex-1"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleReorder(order);
+                                }}
+                              >
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                                Reorder
+                              </Button>
+                            </>
+                          )}
+                          {order.status === "pending" && (
                             <Button
                               variant="outline"
                               className="flex-1"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openReviewDialog(order);
+                                handleReorder(order);
                               }}
                             >
-                              <Star className="h-4 w-4 mr-2" />
-                              Write Review
+                              <RotateCcw className="h-4 w-4 mr-2" />
+                              Reorder
                             </Button>
                           )}
-                          <Button
-                            variant="outline"
-                            className="flex-1"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleReorder(order);
-                            }}
-                          >
-                            <RotateCcw className="h-4 w-4 mr-2" />
-                            Reorder
-                          </Button>
                         </div>
                       </div>
                     </div>
