@@ -139,6 +139,8 @@ export default function CustomerDashboard() {
           *,
           order:orders(
             delivery_address,
+            delivery_latitude,
+            delivery_longitude,
             restaurant:restaurants(
               name,
               address,
@@ -447,8 +449,8 @@ export default function CustomerDashboard() {
                       restaurantLng={trackingData.order?.restaurant?.longitude}
                       riderLat={trackingData.current_latitude}
                       riderLng={trackingData.current_longitude}
-                      customerLat={trackingData.delivery_latitude}
-                      customerLng={trackingData.delivery_longitude}
+                      customerLat={trackingData.order?.delivery_latitude}
+                      customerLng={trackingData.order?.delivery_longitude}
                       deliveryAddress={trackingData.order?.delivery_address}
                     />
                   </div>
