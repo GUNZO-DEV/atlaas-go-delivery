@@ -53,13 +53,11 @@ const MerchantAuth = () => {
 
       if (error) throw error;
 
-      // Add merchant role
+      // Add merchant role using database function
       if (data.user) {
         const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({
-            user_id: data.user.id,
-            role: "merchant",
+          .rpc("assign_merchant_role", {
+            user_id_param: data.user.id,
           });
 
         if (roleError) throw roleError;

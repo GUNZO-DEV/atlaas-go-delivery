@@ -908,6 +908,10 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: undefined
       }
+      assign_rider_role: {
+        Args: { user_id_param: string }
+        Returns: undefined
+      }
       create_notification: {
         Args: {
           p_message: string

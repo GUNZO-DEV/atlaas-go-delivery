@@ -53,13 +53,11 @@ const RiderAuth = () => {
 
       if (error) throw error;
 
-      // Add rider role
+      // Add rider role using database function
       if (data.user) {
         const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({
-            user_id: data.user.id,
-            role: "rider",
+          .rpc("assign_rider_role", {
+            user_id_param: data.user.id,
           });
 
         if (roleError) throw roleError;
