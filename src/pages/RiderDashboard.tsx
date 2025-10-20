@@ -18,8 +18,8 @@ interface Order {
   total_amount: number;
   delivery_fee: number;
   delivery_address: string;
-  delivery_latitude: number;
-  delivery_longitude: number;
+  delivery_latitude: number | null;
+  delivery_longitude: number | null;
   created_at: string;
   rider_id: string | null;
   restaurant: {
@@ -308,11 +308,21 @@ export default function RiderDashboard() {
     }
   };
 
-  const openNavigation = (lat: number | null, lng: number | null) => {
-    if (!lat || !lng) {
+  const openNavigation = (lat: number | null, lng: number | null, address?: string) => {
+    if ((!lat || !lng)) {
+      if (address) {
+        const encoded = encodeURIComponent(address);
+        const searchUrl = `https://www.openstreetmap.org/search?query=${encoded}`;
+        window.open(searchUrl, "_blank");
+        toast({
+          title: "Opening Map",
+          description: "Using the delivery address since GPS coordinates are missing.",
+        });
+        return;
+      }
       toast({
         title: "Navigation Unavailable",
-        description: "Delivery coordinates are missing. Please contact support.",
+        description: "No coordinates or address available.",
         variant: "destructive",
       });
       return;
@@ -602,7 +612,11 @@ export default function RiderDashboard() {
                         variant="outline"
                         className="flex-1"
                         onClick={() =>
-                          openNavigation(order.delivery_latitude, order.delivery_longitude)
+                          openNavigation(
+                            order.delivery_latitude,
+                            order.delivery_longitude,
+                            order.delivery_address
+                          )
                         }
                       >
                         <Navigation className="h-4 w-4 mr-2" />
