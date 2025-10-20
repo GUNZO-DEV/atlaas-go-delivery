@@ -44,6 +44,7 @@ export default function RiderDashboard() {
   });
   const [isAvailable, setIsAvailable] = useState(false);
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
+  const [tab, setTab] = useState<'available' | 'active' | 'completed'>('available');
 
   useEffect(() => {
     checkAuth();
@@ -265,6 +266,7 @@ export default function RiderDashboard() {
         title: "Success",
         description: "Order accepted!",
       });
+      setTab('active');
     } catch (error: any) {
       toast({
         title: "Error",
@@ -500,7 +502,7 @@ export default function RiderDashboard() {
           </Card>
         </div>
 
-        <Tabs defaultValue="available" className="w-full">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="available">Available</TabsTrigger>
             <TabsTrigger value="active">Active</TabsTrigger>
