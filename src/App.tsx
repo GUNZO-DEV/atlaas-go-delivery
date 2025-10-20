@@ -14,6 +14,8 @@ import TestSetup from "./pages/TestSetup";
 import RestaurantMenu from "./pages/RestaurantMenu";
 import Restaurants from "./pages/Restaurants";
 import GroupOrder from "./pages/GroupOrder";
+import MerchantAnalytics from "./pages/MerchantAnalytics";
+import RiderEarnings from "./pages/RiderEarnings";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,8 @@ const App = () => (
           <Route path="/test-setup" element={<TestSetup />} />
           <Route path="/restaurant/:restaurantId?" element={<RestaurantMenu />} />
           <Route path="/group-order/:mode?" element={<GroupOrder />} />
+          <Route path="/merchant/analytics" element={<MerchantAnalytics />} />
+          <Route path="/rider/earnings" element={<RiderEarnings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

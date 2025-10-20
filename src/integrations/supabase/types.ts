@@ -179,6 +179,44 @@ export type Database = {
           },
         ]
       }
+      loyalty_transactions: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          order_id: string | null
+          points: number
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          points: number
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          points?: number
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_items: {
         Row: {
           category: string | null
@@ -392,6 +430,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          loyalty_points: number | null
           phone: string | null
           updated_at: string
         }
@@ -400,6 +439,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          loyalty_points?: number | null
           phone?: string | null
           updated_at?: string
         }
@@ -408,6 +448,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          loyalty_points?: number | null
           phone?: string | null
           updated_at?: string
         }
@@ -565,6 +606,129 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rider_earnings: {
+        Row: {
+          base_fee: number
+          created_at: string | null
+          distance_bonus: number | null
+          id: string
+          order_id: string
+          paid_out: boolean | null
+          rider_id: string
+          tip_amount: number | null
+          total_earned: number
+        }
+        Insert: {
+          base_fee: number
+          created_at?: string | null
+          distance_bonus?: number | null
+          id?: string
+          order_id: string
+          paid_out?: boolean | null
+          rider_id: string
+          tip_amount?: number | null
+          total_earned: number
+        }
+        Update: {
+          base_fee?: number
+          created_at?: string | null
+          distance_bonus?: number | null
+          id?: string
+          order_id?: string
+          paid_out?: boolean | null
+          rider_id?: string
+          tip_amount?: number | null
+          total_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rider_earnings_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_responses: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_staff: boolean | null
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_staff?: boolean | null
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_staff?: boolean | null
+          message?: string
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_responses_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          order_id: string | null
+          priority: string | null
+          status: string
+          subject: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          order_id?: string | null
+          priority?: string | null
+          status?: string
+          subject: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          order_id?: string | null
+          priority?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]

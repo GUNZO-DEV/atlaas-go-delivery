@@ -10,6 +10,8 @@ import { Loader2, MapPin, Package, Clock, CheckCircle, Star, RotateCcw } from "l
 import ReviewDialog from "@/components/ReviewDialog";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
+import LoyaltyCard from "@/components/LoyaltyCard";
+import SupportTicketDialog from "@/components/SupportTicketDialog";
 
 interface Order {
   id: string;
@@ -204,6 +206,7 @@ export default function CustomerDashboard() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">My Orders</h1>
           <div className="flex items-center gap-2">
+            <SupportTicketDialog />
             <NotificationBell />
             <Button variant="outline" onClick={handleSignOut}>
               Sign Out
@@ -213,6 +216,10 @@ export default function CustomerDashboard() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <LoyaltyCard />
+        </div>
+
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="all">All Orders</TabsTrigger>

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, MapPin, Navigation, Package, DollarSign } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
+import SupportTicketDialog from "@/components/SupportTicketDialog";
 
 interface Order {
   id: string;
@@ -222,6 +223,11 @@ export default function RiderDashboard() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Rider Dashboard</h1>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate("/rider/earnings")}>
+              <DollarSign className="h-4 w-4 mr-2" />
+              Earnings
+            </Button>
+            <SupportTicketDialog />
             <NotificationBell />
             <Button variant="outline" onClick={handleSignOut}>
               Sign Out

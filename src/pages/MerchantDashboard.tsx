@@ -10,6 +10,7 @@ import { Loader2, Store, Package, DollarSign, TrendingUp, Download, Mail, Plus }
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
+import SupportTicketDialog from "@/components/SupportTicketDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -431,6 +432,11 @@ export default function MerchantDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate("/merchant/analytics")}>
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Analytics
+            </Button>
+            <SupportTicketDialog />
             <NotificationBell />
             <Button variant="outline" onClick={handleSignOut}>
               Sign Out
