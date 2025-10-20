@@ -70,17 +70,23 @@ export default function RestaurantMenu() {
         .from("restaurants")
         .select("*")
         .eq("is_active", true)
-        .limit(1)
-        .single();
+        .order("created_at", { ascending: false })
+        .limit(1);
 
       if (restaurantError) throw restaurantError;
-      setRestaurant(restaurantData);
+      
+      const restaurant = restaurantData && restaurantData.length > 0 ? restaurantData[0] : null;
+      if (!restaurant) {
+        setLoading(false);
+        return;
+      }
+      setRestaurant(restaurant);
 
       // Fetch menu items
       const { data: menuData, error: menuError } = await supabase
         .from("menu_items")
         .select("*")
-        .eq("restaurant_id", restaurantData.id)
+        .eq("restaurant_id", restaurant.id)
         .eq("is_available", true)
         .order("category", { ascending: true });
 
