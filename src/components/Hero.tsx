@@ -11,10 +11,10 @@ const Hero = () => {
         <img 
           src={atlasHero} 
           alt="Atlas Mountains Morocco" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover animate-ken-burns"
         />
         <div className="absolute inset-0 bg-gradient-hero" />
-        <div className="absolute inset-0 zellij-pattern opacity-30" />
+        <div className="absolute inset-0 zellij-pattern opacity-30 animate-pulse-slow" />
       </div>
 
       {/* Content */}
@@ -59,8 +59,7 @@ const Hero = () => {
             <Link to="/auth">
               <Button 
                 size="lg"
-                variant="outline"
-                className="border-2 border-white text-white hover:bg-white hover:text-midnight px-8 py-6 text-lg font-semibold transition-all hover:scale-105"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground border-2 border-accent-foreground/20 px-8 py-6 text-lg font-semibold shadow-glow transition-all hover:scale-105 animate-pulse-glow"
               >
                 <Bike className="mr-2" />
                 Become a Rider
