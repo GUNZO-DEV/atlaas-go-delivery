@@ -502,6 +502,57 @@ export type Database = {
         }
         Relationships: []
       }
+      restaurant_applications: {
+        Row: {
+          address: string
+          business_license: string | null
+          created_at: string
+          cuisine_type: string | null
+          description: string | null
+          id: string
+          merchant_id: string
+          phone: string
+          rejection_reason: string | null
+          restaurant_name: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          business_license?: string | null
+          created_at?: string
+          cuisine_type?: string | null
+          description?: string | null
+          id?: string
+          merchant_id: string
+          phone: string
+          rejection_reason?: string | null
+          restaurant_name: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          business_license?: string | null
+          created_at?: string
+          cuisine_type?: string | null
+          description?: string | null
+          id?: string
+          merchant_id?: string
+          phone?: string
+          rejection_reason?: string | null
+          restaurant_name?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       restaurants: {
         Row: {
           address: string
@@ -654,6 +705,63 @@ export type Database = {
           },
         ]
       }
+      rider_profiles: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          is_available: boolean | null
+          license_number: string
+          phone: string
+          rating: number | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          rider_id: string
+          status: string
+          total_deliveries: number | null
+          updated_at: string
+          vehicle_plate_number: string
+          vehicle_type: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          license_number: string
+          phone: string
+          rating?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          rider_id: string
+          status?: string
+          total_deliveries?: number | null
+          updated_at?: string
+          vehicle_plate_number: string
+          vehicle_type: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          license_number?: string
+          phone?: string
+          rating?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          rider_id?: string
+          status?: string
+          total_deliveries?: number | null
+          updated_at?: string
+          vehicle_plate_number?: string
+          vehicle_type?: string
+        }
+        Relationships: []
+      }
       support_responses: {
         Row: {
           created_at: string | null
@@ -788,6 +896,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_restaurant_application: {
+        Args: { admin_id: string; application_id: string }
+        Returns: string
+      }
+      approve_rider_application: {
+        Args: { admin_id: string; rider_profile_id: string }
+        Returns: undefined
+      }
       create_notification: {
         Args: {
           p_message: string
@@ -804,6 +920,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      reject_restaurant_application: {
+        Args: { admin_id: string; application_id: string; reason: string }
+        Returns: undefined
+      }
+      reject_rider_application: {
+        Args: { admin_id: string; reason: string; rider_profile_id: string }
+        Returns: undefined
       }
     }
     Enums: {

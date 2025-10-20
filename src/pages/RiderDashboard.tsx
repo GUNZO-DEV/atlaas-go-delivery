@@ -6,10 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Navigation, Package, DollarSign } from "lucide-react";
+import { Loader2, MapPin, Navigation, Package, DollarSign, Clock, CheckCircle, XCircle } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
+import RiderApplicationForm from "@/components/RiderApplicationForm";
 
 interface Order {
   id: string;
@@ -32,6 +33,8 @@ interface Order {
 export default function RiderDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [riderProfile, setRiderProfile] = useState<any>(null);
+  const [profileStatus, setProfileStatus] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -42,6 +45,7 @@ export default function RiderDashboard() {
 
   useEffect(() => {
     checkAuth();
+    checkRiderProfile();
     fetchOrders();
     setupRealtimeSubscription();
   }, []);
@@ -68,6 +72,32 @@ export default function RiderDashboard() {
         variant: "destructive",
       });
       navigate("/");
+    }
+  };
+
+  const checkRiderProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("rider_profiles")
+        .select("*")
+        .eq("rider_id", user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      if (data) {
+        setRiderProfile(data);
+        setProfileStatus(data.status);
+      } else {
+        setProfileStatus("none");
+      }
+    } catch (error: any) {
+      console.error("Error checking rider profile:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -213,6 +243,82 @@ export default function RiderDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Show application form if no profile exists
+  if (profileStatus === "none") {
+    return (
+      <div className="min-h-screen bg-background p-8">
+        <header className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Rider Registration</h1>
+            <p className="text-muted-foreground mt-2">Complete your application to start delivering orders</p>
+          </div>
+          <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
+        </header>
+        <RiderApplicationForm onSuccess={() => {
+          checkRiderProfile();
+          toast({ title: "Success!", description: "Your application is now under review" });
+        }} />
+      </div>
+    );
+  }
+
+  // Show pending/rejected status
+  if (profileStatus === "pending") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-8">
+        <Card className="w-full max-w-2xl">
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <Clock className="h-8 w-8 text-yellow-500" />
+              <CardTitle className="text-2xl">Application Under Review</CardTitle>
+            </div>
+            <CardDescription>Your rider application is being reviewed by our team</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+              <h3 className="font-semibold mb-2">What's Next?</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Our team is reviewing your application</li>
+                <li>• You'll receive a notification within 24-48 hours</li>
+              </ul>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleSignOut} className="flex-1">Sign Out</Button>
+              <SupportTicketDialog />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (profileStatus === "rejected") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-8">
+        <Card className="w-full max-w-2xl">
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <XCircle className="h-8 w-8 text-destructive" />
+              <CardTitle className="text-2xl">Application Rejected</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {riderProfile?.rejection_reason && (
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-4">
+                <h3 className="font-semibold mb-2">Reason:</h3>
+                <p className="text-sm">{riderProfile.rejection_reason}</p>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleSignOut} className="flex-1">Sign Out</Button>
+              <SupportTicketDialog />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

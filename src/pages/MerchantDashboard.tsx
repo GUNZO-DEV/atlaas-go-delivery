@@ -6,11 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Store, Package, DollarSign, TrendingUp, Download, Mail, Plus } from "lucide-react";
+import { Loader2, Store, Package, DollarSign, TrendingUp, Download, Mail, Plus, Clock, CheckCircle, XCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
+import RestaurantApplicationForm from "@/components/RestaurantApplicationForm";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -65,6 +66,8 @@ export default function MerchantDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [application, setApplication] = useState<any>(null);
+  const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
   const [orders, setOrders] = useState<OrderWithCustomer[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +90,7 @@ export default function MerchantDashboard() {
 
   useEffect(() => {
     checkAuth();
+    checkApplication();
     fetchRestaurant();
   }, []);
 
@@ -119,6 +123,32 @@ export default function MerchantDashboard() {
         variant: "destructive",
       });
       navigate("/");
+    }
+  };
+
+  const checkApplication = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("restaurant_applications")
+        .select("*")
+        .eq("merchant_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      if (data) {
+        setApplication(data);
+        setApplicationStatus(data.status);
+      } else {
+        setApplicationStatus("none");
+      }
+    } catch (error: any) {
+      console.error("Error checking application:", error);
     }
   };
 
@@ -395,13 +425,131 @@ export default function MerchantDashboard() {
   }
 
   if (!restaurant) {
+    // Show application form if no application exists
+    if (applicationStatus === "none") {
+      return (
+        <div className="min-h-screen bg-background p-8">
+          <header className="mb-8 flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold">Restaurant Registration</h1>
+              <p className="text-muted-foreground mt-2">Complete your application to start accepting orders</p>
+            </div>
+            <Button variant="outline" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          </header>
+          <RestaurantApplicationForm onSuccess={() => {
+            checkApplication();
+            toast({
+              title: "Success!",
+              description: "Your application is now under review",
+            });
+          }} />
+        </div>
+      );
+    }
+
+    // Show pending status
+    if (applicationStatus === "pending") {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background p-8">
+          <Card className="w-full max-w-2xl">
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <Clock className="h-8 w-8 text-yellow-500" />
+                <CardTitle className="text-2xl">Application Under Review</CardTitle>
+              </div>
+              <CardDescription>
+                Your restaurant application is being reviewed by our team
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                <h3 className="font-semibold mb-2">What's Next?</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Our team is reviewing your application</li>
+                  <li>• You'll receive a notification via email within 24-48 hours</li>
+                  <li>• We may contact you for additional information</li>
+                </ul>
+              </div>
+
+              {application && (
+                <div className="space-y-2 text-sm">
+                  <h4 className="font-semibold">Application Details:</h4>
+                  <div className="grid grid-cols-2 gap-2 text-muted-foreground">
+                    <span>Restaurant Name:</span>
+                    <span className="font-medium text-foreground">{application.restaurant_name}</span>
+                    <span>Submitted:</span>
+                    <span className="font-medium text-foreground">
+                      {new Date(application.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleSignOut} className="flex-1">
+                  Sign Out
+                </Button>
+                <SupportTicketDialog />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    // Show rejected status
+    if (applicationStatus === "rejected") {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background p-8">
+          <Card className="w-full max-w-2xl">
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <XCircle className="h-8 w-8 text-destructive" />
+                <CardTitle className="text-2xl">Application Rejected</CardTitle>
+              </div>
+              <CardDescription>
+                Unfortunately, your application was not approved
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {application?.rejection_reason && (
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                  <h3 className="font-semibold mb-2">Reason:</h3>
+                  <p className="text-sm text-muted-foreground">{application.rejection_reason}</p>
+                </div>
+              )}
+
+              <div className="bg-primary/5 border border-primary/10 rounded-lg p-4">
+                <h3 className="font-semibold mb-2">Next Steps:</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Review the rejection reason carefully</li>
+                  <li>• Contact our support team for clarification</li>
+                  <li>• You can submit a new application after addressing the issues</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleSignOut} className="flex-1">
+                  Sign Out
+                </Button>
+                <SupportTicketDialog />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    // Fallback: no restaurant and no application status
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>No Restaurant Found</CardTitle>
             <CardDescription>
-              You need to set up your restaurant first
+              Loading your application status...
             </CardDescription>
           </CardHeader>
           <CardContent>
