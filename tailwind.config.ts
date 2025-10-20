@@ -103,9 +103,9 @@ export default {
           "50%": { transform: "translateY(-10px)" }
         },
         "ken-burns": {
-          "0%": { transform: "scale(1) translate(0, 0)" },
-          "50%": { transform: "scale(1.1) translate(-2%, -1%)" },
-          "100%": { transform: "scale(1) translate(0, 0)" }
+          "0%": { transform: "scale(1) translate(2%, 0)" },
+          "50%": { transform: "scale(1.15) translate(-3%, -1.5%)" },
+          "100%": { transform: "scale(1) translate(2%, 0)" }
         },
         "pulse-slow": {
           "0%, 100%": { opacity: "0.3" },
@@ -165,7 +165,7 @@ export default {
         "pulse-ring": "pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "move-path": "move-path 3s ease-in-out infinite alternate",
         "float": "float 3s ease-in-out infinite",
-        "ken-burns": "ken-burns 30s ease-in-out infinite",
+        "ken-burns": "ken-burns 18s ease-in-out infinite",
         "pulse-slow": "pulse-slow 4s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "float-particle": "float-particle 12s linear infinite",
