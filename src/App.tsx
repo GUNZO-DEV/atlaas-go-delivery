@@ -16,6 +16,8 @@ import Restaurants from "./pages/Restaurants";
 import GroupOrder from "./pages/GroupOrder";
 import MerchantAnalytics from "./pages/MerchantAnalytics";
 import RiderEarnings from "./pages/RiderEarnings";
+import MerchantAuth from "./pages/MerchantAuth";
+import RiderAuth from "./pages/RiderAuth";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/merchant-auth" element={<MerchantAuth />} />
+          <Route path="/rider-auth" element={<RiderAuth />} />
           <Route path="/restaurants" element={<Restaurants />} />
           <Route path="/customer" element={<CustomerDashboard />} />
           <Route path="/merchant" element={<MerchantDashboard />} />

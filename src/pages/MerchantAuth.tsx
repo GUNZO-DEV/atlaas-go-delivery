@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin } from "lucide-react";
+import { Store, ArrowLeft } from "lucide-react";
 
-const Auth = () => {
+const MerchantAuth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
@@ -16,30 +16,61 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    checkExistingAuth();
+  }, []);
+
+  const checkExistingAuth = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // Check if user has merchant role
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+
+      if (roles?.some(r => r.role === 'merchant')) {
+        navigate("/merchant");
+      }
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/merchant`,
         },
       });
 
       if (error) throw error;
 
+      // Add merchant role
+      if (data.user) {
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({
+            user_id: data.user.id,
+            role: "merchant",
+          });
+
+        if (roleError) throw roleError;
+      }
+
       toast({
         title: "Success!",
-        description: "Account created successfully. Redirecting...",
+        description: "Restaurant account created successfully.",
       });
 
-      setTimeout(() => navigate("/"), 1000);
+      setTimeout(() => navigate("/merchant"), 1000);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -63,24 +94,23 @@ const Auth = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Welcome back!",
-        description: "Successfully signed in.",
-      });
-
-      // Check user role and redirect accordingly
+      // Check if user has merchant role
       const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", data.user.id);
 
-      if (roles?.some(r => r.role === 'merchant')) {
-        navigate("/merchant");
-      } else if (roles?.some(r => r.role === 'rider')) {
-        navigate("/rider");
-      } else {
-        navigate("/customer");
+      if (!roles?.some(r => r.role === 'merchant')) {
+        await supabase.auth.signOut();
+        throw new Error("This account is not registered as a restaurant. Please use the correct login.");
       }
+
+      toast({
+        title: "Welcome back!",
+        description: "Successfully signed in.",
+      });
+
+      navigate("/merchant");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -95,14 +125,26 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 zellij-pattern">
       <div className="w-full max-w-md p-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Button>
+
         <div className="bg-card rounded-3xl shadow-elevation p-8 border-2 border-primary/10">
           {/* Logo */}
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <MapPin className="w-10 h-10 text-primary" />
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Store className="w-10 h-10 text-primary" />
             <h1 className="text-4xl font-bold">
-              ATLAAS <span className="text-primary">GO</span>
+              Restaurant <span className="text-primary">Portal</span>
             </h1>
           </div>
+          <p className="text-center text-muted-foreground mb-8">
+            Manage your restaurant and orders
+          </p>
 
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
@@ -118,7 +160,7 @@ const Auth = () => {
                   <Input
                     id="signin-email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder="restaurant@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -142,7 +184,7 @@ const Auth = () => {
                   className="w-full bg-primary hover:bg-primary-glow text-white"
                   disabled={loading}
                 >
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? "Signing in..." : "Sign In as Restaurant"}
                 </Button>
               </form>
             </TabsContent>
@@ -151,11 +193,11 @@ const Auth = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Label htmlFor="signup-name">Restaurant Name</Label>
                   <Input
                     id="signup-name"
                     type="text"
-                    placeholder="Ahmed Benali"
+                    placeholder="Atlas Tajine House"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
@@ -167,7 +209,7 @@ const Auth = () => {
                   <Input
                     id="signup-email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder="restaurant@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -192,7 +234,7 @@ const Auth = () => {
                   className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
                   disabled={loading}
                 >
-                  {loading ? "Creating account..." : "Sign Up"}
+                  {loading ? "Creating account..." : "Sign Up as Restaurant"}
                 </Button>
               </form>
             </TabsContent>
@@ -207,4 +249,4 @@ const Auth = () => {
   );
 };
 
-export default Auth;
+export default MerchantAuth;

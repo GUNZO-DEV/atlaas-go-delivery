@@ -8,6 +8,7 @@ import AppPreview from "@/components/AppPreview";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Store, Bike } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -60,6 +61,40 @@ const Index = () => {
       </section>
 
       <LiveTracking />
+      
+      {/* Login Section */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Partner With Us</h2>
+            <p className="text-muted-foreground">Join ATLAAS GO as a restaurant or rider</p>
+          </div>
+          <div className="flex gap-6 justify-center flex-wrap">
+            <Card className="w-full max-w-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/merchant-auth")}>
+              <CardContent className="p-8 text-center">
+                <Store className="w-16 h-16 text-primary mx-auto mb-4" />
+                <h3 className="text-2xl font-bold mb-2">Restaurant Login</h3>
+                <p className="text-muted-foreground mb-6">Manage your menu, orders, and earnings</p>
+                <Button className="w-full" size="lg">
+                  Restaurant Portal
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="w-full max-w-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/rider-auth")}>
+              <CardContent className="p-8 text-center">
+                <Bike className="w-16 h-16 text-primary mx-auto mb-4" />
+                <h3 className="text-2xl font-bold mb-2">Rider Login</h3>
+                <p className="text-muted-foreground mb-6">Start delivering and earn money</p>
+                <Button className="w-full" size="lg">
+                  Rider Portal
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       <MerchantSection />
       <DriverSection />
       <CustomerSection />
