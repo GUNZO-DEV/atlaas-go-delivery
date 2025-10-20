@@ -12,6 +12,7 @@ import RiderDashboard from "./pages/RiderDashboard";
 import TrackDelivery from "./pages/TrackDelivery";
 import TestSetup from "./pages/TestSetup";
 import RestaurantMenu from "./pages/RestaurantMenu";
+import Restaurants from "./pages/Restaurants";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/restaurants" element={<Restaurants />} />
           <Route path="/customer" element={<CustomerDashboard />} />
           <Route path="/merchant" element={<MerchantDashboard />} />
           <Route path="/rider" element={<RiderDashboard />} />

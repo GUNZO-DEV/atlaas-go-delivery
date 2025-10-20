@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Package, Clock, CheckCircle } from "lucide-react";
+import { Loader2, MapPin, Package, Clock, CheckCircle, Star, RotateCcw } from "lucide-react";
+import ReviewDialog from "@/components/ReviewDialog";
 
 interface Order {
   id: string;
@@ -15,13 +16,19 @@ interface Order {
   delivery_fee: number;
   delivery_address: string;
   created_at: string;
+  estimated_delivery_time: number;
+  restaurant_id: string;
+  rider_id?: string;
   restaurant: {
+    id: string;
     name: string;
     image_url: string;
   };
   order_items: {
+    id: string;
     quantity: number;
     price: number;
+    menu_item_id: string;
     menu_item: {
       name: string;
     };
@@ -34,6 +41,8 @@ export default function CustomerDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -59,10 +68,12 @@ export default function CustomerDashboard() {
         .from("orders")
         .select(`
           *,
-          restaurant:restaurants(name, image_url),
+          restaurant:restaurants(id, name, image_url),
           order_items(
+            id,
             quantity,
             price,
+            menu_item_id,
             menu_item:menu_items(name)
           )
         `)
@@ -151,6 +162,32 @@ export default function CustomerDashboard() {
     navigate("/");
   };
 
+  const handleReorder = async (order: Order) => {
+    if (!order.order_items || order.order_items.length === 0) {
+      toast({
+        title: "Cannot reorder",
+        description: "This order has no items",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Adding to cart",
+      description: "Redirecting to restaurant menu...",
+    });
+
+    // Navigate to restaurant with order items in state
+    navigate(`/restaurant/${order.restaurant_id}`, {
+      state: { reorderItems: order.order_items }
+    });
+  };
+
+  const openReviewDialog = (order: Order) => {
+    setSelectedOrder(order);
+    setReviewDialogOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -223,19 +260,45 @@ export default function CustomerDashboard() {
                         ))}
                       </div>
                       <div className="pt-4 border-t">
-                        <div className="flex justify-between font-semibold">
+                        <div className="flex justify-between font-semibold mb-4">
                           <span>Total:</span>
                           <span>{order.total_amount + order.delivery_fee} MAD</span>
                         </div>
+                        <div className="flex gap-2">
+                          {order.status === "picked_up" && (
+                            <Button
+                              className="flex-1"
+                              onClick={() => navigate(`/track/${order.id}`)}
+                            >
+                              Track Delivery
+                            </Button>
+                          )}
+                          {order.status === "delivered" && (
+                            <Button
+                              variant="outline"
+                              className="flex-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openReviewDialog(order);
+                              }}
+                            >
+                              <Star className="h-4 w-4 mr-2" />
+                              Write Review
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            className="flex-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleReorder(order);
+                            }}
+                          >
+                            <RotateCcw className="h-4 w-4 mr-2" />
+                            Reorder
+                          </Button>
+                        </div>
                       </div>
-                      {order.status === "picked_up" && (
-                        <Button
-                          className="w-full mt-4"
-                          onClick={() => navigate(`/track/${order.id}`)}
-                        >
-                          Track Delivery
-                        </Button>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -403,6 +466,17 @@ export default function CustomerDashboard() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {selectedOrder && (
+        <ReviewDialog
+          open={reviewDialogOpen}
+          onOpenChange={setReviewDialogOpen}
+          orderId={selectedOrder.id}
+          restaurantId={selectedOrder.restaurant_id}
+          riderId={selectedOrder.rider_id}
+          onReviewSubmitted={fetchOrders}
+        />
+      )}
     </div>
   );
 }

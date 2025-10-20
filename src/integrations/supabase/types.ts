@@ -200,6 +200,7 @@ export type Database = {
           delivery_fee: number
           delivery_latitude: number | null
           delivery_longitude: number | null
+          estimated_delivery_time: number | null
           id: string
           notes: string | null
           restaurant_id: string
@@ -216,6 +217,7 @@ export type Database = {
           delivery_fee?: number
           delivery_latitude?: number | null
           delivery_longitude?: number | null
+          estimated_delivery_time?: number | null
           id?: string
           notes?: string | null
           restaurant_id: string
@@ -232,6 +234,7 @@ export type Database = {
           delivery_fee?: number
           delivery_latitude?: number | null
           delivery_longitude?: number | null
+          estimated_delivery_time?: number | null
           id?: string
           notes?: string | null
           restaurant_id?: string
@@ -280,6 +283,7 @@ export type Database = {
       restaurants: {
         Row: {
           address: string
+          average_rating: number | null
           commission_rate: number | null
           created_at: string
           cuisine_type: string | null
@@ -292,10 +296,12 @@ export type Database = {
           merchant_id: string
           name: string
           phone: string
+          review_count: number | null
           updated_at: string
         }
         Insert: {
           address: string
+          average_rating?: number | null
           commission_rate?: number | null
           created_at?: string
           cuisine_type?: string | null
@@ -308,10 +314,12 @@ export type Database = {
           merchant_id: string
           name: string
           phone: string
+          review_count?: number | null
           updated_at?: string
         }
         Update: {
           address?: string
+          average_rating?: number | null
           commission_rate?: number | null
           created_at?: string
           cuisine_type?: string | null
@@ -324,6 +332,7 @@ export type Database = {
           merchant_id?: string
           name?: string
           phone?: string
+          review_count?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -372,6 +381,35 @@ export type Database = {
           },
           {
             foreignKeyName: "reviews_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_favorites: {
+        Row: {
+          created_at: string | null
+          id: string
+          restaurant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          restaurant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          restaurant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorites_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"

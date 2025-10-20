@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ShoppingCart, Minus, Plus, X, MapPin, Phone, ArrowLeft } from "lucide-react";
+import { Loader2, ShoppingCart, Minus, Plus, X, MapPin, Phone, ArrowLeft, Star } from "lucide-react";
+import StarRating from "@/components/StarRating";
 import {
   Sheet,
   SheetContent,
@@ -15,6 +16,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface MenuItem {
   id: string;
@@ -34,6 +41,19 @@ interface Restaurant {
   address: string;
   phone: string;
   cuisine_type: string;
+  average_rating: number;
+  review_count: number;
+}
+
+interface Review {
+  id: string;
+  restaurant_rating: number;
+  comment: string;
+  created_at: string;
+  customer_id: string;
+  profiles: {
+    full_name: string;
+  };
 }
 
 interface CartItem extends MenuItem {
@@ -42,10 +62,12 @@ interface CartItem extends MenuItem {
 
 export default function RestaurantMenu() {
   const { restaurantId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
@@ -56,7 +78,33 @@ export default function RestaurantMenu() {
   useEffect(() => {
     checkAuth();
     fetchRestaurantAndMenu();
+    
+    // Handle reorder if coming from customer dashboard
+    if (location.state?.reorderItems) {
+      handleReorderItems(location.state.reorderItems);
+    }
   }, [restaurantId]);
+
+  const handleReorderItems = (reorderItems: any[]) => {
+    const cartItems = reorderItems.map(item => {
+      const menuItem = menuItems.find(mi => mi.id === item.menu_item_id);
+      if (menuItem) {
+        return {
+          ...menuItem,
+          quantity: item.quantity
+        };
+      }
+      return null;
+    }).filter(Boolean) as CartItem[];
+
+    if (cartItems.length > 0) {
+      setCart(cartItems);
+      toast({
+        title: "Items added to cart",
+        description: "Your previous order has been added to the cart",
+      });
+    }
+  };
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -67,32 +115,48 @@ export default function RestaurantMenu() {
     try {
       console.log("Fetching restaurant and menu...");
       
-      // Fetch restaurant
-      const { data: restaurantData, error: restaurantError } = await supabase
-        .from("restaurants")
-        .select("*")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
-
-      console.log("Restaurant data:", restaurantData, "Error:", restaurantError);
-
-      if (restaurantError) throw restaurantError;
+      let restaurantData: any;
       
-      if (!restaurantData || restaurantData.length === 0) {
-        console.log("No restaurants found");
-        setLoading(false);
-        return;
+      // If restaurantId is provided, fetch that specific restaurant
+      if (restaurantId) {
+        const { data, error } = await supabase
+          .from("restaurants")
+          .select("*")
+          .eq("id", restaurantId)
+          .eq("is_active", true)
+          .single();
+
+        if (error) throw error;
+        restaurantData = data;
+      } else {
+        // Otherwise, fetch the first active restaurant (Atlas Tajine House)
+        const { data, error } = await supabase
+          .from("restaurants")
+          .select("*")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false});
+
+        console.log("Restaurant data:", data, "Error:", error);
+
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+          console.log("No restaurants found");
+          setLoading(false);
+          return;
+        }
+
+        restaurantData = data[0];
       }
 
-      const restaurant = restaurantData[0];
-      console.log("Setting restaurant:", restaurant);
-      setRestaurant(restaurant);
+      console.log("Setting restaurant:", restaurantData);
+      setRestaurant(restaurantData);
 
       // Fetch menu items
       const { data: menuData, error: menuError } = await supabase
         .from("menu_items")
         .select("*")
-        .eq("restaurant_id", restaurant.id)
+        .eq("restaurant_id", restaurantData.id)
         .eq("is_available", true)
         .order("category", { ascending: true });
 
@@ -100,6 +164,9 @@ export default function RestaurantMenu() {
 
       if (menuError) throw menuError;
       setMenuItems(menuData || []);
+      
+      // Fetch reviews for this restaurant
+      await fetchReviewsForRestaurant(restaurantData.id);
     } catch (error: any) {
       console.error("Error fetching restaurant and menu:", error);
       toast({
@@ -109,6 +176,46 @@ export default function RestaurantMenu() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchReviewsForRestaurant = async (restId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select(`
+          id,
+          restaurant_rating,
+          comment,
+          created_at,
+          customer_id
+        `)
+        .eq("restaurant_id", restId)
+        .not("restaurant_rating", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      
+      // Fetch customer names separately
+      const reviewsWithProfiles = await Promise.all(
+        (data || []).map(async (review) => {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("id", review.customer_id)
+            .single();
+          
+          return {
+            ...review,
+            profiles: profile || { full_name: "Anonymous" }
+          };
+        })
+      );
+      
+      setReviews(reviewsWithProfiles);
+    } catch (error: any) {
+      console.error("Error fetching reviews:", error);
     }
   };
 
@@ -419,6 +526,10 @@ export default function RestaurantMenu() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
           <h1 className="text-3xl font-bold mb-2">{restaurant.name}</h1>
+          <div className="flex items-center gap-4 mb-2">
+            <StarRating rating={restaurant.average_rating || 0} size="md" showNumber />
+            <span className="text-sm">({restaurant.review_count || 0} reviews)</span>
+          </div>
           <p className="text-sm mb-2">{restaurant.description}</p>
           <div className="flex items-center gap-4 text-sm">
             <span className="flex items-center gap-1">
@@ -435,6 +546,43 @@ export default function RestaurantMenu() {
 
       {/* Menu */}
       <main className="container mx-auto px-4 py-8">
+        {/* Reviews Section */}
+        {reviews.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="reviews">
+                <AccordionTrigger>
+                  View {reviews.length} recent reviews
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    {reviews.map((review) => (
+                      <Card key={review.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <p className="font-semibold">{review.profiles.full_name}</p>
+                              <StarRating rating={review.restaurant_rating} size="sm" />
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(review.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {review.comment && (
+                            <p className="text-sm text-muted-foreground">{review.comment}</p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        )}
+
+        {/* Menu Items */}
         {Object.entries(groupedItems).map(([category, items]) => (
           <div key={category} className="mb-12">
             <h2 className="text-2xl font-bold mb-6">{category}</h2>

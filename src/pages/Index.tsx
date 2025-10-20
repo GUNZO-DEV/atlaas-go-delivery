@@ -24,20 +24,37 @@ const Index = () => {
             <p className="text-muted-foreground">Authentic Moroccan cuisine delivered to your door</p>
           </div>
           <div className="flex justify-center">
-            <Card className="w-full max-w-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/restaurant")}>
-              <CardContent className="p-6">
-                <img 
-                  src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" 
-                  alt="Atlas Tajine House" 
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                />
-                <h3 className="text-2xl font-bold mb-2">Atlas Tajine House</h3>
-                <p className="text-muted-foreground mb-4">Traditional tajines, couscous, and authentic Moroccan dishes</p>
-                <Button className="w-full" size="lg">
-                  View Menu & Order
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="flex gap-6 justify-center flex-wrap">
+              <Card className="w-full max-w-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/restaurants")}>
+                <CardContent className="p-6">
+                  <img 
+                    src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" 
+                    alt="Browse Restaurants" 
+                    className="w-full h-48 object-cover rounded-lg mb-4"
+                  />
+                  <h3 className="text-2xl font-bold mb-2">Browse All Restaurants</h3>
+                  <p className="text-muted-foreground mb-4">Search, filter, and discover Moroccan restaurants</p>
+                  <Button className="w-full" size="lg">
+                    Browse Restaurants
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card className="w-full max-w-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/restaurant")}>
+                <CardContent className="p-6">
+                  <img 
+                    src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" 
+                    alt="Atlas Tajine House" 
+                    className="w-full h-48 object-cover rounded-lg mb-4"
+                  />
+                  <h3 className="text-2xl font-bold mb-2">Atlas Tajine House</h3>
+                  <p className="text-muted-foreground mb-4">Traditional tajines, couscous, and authentic Moroccan dishes</p>
+                  <Button className="w-full" size="lg">
+                    View Menu & Order
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
