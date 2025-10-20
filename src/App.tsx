@@ -11,6 +11,7 @@ import MerchantDashboard from "./pages/MerchantDashboard";
 import RiderDashboard from "./pages/RiderDashboard";
 import TrackDelivery from "./pages/TrackDelivery";
 import TestSetup from "./pages/TestSetup";
+import RestaurantMenu from "./pages/RestaurantMenu";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/rider" element={<RiderDashboard />} />
           <Route path="/track/:orderId" element={<TrackDelivery />} />
           <Route path="/test-setup" element={<TestSetup />} />
+          <Route path="/restaurant/:restaurantId?" element={<RestaurantMenu />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
