@@ -31,6 +31,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import AddressSelector from "@/components/AddressSelector";
 
 interface MenuItem {
   id: string;
@@ -92,6 +93,8 @@ export default function RestaurantMenu() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [deliveryLat, setDeliveryLat] = useState<number | null>(null);
+  const [deliveryLng, setDeliveryLng] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
   const [isOrdering, setIsOrdering] = useState(false);
   const [promoCode, setPromoCode] = useState("");
@@ -99,6 +102,7 @@ export default function RestaurantMenu() {
   const [scheduledDate, setScheduledDate] = useState<Date>();
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [itemInstructions, setItemInstructions] = useState<Record<string, string>>({});
+  const [addressSelectorOpen, setAddressSelectorOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -582,13 +586,22 @@ export default function RestaurantMenu() {
 
                       <div className="space-y-4 pt-4 border-t">
                         <div>
-                          <Label htmlFor="delivery-address">Delivery Address *</Label>
-                          <Input
-                            id="delivery-address"
-                            placeholder="Enter your delivery address"
-                            value={deliveryAddress}
-                            onChange={(e) => setDeliveryAddress(e.target.value)}
-                          />
+                          <Label>Delivery Address *</Label>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal h-auto py-3"
+                            onClick={() => setAddressSelectorOpen(true)}
+                          >
+                            <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
+                            <span className="flex-1 text-left">
+                              {deliveryAddress || "Select delivery address on map"}
+                            </span>
+                          </Button>
+                          {deliveryAddress && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Tap to change location
+                            </p>
+                          )}
                         </div>
 
                         <div>
@@ -805,6 +818,18 @@ export default function RestaurantMenu() {
           </div>
         ))}
       </main>
+
+      {/* Address Selector Modal */}
+      <AddressSelector
+        open={addressSelectorOpen}
+        onOpenChange={setAddressSelectorOpen}
+        onSelectAddress={(address, lat, lng) => {
+          setDeliveryAddress(address);
+          setDeliveryLat(lat);
+          setDeliveryLng(lng);
+        }}
+        initialAddress={deliveryAddress}
+      />
     </div>
   );
 }
