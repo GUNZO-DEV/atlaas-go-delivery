@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,7 @@ export default function RiderDashboard() {
   const [isAvailable, setIsAvailable] = useState(false);
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [tab, setTab] = useState<'available' | 'active' | 'completed'>('available');
+  const hasRequestedLocationRef = useRef(false);
 
   useEffect(() => {
     checkAuth();
@@ -92,6 +93,14 @@ export default function RiderDashboard() {
       );
     }
   };
+
+  // Auto-request geolocation on first visit when in prompt state
+  useEffect(() => {
+    if (locationPermission === 'prompt' && !hasRequestedLocationRef.current) {
+      hasRequestedLocationRef.current = true;
+      requestLocationPermission();
+    }
+  }, [locationPermission]);
 
   const toggleAvailability = async () => {
     // Block if location permission is not granted
