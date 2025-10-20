@@ -145,14 +145,51 @@ export default function TrackDelivery() {
 
   if (!tracking) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="w-full max-w-md animate-fade-in">
           <CardHeader>
-            <CardTitle>Tracking Not Available</CardTitle>
-            <CardDescription>No tracking data found for this order</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-6 w-6 text-primary" />
+              Preparing Your Order
+            </CardTitle>
+            <CardDescription>
+              {order?.status === "pending" && "Your order is being confirmed by the restaurant"}
+              {order?.status === "confirmed" && "Restaurant is preparing your delicious food"}
+              {order?.status === "preparing" && "Your order is being prepared with care"}
+              {order?.status === "ready_for_pickup" && "Your order is ready! Waiting for a rider..."}
+              {order?.status === "picking_it_up" && "Rider is on the way to pick up your order"}
+              {!order && "Loading order details..."}
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button onClick={() => navigate("/customer")}>Back to Orders</Button>
+          <CardContent className="space-y-4">
+            <div className="p-6 bg-primary/5 rounded-lg border border-primary/10 text-center">
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <MapPin className="h-8 w-8 text-primary" />
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Live tracking will be available once a rider accepts your order and starts heading your way!
+              </p>
+              {order && (
+                <div className="space-y-2 text-left">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Order Status:</span>
+                    <span className="font-medium capitalize">{order.status.replace(/_/g, ' ')}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Restaurant:</span>
+                    <span className="font-medium">{order.restaurant?.name}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => navigate("/customer")} variant="outline" className="flex-1">
+                Back to Orders
+              </Button>
+              <Button onClick={() => window.location.reload()} className="flex-1">
+                Refresh
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

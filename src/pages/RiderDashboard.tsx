@@ -16,6 +16,7 @@ import OrderStatusTimeline from "@/components/OrderStatusTimeline";
 import RiderPerformanceBadges from "@/components/RiderPerformanceBadges";
 import WeatherPrayerWidget from "@/components/WeatherPrayerWidget";
 import EmergencySOSButton from "@/components/EmergencySOSButton";
+import { useRiderLocationTracking } from "@/hooks/useRiderLocationTracking";
 
 interface Order {
   id: string;
@@ -51,6 +52,17 @@ export default function RiderDashboard() {
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [tab, setTab] = useState<'available' | 'active' | 'completed'>('available');
   const hasRequestedLocationRef = useRef(false);
+  
+  // Get active order ID for location tracking
+  const activeOrder = orders.find(o => 
+    (o.status === 'picking_it_up' || o.status === 'picked_up') && o.rider_id
+  );
+  
+  // Track rider location when on active delivery
+  useRiderLocationTracking(
+    activeOrder?.id || null,
+    locationPermission === 'granted' && !!activeOrder
+  );
 
   useEffect(() => {
     checkAuth();
@@ -263,19 +275,56 @@ export default function RiderDashboard() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase
+      // Update order status and assign rider
+      const { error: orderError } = await supabase
         .from("orders")
         .update({ rider_id: user.id, status: "picking_it_up" })
         .eq("id", orderId);
 
-      if (error) throw error;
+      if (orderError) throw orderError;
 
-      // Create delivery tracking entry
-      await supabase.from("delivery_tracking").insert({
-        order_id: orderId,
-        rider_id: user.id,
-        status: "picked_up" as const,
-      });
+      // Get current location for tracking
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            // Create or update delivery tracking entry with location
+            const { error: trackingError } = await supabase.from("delivery_tracking").upsert([{
+              order_id: orderId,
+              rider_id: user.id,
+              status: "in_transit" as const,
+              current_latitude: position.coords.latitude,
+              current_longitude: position.coords.longitude,
+              estimated_delivery_time: new Date(Date.now() + 30 * 60000).toISOString(), // 30 min from now
+            }]);
+
+            if (trackingError) {
+              console.error("Tracking error:", trackingError);
+            }
+          },
+          (error) => {
+            console.error("Location error:", error);
+            // Create tracking entry without location
+            supabase.from("delivery_tracking").upsert([{
+              order_id: orderId,
+              rider_id: user.id,
+              status: "in_transit" as const,
+              estimated_delivery_time: new Date(Date.now() + 30 * 60000).toISOString(),
+            }]);
+          }
+        );
+      } else {
+        // No geolocation - create tracking without location
+        const { error: trackingError } = await supabase.from("delivery_tracking").upsert([{
+          order_id: orderId,
+          rider_id: user.id,
+          status: "in_transit" as const,
+          estimated_delivery_time: new Date(Date.now() + 30 * 60000).toISOString(),
+        }]);
+
+        if (trackingError) {
+          console.error("Tracking error:", trackingError);
+        }
+      }
 
       toast({
         title: "Success",
@@ -293,22 +342,59 @@ export default function RiderDashboard() {
 
   const markPickedUp = async (orderId: string) => {
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ status: "picked_up" })
-        .eq("id", orderId);
+      // Get current location
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            // Update order status
+            const { error: orderError } = await supabase
+              .from("orders")
+              .update({ status: "picked_up" })
+              .eq("id", orderId);
 
-      if (error) throw error;
+            if (orderError) throw orderError;
 
-      await supabase
-        .from("delivery_tracking")
-        .update({ status: "picked_up" })
-        .eq("order_id", orderId);
+            // Update tracking with current location
+            const { error: trackingError } = await supabase
+              .from("delivery_tracking")
+              .update({ 
+                status: "picked_up",
+                current_latitude: position.coords.latitude,
+                current_longitude: position.coords.longitude,
+              })
+              .eq("order_id", orderId);
 
-      toast({
-        title: "Success",
-        description: "Order picked up! Now deliver it to the customer.",
-      });
+            if (trackingError) {
+              console.error("Tracking update error:", trackingError);
+            }
+
+            toast({
+              title: "Success",
+              description: "Order picked up! Now deliver it to the customer.",
+            });
+          },
+          async (error) => {
+            console.error("Location error:", error);
+            // Update without location
+            const { error: orderError } = await supabase
+              .from("orders")
+              .update({ status: "picked_up" })
+              .eq("id", orderId);
+
+            if (orderError) throw orderError;
+
+            await supabase
+              .from("delivery_tracking")
+              .update({ status: "picked_up" })
+              .eq("order_id", orderId);
+
+            toast({
+              title: "Success",
+              description: "Order picked up! Now deliver it to the customer.",
+            });
+          }
+        );
+      }
     } catch (error: any) {
       toast({
         title: "Error",
