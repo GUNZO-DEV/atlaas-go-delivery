@@ -183,6 +183,16 @@ export default function RestaurantMenu() {
     try {
       const { subtotal, deliveryFee, total } = getTotal();
 
+      console.log("Creating order:", {
+        customer_id: user.id,
+        restaurant_id: restaurant!.id,
+        total_amount: subtotal,
+        delivery_fee: deliveryFee,
+        delivery_address: deliveryAddress,
+        notes: notes || null,
+        status: "pending",
+      });
+
       // Create order
       const { data: order, error: orderError } = await supabase
         .from("orders")
@@ -198,6 +208,8 @@ export default function RestaurantMenu() {
         .select()
         .single();
 
+      console.log("Order created:", order, "Error:", orderError);
+
       if (orderError) throw orderError;
 
       // Create order items
@@ -208,9 +220,13 @@ export default function RestaurantMenu() {
         price: item.price,
       }));
 
+      console.log("Creating order items:", orderItems);
+
       const { error: itemsError } = await supabase
         .from("order_items")
         .insert(orderItems);
+
+      console.log("Order items created, Error:", itemsError);
 
       if (itemsError) throw itemsError;
 
@@ -224,6 +240,7 @@ export default function RestaurantMenu() {
       setNotes("");
       navigate("/customer");
     } catch (error: any) {
+      console.error("Order creation error:", error);
       toast({
         title: "Error",
         description: error.message,

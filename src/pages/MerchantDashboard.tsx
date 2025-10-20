@@ -145,9 +145,14 @@ export default function MerchantDashboard() {
   };
 
   const fetchOrders = async () => {
-    if (!restaurant) return;
+    if (!restaurant) {
+      console.log("No restaurant found, skipping order fetch");
+      return;
+    }
 
     try {
+      console.log("Fetching orders for restaurant:", restaurant.id);
+      
       const { data: ordersData, error } = await supabase
         .from("orders")
         .select(`
@@ -161,6 +166,8 @@ export default function MerchantDashboard() {
         `)
         .eq("restaurant_id", restaurant.id)
         .order("created_at", { ascending: false });
+
+      console.log("Orders fetched:", ordersData, "Error:", error);
 
       if (error) throw error;
 
@@ -182,9 +189,11 @@ export default function MerchantDashboard() {
         })
       );
 
+      console.log("Orders with customer details:", ordersWithCustomers);
       setOrders(ordersWithCustomers as OrderWithCustomer[]);
       calculateStats(ordersData || []);
     } catch (error: any) {
+      console.error("Error fetching orders:", error);
       toast({
         title: "Error",
         description: error.message,
