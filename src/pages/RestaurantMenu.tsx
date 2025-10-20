@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/accordion";
 import AddressSelector from "@/components/AddressSelector";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
+import LiveTrackingMap from "@/components/LiveTrackingMap";
 
 interface MenuItem {
   id: string;
@@ -651,6 +652,15 @@ export default function RestaurantMenu() {
                               {deliveryAddress || "Select delivery address on map"}
                             </span>
                           </Button>
+                          {deliveryLat && deliveryLng && (
+                            <div className="mt-2 h-[200px] rounded-lg overflow-hidden border">
+                              <LiveTrackingMap
+                                customerLat={deliveryLat}
+                                customerLng={deliveryLng}
+                                deliveryAddress={deliveryAddress}
+                              />
+                            </div>
+                          )}
                           {deliveryAddress && (
                             <p className="text-xs text-muted-foreground mt-1">
                               Tap to change location
