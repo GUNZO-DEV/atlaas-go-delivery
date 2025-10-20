@@ -12,6 +12,7 @@ import OrderChat from "@/components/OrderChat";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
 import RiderApplicationForm from "@/components/RiderApplicationForm";
 import RiderNavigationMap from "@/components/RiderNavigationMap";
+import OrderStatusTimeline from "@/components/OrderStatusTimeline";
 
 interface Order {
   id: string;
@@ -251,7 +252,7 @@ export default function RiderDashboard() {
 
       const { error } = await supabase
         .from("orders")
-        .update({ rider_id: user.id, status: "picked_up" })
+        .update({ rider_id: user.id, status: "picking_it_up" })
         .eq("id", orderId);
 
       if (error) throw error;
@@ -260,14 +261,41 @@ export default function RiderDashboard() {
       await supabase.from("delivery_tracking").insert({
         order_id: orderId,
         rider_id: user.id,
-        status: "picked_up",
+        status: "picked_up" as const,
       });
 
       toast({
         title: "Success",
-        description: "Order accepted!",
+        description: "Order accepted! Head to the restaurant.",
       });
       setTab('active');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const markPickedUp = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: "picked_up" })
+        .eq("id", orderId);
+
+      if (error) throw error;
+
+      await supabase
+        .from("delivery_tracking")
+        .update({ status: "picked_up" })
+        .eq("order_id", orderId);
+
+      toast({
+        title: "Success",
+        description: "Order picked up! Now deliver it to the customer.",
+      });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -584,9 +612,9 @@ export default function RiderDashboard() {
 
           <TabsContent value="active" className="space-y-4">
             {orders
-              .filter((o) => o.status === "picked_up")
+              .filter((o) => o.status === "picking_it_up" || o.status === "picked_up")
               .map((order) => (
-                <Card key={order.id}>
+                <Card key={order.id} className="animate-fade-in">
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
@@ -597,6 +625,8 @@ export default function RiderDashboard() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    <OrderStatusTimeline currentStatus={order.status} />
+                    
                     <RiderNavigationMap
                       restaurantLat={order.restaurant?.latitude}
                       restaurantLng={order.restaurant?.longitude}
@@ -617,10 +647,24 @@ export default function RiderDashboard() {
                         </div>
                       </div>
                     </div>
-                    <Button className="w-full" onClick={() => completeDelivery(order.id)}>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Complete Delivery
-                    </Button>
+                    
+                    {order.status === "picking_it_up" ? (
+                      <Button 
+                        className="w-full animate-scale-in" 
+                        onClick={() => markPickedUp(order.id)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Mark as Picked Up
+                      </Button>
+                    ) : (
+                      <Button 
+                        className="w-full animate-scale-in" 
+                        onClick={() => completeDelivery(order.id)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Complete Delivery
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               ))}

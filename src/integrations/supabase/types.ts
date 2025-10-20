@@ -954,6 +954,7 @@ export type Database = {
         | "delivering"
         | "delivered"
         | "cancelled"
+        | "picking_it_up"
       user_role: "customer" | "merchant" | "rider" | "admin"
     }
     CompositeTypes: {
@@ -1098,6 +1099,7 @@ export const Constants = {
         "delivering",
         "delivered",
         "cancelled",
+        "picking_it_up",
       ],
       user_role: ["customer", "merchant", "rider", "admin"],
     },
