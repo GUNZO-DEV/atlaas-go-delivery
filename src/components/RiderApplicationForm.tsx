@@ -31,12 +31,13 @@ const RiderApplicationForm = ({ onSuccess }: RiderApplicationFormProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // First, insert the rider profile
+      // First, insert the rider profile with auto-approval
       const { error: profileError } = await supabase
         .from("rider_profiles")
         .insert({
           rider_id: user.id,
           ...formData,
+          status: 'approved',
         });
 
       if (profileError) throw profileError;
