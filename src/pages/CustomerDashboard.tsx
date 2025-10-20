@@ -184,7 +184,7 @@ export default function CustomerDashboard() {
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-muted-foreground">No orders yet</p>
-                  <Button className="mt-4" onClick={() => navigate("/")}>
+                  <Button className="mt-4" onClick={() => navigate("/restaurant")}>
                     Browse Restaurants
                   </Button>
                 </CardContent>

@@ -65,21 +65,27 @@ export default function RestaurantMenu() {
 
   const fetchRestaurantAndMenu = async () => {
     try {
+      console.log("Fetching restaurant and menu...");
+      
       // Fetch restaurant
       const { data: restaurantData, error: restaurantError } = await supabase
         .from("restaurants")
         .select("*")
         .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(1);
+        .order("created_at", { ascending: false });
+
+      console.log("Restaurant data:", restaurantData, "Error:", restaurantError);
 
       if (restaurantError) throw restaurantError;
       
-      const restaurant = restaurantData && restaurantData.length > 0 ? restaurantData[0] : null;
-      if (!restaurant) {
+      if (!restaurantData || restaurantData.length === 0) {
+        console.log("No restaurants found");
         setLoading(false);
         return;
       }
+
+      const restaurant = restaurantData[0];
+      console.log("Setting restaurant:", restaurant);
       setRestaurant(restaurant);
 
       // Fetch menu items
@@ -90,9 +96,12 @@ export default function RestaurantMenu() {
         .eq("is_available", true)
         .order("category", { ascending: true });
 
+      console.log("Menu data:", menuData, "Error:", menuError);
+
       if (menuError) throw menuError;
       setMenuItems(menuData || []);
     } catch (error: any) {
+      console.error("Error fetching restaurant and menu:", error);
       toast({
         title: "Error",
         description: error.message,
