@@ -11,6 +11,7 @@ import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
 import RiderApplicationForm from "@/components/RiderApplicationForm";
+import RiderNavigationMap from "@/components/RiderNavigationMap";
 
 interface Order {
   id: string;
@@ -596,6 +597,15 @@ export default function RiderDashboard() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    <RiderNavigationMap
+                      restaurantLat={order.restaurant?.latitude}
+                      restaurantLng={order.restaurant?.longitude}
+                      restaurantName={order.restaurant?.name}
+                      restaurantAddress={order.restaurant?.address}
+                      deliveryLat={order.delivery_latitude}
+                      deliveryLng={order.delivery_longitude}
+                      deliveryAddress={order.delivery_address}
+                    />
                     <div className="space-y-2">
                       <div className="flex items-start gap-2">
                         <MapPin className="h-4 w-4 mt-1 text-green-500" />
@@ -607,25 +617,10 @@ export default function RiderDashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() =>
-                          openNavigation(
-                            order.delivery_latitude,
-                            order.delivery_longitude,
-                            order.delivery_address
-                          )
-                        }
-                      >
-                        <Navigation className="h-4 w-4 mr-2" />
-                        Navigate
-                      </Button>
-                      <Button className="flex-1" onClick={() => completeDelivery(order.id)}>
-                        Complete Delivery
-                      </Button>
-                    </div>
+                    <Button className="w-full" onClick={() => completeDelivery(order.id)}>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Complete Delivery
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
