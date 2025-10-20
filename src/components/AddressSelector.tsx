@@ -57,45 +57,81 @@ export default function AddressSelector({
 
   // Initialize map
   useEffect(() => {
-    if (!open || !mapContainer.current || map.current) return;
+    if (!open || !mapContainer.current) return;
+    
+    // Clean up existing map if any
+    if (map.current) {
+      map.current.remove();
+      map.current = null;
+      marker.current = null;
+    }
 
-    // Create map
-    map.current = L.map(mapContainer.current).setView(selectedCoords, 14);
+    console.log('Initializing map...');
 
-    // Add tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map.current);
+    // Small delay to ensure container has dimensions
+    setTimeout(() => {
+      if (!mapContainer.current) return;
 
-    // Add draggable marker
-    marker.current = L.marker(selectedCoords, {
-      icon: customIcon,
-      draggable: true
-    }).addTo(map.current);
+      try {
+        // Create map
+        map.current = L.map(mapContainer.current).setView(selectedCoords, 14);
+        console.log('Map created');
 
-    // Handle marker drag
-    marker.current.on('dragend', async () => {
-      if (marker.current) {
-        const pos = marker.current.getLatLng();
-        setSelectedCoords([pos.lat, pos.lng]);
-        await reverseGeocode(pos.lat, pos.lng);
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+        }).addTo(map.current);
+        console.log('Tiles added');
+
+        // Add draggable marker
+        marker.current = L.marker(selectedCoords, {
+          icon: customIcon,
+          draggable: true
+        }).addTo(map.current);
+        console.log('Marker added - should be draggable');
+
+        // Handle marker drag
+        marker.current.on('dragend', async () => {
+          console.log('Marker dragged!');
+          if (marker.current) {
+            const pos = marker.current.getLatLng();
+            console.log('New position:', pos);
+            setSelectedCoords([pos.lat, pos.lng]);
+            await reverseGeocode(pos.lat, pos.lng);
+          }
+        });
+
+        marker.current.on('dragstart', () => {
+          console.log('Drag started');
+        });
+
+        // Handle map click
+        map.current.on('click', async (e) => {
+          console.log('Map clicked at:', e.latlng);
+          const { lat, lng } = e.latlng;
+          setSelectedCoords([lat, lng]);
+          marker.current?.setLatLng([lat, lng]);
+          await reverseGeocode(lat, lng);
+        });
+
+        // Invalidate size to ensure proper rendering
+        map.current.invalidateSize();
+        console.log('Map size invalidated');
+
+        // Get initial address
+        reverseGeocode(selectedCoords[0], selectedCoords[1]);
+      } catch (error) {
+        console.error('Error initializing map:', error);
       }
-    });
-
-    // Handle map click
-    map.current.on('click', async (e) => {
-      const { lat, lng } = e.latlng;
-      setSelectedCoords([lat, lng]);
-      marker.current?.setLatLng([lat, lng]);
-      await reverseGeocode(lat, lng);
-    });
-
-    // Get initial address
-    reverseGeocode(selectedCoords[0], selectedCoords[1]);
+    }, 100);
 
     return () => {
-      map.current?.remove();
-      map.current = null;
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+        marker.current = null;
+      }
     };
   }, [open]);
 
@@ -141,6 +177,7 @@ export default function AddressSelector({
   const searchAddress = async () => {
     if (!searchQuery.trim()) return;
 
+    console.log('Searching for:', searchQuery);
     setIsSearching(true);
     try {
       const response = await fetch(
@@ -148,17 +185,25 @@ export default function AddressSelector({
         {
           headers: {
             'Accept-Language': 'en',
+            'User-Agent': 'FoodDeliveryApp/1.0'
           }
         }
       );
       const data = await response.json();
+      console.log('Search results:', data);
 
       if (data && data.length > 0) {
         const lat = parseFloat(data[0].lat);
         const lng = parseFloat(data[0].lon);
         
+        console.log('Moving to:', lat, lng);
         setSelectedCoords([lat, lng]);
         setSelectedAddress(data[0].display_name);
+        
+        toast({
+          title: 'Address found!',
+          description: 'Location updated on map',
+        });
       } else {
         toast({
           title: 'Address not found',
@@ -295,7 +340,7 @@ export default function AddressSelector({
           </div>
 
           {/* Map */}
-          <div ref={mapContainer} className="flex-1 w-full" />
+          <div ref={mapContainer} className="flex-1 w-full min-h-[400px]" style={{ height: '100%' }} />
 
           {/* Address Display & Confirm */}
           <div className="p-6 pt-4 border-t bg-background">
