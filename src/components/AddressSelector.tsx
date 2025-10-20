@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import * as atlas from 'azure-maps-control';
-import 'azure-maps-control/dist/atlas.min.css';
+import { useState, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -14,107 +15,92 @@ interface AddressSelectorProps {
   initialAddress?: string;
 }
 
+// Custom draggable marker icon
+const customIcon = L.divIcon({
+  html: `
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24 0C15.168 0 8 7.168 8 16C8 28 24 48 24 48C24 48 40 28 40 16C40 7.168 32.832 0 24 0Z" fill="hsl(15 75% 55%)"/>
+      <circle cx="24" cy="16" r="6" fill="white"/>
+    </svg>
+  `,
+  className: 'custom-pin-icon',
+  iconSize: [48, 48],
+  iconAnchor: [24, 48],
+});
+
+// Component to handle map clicks
+function MapClickHandler({ 
+  onLocationSelect 
+}: { 
+  onLocationSelect: (lat: number, lng: number) => void 
+}) {
+  useMapEvents({
+    click: (e) => {
+      onLocationSelect(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+}
+
+// Draggable marker component
+function DraggableMarker({ 
+  position, 
+  onDragEnd 
+}: { 
+  position: [number, number]; 
+  onDragEnd: (lat: number, lng: number) => void 
+}) {
+  const markerRef = useRef<L.Marker>(null);
+
+  return (
+    <Marker
+      draggable={true}
+      position={position}
+      icon={customIcon}
+      ref={markerRef}
+      eventHandlers={{
+        dragend: () => {
+          const marker = markerRef.current;
+          if (marker) {
+            const pos = marker.getLatLng();
+            onDragEnd(pos.lat, pos.lng);
+          }
+        },
+      }}
+    />
+  );
+}
+
 export default function AddressSelector({ 
   open, 
   onOpenChange, 
   onSelectAddress,
   initialAddress 
 }: AddressSelectorProps) {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<atlas.Map | null>(null);
-  const marker = useRef<atlas.HtmlMarker | null>(null);
   const { toast } = useToast();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAddress, setSelectedAddress] = useState(initialAddress || '');
-  const [selectedCoords, setSelectedCoords] = useState<[number, number]>([-7.5898, 33.5731]); // Casablanca default
+  const [selectedCoords, setSelectedCoords] = useState<[number, number]>([33.5731, -7.5898]); // Casablanca default
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [mapKey, setMapKey] = useState(0);
 
-  const azureMapsKey = import.meta.env.VITE_AZURE_MAPS_KEY || '';
-
-  useEffect(() => {
-    if (!open || !mapContainer.current) return;
-
-    // Initialize map
-    map.current = new atlas.Map(mapContainer.current, {
-      center: selectedCoords,
-      zoom: 14,
-      language: 'en-US',
-      authOptions: {
-        authType: atlas.AuthenticationType.subscriptionKey,
-        subscriptionKey: azureMapsKey
-      }
-    });
-
-    map.current.events.add('ready', () => {
-      if (!map.current) return;
-
-      // Add zoom controls
-      map.current.controls.add(new atlas.control.ZoomControl(), {
-        position: atlas.ControlPosition.TopRight
-      });
-
-      // Add draggable marker
-      const markerEl = document.createElement('div');
-      markerEl.innerHTML = `
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M24 0C15.168 0 8 7.168 8 16C8 28 24 48 24 48C24 48 40 28 40 16C40 7.168 32.832 0 24 0Z" fill="hsl(15 75% 55%)"/>
-          <circle cx="24" cy="16" r="6" fill="white"/>
-        </svg>
-      `;
-
-      marker.current = new atlas.HtmlMarker({
-        draggable: true,
-        position: selectedCoords,
-        htmlContent: markerEl.innerHTML
-      });
-
-      map.current.markers.add(marker.current);
-
-      // Update address when marker is dragged
-      map.current.events.add('dragend', marker.current, async () => {
-        const position = marker.current!.getOptions().position as atlas.data.Position;
-        setSelectedCoords([position[0], position[1]]);
-        await reverseGeocode(position[0], position[1]);
-      });
-
-      // Update address when map is clicked
-      map.current.events.add('click', async (e: atlas.MapMouseEvent) => {
-        if (e.position) {
-          marker.current?.setOptions({ position: e.position });
-          setSelectedCoords([e.position[0], e.position[1]]);
-          await reverseGeocode(e.position[0], e.position[1]);
-        }
-      });
-
-      // Get initial address for default location
-      reverseGeocode(selectedCoords[0], selectedCoords[1]);
-    });
-
-    return () => {
-      map.current?.dispose();
-    };
-  }, [open]);
-
-  const reverseGeocode = async (lng: number, lat: number) => {
+  const reverseGeocode = async (lat: number, lng: number) => {
     try {
-      console.log('Starting reverse geocode with:', { lng, lat });
-      console.log('Azure Maps key:', azureMapsKey ? 'Key exists' : 'NO KEY');
-      
       const response = await fetch(
-        `https://atlas.microsoft.com/search/address/reverse/json?api-version=1.0&subscription-key=${azureMapsKey}&query=${lat},${lng}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+        {
+          headers: {
+            'Accept-Language': 'en',
+          }
+        }
       );
       const data = await response.json();
       
-      console.log('Geocoding response:', data);
-      
-      if (data.addresses && data.addresses.length > 0) {
-        const address = data.addresses[0].address.freeformAddress;
-        console.log('Setting address:', address);
-        setSelectedAddress(address);
+      if (data.display_name) {
+        setSelectedAddress(data.display_name);
       } else {
-        console.error('No addresses in geocoding response');
         toast({
           title: 'Address not found',
           description: 'Unable to determine address for this location',
@@ -137,24 +123,22 @@ export default function AddressSelector({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://atlas.microsoft.com/search/address/json?api-version=1.0&subscription-key=${azureMapsKey}&query=${encodeURIComponent(searchQuery)}&countrySet=MA`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&countrycodes=ma&addressdetails=1&limit=1`,
+        {
+          headers: {
+            'Accept-Language': 'en',
+          }
+        }
       );
       const data = await response.json();
 
-      if (data.results && data.results.length > 0) {
-        const position = data.results[0].position;
-        const lng = position.lon;
-        const lat = position.lat;
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
         
-        setSelectedCoords([lng, lat]);
-        setSelectedAddress(data.results[0].address.freeformAddress);
-        
-        // Update map and marker
-        map.current?.setCamera({ 
-          center: [lng, lat], 
-          zoom: 15 
-        });
-        marker.current?.setOptions({ position: [lng, lat] });
+        setSelectedCoords([lat, lng]);
+        setSelectedAddress(data[0].display_name);
+        setMapKey(prev => prev + 1); // Force map re-render with new center
       } else {
         toast({
           title: 'Address not found',
@@ -187,17 +171,13 @@ export default function AddressSelector({
     setIsLoadingLocation(true);
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const lng = position.coords.longitude;
         const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
         
-        setSelectedCoords([lng, lat]);
-        map.current?.setCamera({ 
-          center: [lng, lat], 
-          zoom: 15 
-        });
-        marker.current?.setOptions({ position: [lng, lat] });
+        setSelectedCoords([lat, lng]);
+        setMapKey(prev => prev + 1); // Force map re-render with new center
         
-        await reverseGeocode(lng, lat);
+        await reverseGeocode(lat, lng);
         setIsLoadingLocation(false);
         
         toast({
@@ -236,9 +216,19 @@ export default function AddressSelector({
     );
   };
 
+  const handleLocationSelect = async (lat: number, lng: number) => {
+    setSelectedCoords([lat, lng]);
+    await reverseGeocode(lat, lng);
+  };
+
+  const handleMarkerDragEnd = async (lat: number, lng: number) => {
+    setSelectedCoords([lat, lng]);
+    await reverseGeocode(lat, lng);
+  };
+
   const handleConfirm = () => {
     if (selectedAddress) {
-      onSelectAddress(selectedAddress, selectedCoords[1], selectedCoords[0]);
+      onSelectAddress(selectedAddress, selectedCoords[0], selectedCoords[1]);
       onOpenChange(false);
     }
   };
@@ -297,7 +287,24 @@ export default function AddressSelector({
           </div>
 
           {/* Map */}
-          <div ref={mapContainer} className="flex-1 w-full" />
+          <div className="flex-1 w-full">
+            {open && (
+              <MapContainer
+                key={mapKey}
+                center={selectedCoords}
+                zoom={14}
+                className="h-full w-full"
+                zoomControl={true}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <MapClickHandler onLocationSelect={handleLocationSelect} />
+                <DraggableMarker position={selectedCoords} onDragEnd={handleMarkerDragEnd} />
+              </MapContainer>
+            )}
+          </div>
 
           {/* Address Display & Confirm */}
           <div className="p-6 pt-4 border-t bg-background">

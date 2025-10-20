@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
-import * as atlas from 'azure-maps-control';
-import 'azure-maps-control/dist/atlas.min.css';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface LiveTrackingMapProps {
   restaurantLat?: number;
@@ -12,6 +13,41 @@ interface LiveTrackingMapProps {
   deliveryAddress?: string;
 }
 
+// Custom icons
+const restaurantIcon = L.divIcon({
+  html: '<div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center shadow-lg"><span class="text-white text-xl">🍽️</span></div>',
+  className: 'custom-icon',
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+});
+
+const customerIcon = L.divIcon({
+  html: '<div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-lg"><span class="text-white text-xl">📍</span></div>',
+  className: 'custom-icon',
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+});
+
+const riderIcon = L.divIcon({
+  html: '<div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-xl animate-pulse"><span class="text-white text-2xl">🏍️</span></div>',
+  className: 'custom-icon',
+  iconSize: [48, 48],
+  iconAnchor: [24, 48],
+});
+
+// Component to auto-center map on rider
+function MapUpdater({ riderLat, riderLng }: { riderLat?: number; riderLng?: number }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (riderLat && riderLng) {
+      map.setView([riderLat, riderLng], 14);
+    }
+  }, [riderLat, riderLng, map]);
+  
+  return null;
+}
+
 const LiveTrackingMap = ({
   restaurantLat,
   restaurantLng,
@@ -21,151 +57,79 @@ const LiveTrackingMap = ({
   customerLng,
   deliveryAddress
 }: LiveTrackingMapProps) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<atlas.Map | null>(null);
-  const riderMarker = useRef<atlas.HtmlMarker | null>(null);
-  const restaurantMarker = useRef<atlas.HtmlMarker | null>(null);
-  const customerMarker = useRef<atlas.HtmlMarker | null>(null);
-  const lineLayer = useRef<atlas.layer.LineLayer | null>(null);
+  const center: [number, number] = riderLat && riderLng 
+    ? [riderLat, riderLng] 
+    : [33.5731, -7.5898]; // Casablanca default
 
-  useEffect(() => {
-    if (!mapContainer.current) return;
-
-    // Initialize map centered on Morocco
-    map.current = new atlas.Map(mapContainer.current, {
-      center: [-6.8498, 34.0209],
-      zoom: 12,
-      language: 'en-US',
-      authOptions: {
-        authType: atlas.AuthenticationType.subscriptionKey,
-        subscriptionKey: import.meta.env.VITE_AZURE_MAPS_KEY || ''
-      }
-    });
-
-    map.current.events.add('ready', () => {
-      if (!map.current) return;
-
-      // Add zoom controls
-      map.current.controls.add(new atlas.control.ZoomControl(), {
-        position: atlas.ControlPosition.TopRight
-      });
-
-      // Add restaurant marker
-      if (restaurantLat && restaurantLng) {
-        const restaurantEl = document.createElement('div');
-        restaurantEl.className = 'w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center shadow-lg';
-        restaurantEl.innerHTML = '<span class="text-white text-xl">🍽️</span>';
-        
-        restaurantMarker.current = new atlas.HtmlMarker({
-          position: [restaurantLng, restaurantLat],
-          htmlContent: restaurantEl.outerHTML,
-          popup: new atlas.Popup({
-            content: '<div class="p-2"><h3 class="font-semibold">Restaurant</h3></div>',
-            pixelOffset: [0, -30]
-          })
-        });
-        map.current.markers.add(restaurantMarker.current);
-      }
-
-      // Add customer marker
-      if (customerLat && customerLng) {
-        const customerEl = document.createElement('div');
-        customerEl.className = 'w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-lg';
-        customerEl.innerHTML = '<span class="text-white text-xl">📍</span>';
-        
-        customerMarker.current = new atlas.HtmlMarker({
-          position: [customerLng, customerLat],
-          htmlContent: customerEl.outerHTML,
-          popup: new atlas.Popup({
-            content: `<div class="p-2"><h3 class="font-semibold">Delivery Location</h3><p class="text-sm">${deliveryAddress || ''}</p></div>`,
-            pixelOffset: [0, -30]
-          })
-        });
-        map.current.markers.add(customerMarker.current);
-      }
-    });
-
-    return () => {
-      map.current?.dispose();
-    };
-  }, []);
-
-  // Update rider marker position in real-time
-  useEffect(() => {
-    if (!map.current || !riderLat || !riderLng) return;
-
-    map.current.events.add('ready', () => {
-      if (!map.current) return;
-
-      if (!riderMarker.current) {
-        const riderEl = document.createElement('div');
-        riderEl.className = 'w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-xl animate-pulse';
-        riderEl.innerHTML = '<span class="text-white text-2xl">🏍️</span>';
-        
-        riderMarker.current = new atlas.HtmlMarker({
-          position: [riderLng, riderLat],
-          htmlContent: riderEl.outerHTML,
-          popup: new atlas.Popup({
-            content: '<div class="p-2"><h3 class="font-semibold">Rider Location</h3><p class="text-sm">Live tracking</p></div>',
-            pixelOffset: [0, -30]
-          })
-        });
-        map.current.markers.add(riderMarker.current);
-        
-        // Center map on rider
-        map.current.setCamera({
-          center: [riderLng, riderLat],
-          zoom: 14
-        });
-      } else {
-        // Update marker position
-        riderMarker.current.setOptions({
-          position: [riderLng, riderLat]
-        });
-        
-        // Keep rider in view
-        map.current.setCamera({
-          center: [riderLng, riderLat]
-        });
-      }
-
-      // Draw route if all coordinates available
-      if (restaurantLat && restaurantLng && customerLat && customerLng) {
-        const dataSource = map.current.sources.getById('route-source') as atlas.source.DataSource;
-        
-        if (dataSource) {
-          dataSource.clear();
-          dataSource.add(new atlas.data.LineString([
-            [restaurantLng, restaurantLat],
-            [riderLng, riderLat],
-            [customerLng, customerLat]
-          ]));
-        } else {
-          const newDataSource = new atlas.source.DataSource('route-source');
-          map.current.sources.add(newDataSource);
-          
-          newDataSource.add(new atlas.data.LineString([
-            [restaurantLng, restaurantLat],
-            [riderLng, riderLat],
-            [customerLng, customerLat]
-          ]));
-          
-          lineLayer.current = new atlas.layer.LineLayer(newDataSource, 'route-layer', {
-            strokeColor: '#10b981',
-            strokeWidth: 4,
-            strokeDashArray: [2, 2]
-          });
-          map.current.layers.add(lineLayer.current);
-        }
-      }
-    });
-  }, [riderLat, riderLng, restaurantLat, restaurantLng, customerLat, customerLng]);
+  // Route coordinates
+  const routeCoordinates: [number, number][] = [];
+  if (restaurantLat && restaurantLng && riderLat && riderLng && customerLat && customerLng) {
+    routeCoordinates.push(
+      [restaurantLat, restaurantLng],
+      [riderLat, riderLng],
+      [customerLat, customerLng]
+    );
+  }
 
   return (
     <div className="relative w-full h-full">
-      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
+      <MapContainer
+        center={center}
+        zoom={13}
+        className="absolute inset-0 rounded-lg"
+        zoomControl={true}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        
+        <MapUpdater riderLat={riderLat} riderLng={riderLng} />
+
+        {restaurantLat && restaurantLng && (
+          <Marker position={[restaurantLat, restaurantLng]} icon={restaurantIcon}>
+            <Popup>
+              <div className="p-2">
+                <h3 className="font-semibold">Restaurant</h3>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
+        {customerLat && customerLng && (
+          <Marker position={[customerLat, customerLng]} icon={customerIcon}>
+            <Popup>
+              <div className="p-2">
+                <h3 className="font-semibold">Delivery Location</h3>
+                <p className="text-sm">{deliveryAddress || ''}</p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
+        {riderLat && riderLng && (
+          <Marker position={[riderLat, riderLng]} icon={riderIcon}>
+            <Popup>
+              <div className="p-2">
+                <h3 className="font-semibold">Rider Location</h3>
+                <p className="text-sm">Live tracking</p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
+        {routeCoordinates.length > 0 && (
+          <Polyline
+            positions={routeCoordinates}
+            color="#10b981"
+            weight={4}
+            dashArray="5, 10"
+          />
+        )}
+      </MapContainer>
+
       {!riderLat && (
-        <div className="absolute inset-0 bg-muted/50 backdrop-blur-sm rounded-lg flex items-center justify-center">
+        <div className="absolute inset-0 bg-muted/50 backdrop-blur-sm rounded-lg flex items-center justify-center pointer-events-none">
           <p className="text-muted-foreground font-medium">
             Waiting for rider location...
           </p>
