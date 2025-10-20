@@ -13,6 +13,7 @@ import OrderChat from "@/components/OrderChat";
 import LoyaltyCard from "@/components/LoyaltyCard";
 import WalletCard from "@/components/WalletCard";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
+import LiveTrackingMap from "@/components/LiveTrackingMap";
 
 interface Order {
   id: string;
@@ -50,12 +51,21 @@ export default function CustomerDashboard() {
   const [user, setUser] = useState<any>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [trackingData, setTrackingData] = useState<any>(null);
+  const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
     fetchOrders();
     setupRealtimeSubscription();
   }, []);
+
+  useEffect(() => {
+    if (activeOrderId) {
+      fetchTrackingData(activeOrderId);
+      setupTrackingSubscription(activeOrderId);
+    }
+  }, [activeOrderId]);
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -112,6 +122,54 @@ export default function CustomerDashboard() {
         },
         () => {
           fetchOrders();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const fetchTrackingData = async (orderId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("delivery_tracking")
+        .select(`
+          *,
+          order:orders(
+            delivery_address,
+            restaurant:restaurants(
+              name,
+              address,
+              latitude,
+              longitude
+            )
+          )
+        `)
+        .eq("order_id", orderId)
+        .single();
+
+      if (error) throw error;
+      setTrackingData(data);
+    } catch (error: any) {
+      console.error("Error fetching tracking data:", error);
+    }
+  };
+
+  const setupTrackingSubscription = (orderId: string) => {
+    const channel = supabase
+      .channel(`tracking-${orderId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "delivery_tracking",
+          filter: `order_id=eq.${orderId}`,
+        },
+        (payload) => {
+          setTrackingData(payload.new);
         }
       )
       .subscribe();
@@ -375,7 +433,35 @@ export default function CustomerDashboard() {
           </TabsContent>
 
           <TabsContent value="active" className="space-y-4">
-            {filterOrders("pending").concat(filterOrders("confirmed"), filterOrders("preparing"), filterOrders("ready"), filterOrders("picked_up")).map((order) => (
+            {/* Live Tracking Map for Active Delivery */}
+            {activeOrderId && trackingData && (
+              <Card className="overflow-hidden">
+                <CardHeader>
+                  <CardTitle>Live Tracking</CardTitle>
+                  <CardDescription>Follow your delivery in real-time</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="h-[400px]">
+                    <LiveTrackingMap
+                      restaurantLat={trackingData.order?.restaurant?.latitude}
+                      restaurantLng={trackingData.order?.restaurant?.longitude}
+                      riderLat={trackingData.current_latitude}
+                      riderLng={trackingData.current_longitude}
+                      customerLat={trackingData.delivery_latitude}
+                      customerLng={trackingData.delivery_longitude}
+                      deliveryAddress={trackingData.order?.delivery_address}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {filterOrders("pending").concat(filterOrders("confirmed"), filterOrders("preparing"), filterOrders("ready"), filterOrders("picked_up")).map((order) => {
+              // Set active order for map tracking
+              if (order.status === "picked_up" && !activeOrderId) {
+                setActiveOrderId(order.id);
+              }
+              return (
               <Card key={order.id} className="cursor-pointer hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -424,7 +510,8 @@ export default function CustomerDashboard() {
                     </div>
                   </CardContent>
                 </Card>
-            ))}
+              );
+            })}
           </TabsContent>
 
           <TabsContent value="completed" className="space-y-4">
