@@ -6,6 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import CustomerDashboard from "./pages/CustomerDashboard";
+import MerchantDashboard from "./pages/MerchantDashboard";
+import RiderDashboard from "./pages/RiderDashboard";
+import TrackDelivery from "./pages/TrackDelivery";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +22,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/customer" element={<CustomerDashboard />} />
+          <Route path="/merchant" element={<MerchantDashboard />} />
+          <Route path="/rider" element={<RiderDashboard />} />
+          <Route path="/track/:orderId" element={<TrackDelivery />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
