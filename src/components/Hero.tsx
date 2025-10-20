@@ -6,7 +6,7 @@ import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay - Fully Animated */}
+      {/* Background Image - Fully Animated Mountains */}
       <div className="absolute inset-0 z-0">
         {/* Base mountain image with zoom effect */}
         <img 
@@ -15,21 +15,8 @@ const Hero = () => {
           className="w-full h-full object-cover animate-ken-burns"
         />
         
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-hero animate-gradient-shift" />
-        
-        {/* Animated zellij pattern */}
-        <div className="absolute inset-0 zellij-pattern opacity-30 animate-pulse-slow" />
-        
-        {/* Animated light rays */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-1 h-full bg-gradient-to-b from-primary-glow/20 to-transparent animate-light-ray" style={{ animationDelay: '0s' }} />
-          <div className="absolute top-0 left-1/2 w-1 h-full bg-gradient-to-b from-primary-glow/20 to-transparent animate-light-ray" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-0 left-3/4 w-1 h-full bg-gradient-to-b from-primary-glow/20 to-transparent animate-light-ray" style={{ animationDelay: '4s' }} />
-        </div>
-        
-        {/* Animated fog overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 via-transparent to-transparent animate-fog-drift" />
+        {/* Subtle dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/40" />
       </div>
 
       {/* Content */}
