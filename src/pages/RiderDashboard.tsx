@@ -42,13 +42,88 @@ export default function RiderDashboard() {
     todayEarnings: 0,
     activeDeliveries: 0,
   });
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
 
   useEffect(() => {
     checkAuth();
     checkRiderProfile();
     fetchOrders();
     setupRealtimeSubscription();
+    checkLocationPermission();
   }, []);
+
+  const checkLocationPermission = async () => {
+    if ('geolocation' in navigator && 'permissions' in navigator) {
+      try {
+        const result = await navigator.permissions.query({ name: 'geolocation' });
+        setLocationPermission(result.state as 'granted' | 'denied' | 'prompt');
+        
+        result.addEventListener('change', () => {
+          setLocationPermission(result.state as 'granted' | 'denied' | 'prompt');
+        });
+      } catch (error) {
+        console.error('Error checking location permission:', error);
+      }
+    }
+  };
+
+  const requestLocationPermission = async () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocationPermission('granted');
+          toast({
+            title: "Location Access Granted",
+            description: "You can now receive delivery requests",
+          });
+        },
+        (error) => {
+          setLocationPermission('denied');
+          toast({
+            title: "Location Access Denied",
+            description: "Please enable location access in your browser settings",
+            variant: "destructive",
+          });
+        }
+      );
+    }
+  };
+
+  const toggleAvailability = async () => {
+    if (!isAvailable && locationPermission !== 'granted') {
+      await requestLocationPermission();
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const newAvailability = !isAvailable;
+      
+      const { error } = await supabase
+        .from('rider_profiles')
+        .update({ is_available: newAvailability })
+        .eq('rider_id', user.id);
+
+      if (error) throw error;
+
+      setIsAvailable(newAvailability);
+      toast({
+        title: newAvailability ? "You're Now Online" : "You're Now Offline",
+        description: newAvailability 
+          ? "You will receive new delivery requests" 
+          : "You won't receive new delivery requests",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -91,6 +166,7 @@ export default function RiderDashboard() {
       if (data) {
         setRiderProfile(data);
         setProfileStatus(data.status);
+        setIsAvailable(data.is_available || false);
       } else {
         setProfileStatus("none");
       }
@@ -112,7 +188,7 @@ export default function RiderDashboard() {
           *,
           restaurant:restaurants(name, address, latitude, longitude)
         `)
-        .or(`rider_id.eq.${user.id},status.eq.ready`)
+        .or(`rider_id.eq.${user.id},status.eq.ready_for_pickup`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -326,19 +402,56 @@ export default function RiderDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Rider Dashboard</h1>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => navigate("/rider/earnings")}>
-              <DollarSign className="h-4 w-4 mr-2" />
-              Earnings
-            </Button>
-            <SupportTicketDialog />
-            <NotificationBell />
-            <Button variant="outline" onClick={handleSignOut}>
-              Sign Out
-            </Button>
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">Rider Dashboard</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate("/rider/earnings")}>
+                <DollarSign className="h-4 w-4 mr-2" />
+                Earnings
+              </Button>
+              <SupportTicketDialog />
+              <NotificationBell />
+              <Button variant="outline" onClick={handleSignOut}>
+                Sign Out
+              </Button>
+            </div>
           </div>
+          
+          {/* Availability Toggle */}
+          <Card className="bg-card/50">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${isAvailable ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+                  <div>
+                    <p className="font-semibold">
+                      {isAvailable ? "You're Online" : "You're Offline"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {locationPermission === 'granted' 
+                        ? isAvailable ? "Accepting delivery requests" : "Not accepting delivery requests"
+                        : "Location access required"}
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={toggleAvailability}
+                  variant={isAvailable ? "destructive" : "default"}
+                  className="min-w-[120px]"
+                >
+                  {isAvailable ? "Go Offline" : "Go Online"}
+                </Button>
+              </div>
+              {locationPermission !== 'granted' && (
+                <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    📍 Enable location access to start receiving orders
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </header>
 
@@ -396,7 +509,7 @@ export default function RiderDashboard() {
 
           <TabsContent value="available" className="space-y-4">
             {orders
-              .filter((o) => o.status === "ready" && !o.rider_id)
+              .filter((o) => o.status === "ready_for_pickup" && !o.rider_id)
               .map((order) => (
                 <Card key={order.id}>
                   <CardHeader>
