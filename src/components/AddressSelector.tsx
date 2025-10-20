@@ -87,9 +87,18 @@ export default function AddressSelector({
         // Add draggable marker
         marker.current = L.marker(selectedCoords, {
           icon: customIcon,
-          draggable: true
+          draggable: true,
+          autoPan: true,
+          autoPanPadding: [50, 50],
         }).addTo(map.current);
         console.log('Marker added - should be draggable');
+
+        // Enable interactions explicitly (helps on mobile)
+        map.current.dragging.enable();
+        map.current.touchZoom.enable();
+        map.current.scrollWheelZoom.disable();
+        map.current.boxZoom.enable();
+        map.current.keyboard.enable();
 
         // Handle marker drag
         marker.current.on('dragend', async () => {
@@ -117,6 +126,7 @@ export default function AddressSelector({
 
         // Invalidate size to ensure proper rendering
         map.current.invalidateSize();
+        setTimeout(() => map.current?.invalidateSize(), 300);
         console.log('Map size invalidated');
 
         // Get initial address
@@ -146,13 +156,17 @@ export default function AddressSelector({
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&addressdetails=1`,
         {
           headers: {
             'Accept-Language': 'en',
+            'User-Agent': 'FoodDeliveryApp/1.0 (contact: support@example.com)'
           }
         }
       );
+      if (!response.ok) {
+        throw new Error(`Reverse geocoding failed: ${response.status}`);
+      }
       const data = await response.json();
       
       if (data.display_name) {
@@ -185,12 +199,14 @@ export default function AddressSelector({
         {
           headers: {
             'Accept-Language': 'en',
-            'User-Agent': 'FoodDeliveryApp/1.0'
+            'User-Agent': 'FoodDeliveryApp/1.0 (contact: support@example.com)'
           }
         }
       );
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
       const data = await response.json();
-      console.log('Search results:', data);
 
       if (data && data.length > 0) {
         const lat = parseFloat(data[0].lat);
@@ -306,7 +322,7 @@ export default function AddressSelector({
                   placeholder="Search for an address in Morocco..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && searchAddress()}
+                  onKeyDown={(e) => e.key === 'Enter' && searchAddress()}
                   className="pl-9"
                 />
               </div>
@@ -340,7 +356,7 @@ export default function AddressSelector({
           </div>
 
           {/* Map */}
-          <div ref={mapContainer} className="flex-1 w-full min-h-[400px]" style={{ height: '100%' }} />
+          <div ref={mapContainer} className="flex-1 w-full min-h-[400px]" style={{ height: '100%', touchAction: 'pan-x pan-y' }} />
 
           {/* Address Display & Confirm */}
           <div className="p-6 pt-4 border-t bg-background">
