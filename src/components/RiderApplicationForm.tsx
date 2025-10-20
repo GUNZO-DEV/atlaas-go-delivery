@@ -31,14 +31,25 @@ const RiderApplicationForm = ({ onSuccess }: RiderApplicationFormProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error } = await supabase
+      // First, insert the rider profile
+      const { error: profileError } = await supabase
         .from("rider_profiles")
         .insert({
           rider_id: user.id,
           ...formData,
         });
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Then, assign the rider role
+      const { error: roleError } = await supabase.rpc('assign_rider_role', {
+        user_id_param: user.id
+      });
+
+      if (roleError) {
+        console.error('Error assigning rider role:', roleError);
+        // Don't throw here - the profile was created successfully
+      }
 
       toast({
         title: "Application Submitted!",
