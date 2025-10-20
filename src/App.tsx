@@ -13,6 +13,7 @@ import TrackDelivery from "./pages/TrackDelivery";
 import TestSetup from "./pages/TestSetup";
 import RestaurantMenu from "./pages/RestaurantMenu";
 import Restaurants from "./pages/Restaurants";
+import GroupOrder from "./pages/GroupOrder";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/track/:orderId" element={<TrackDelivery />} />
           <Route path="/test-setup" element={<TestSetup />} />
           <Route path="/restaurant/:restaurantId?" element={<RestaurantMenu />} />
+          <Route path="/group-order/:mode?" element={<GroupOrder />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

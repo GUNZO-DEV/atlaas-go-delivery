@@ -7,7 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ShoppingCart, Minus, Plus, X, MapPin, Phone, ArrowLeft, Star } from "lucide-react";
+import { Loader2, ShoppingCart, Minus, Plus, X, MapPin, Phone, ArrowLeft, Star, Calendar, CreditCard, Users, Tag } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import StarRating from "@/components/StarRating";
 import {
   Sheet,
@@ -58,6 +67,17 @@ interface Review {
 
 interface CartItem extends MenuItem {
   quantity: number;
+  special_instructions?: string;
+}
+
+interface Promotion {
+  id: string;
+  code: string;
+  description: string;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  min_order_amount: number;
+  max_discount_amount?: number;
 }
 
 export default function RestaurantMenu() {
@@ -74,6 +94,11 @@ export default function RestaurantMenu() {
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [isOrdering, setIsOrdering] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<Promotion | null>(null);
+  const [scheduledDate, setScheduledDate] = useState<Date>();
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [itemInstructions, setItemInstructions] = useState<Record<string, string>>({});
 
   useEffect(() => {
     checkAuth();
@@ -251,10 +276,69 @@ export default function RestaurantMenu() {
     setCart((prev) => prev.filter((item) => item.id !== itemId));
   };
 
+  const applyPromoCode = async () => {
+    if (!promoCode.trim()) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("promotions")
+        .select("*")
+        .eq("code", promoCode.toUpperCase())
+        .eq("is_active", true)
+        .single();
+
+      if (error || !data) {
+        toast({
+          title: "Invalid promo code",
+          description: "This promo code is not valid or has expired",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      
+      if (subtotal < data.min_order_amount) {
+        toast({
+          title: "Minimum order not met",
+          description: `Minimum order of ${data.min_order_amount} MAD required`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAppliedPromo(data as Promotion);
+      toast({
+        title: "Promo applied!",
+        description: data.description,
+      });
+    } catch (error: any) {
+      console.error("Error applying promo:", error);
+      toast({
+        title: "Error",
+        description: "Failed to apply promo code",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getTotal = () => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const deliveryFee = 15;
-    return { subtotal, deliveryFee, total: subtotal + deliveryFee };
+    let discount = 0;
+    
+    if (appliedPromo) {
+      if (appliedPromo.discount_type === 'percentage') {
+        discount = (subtotal * appliedPromo.discount_value) / 100;
+        if (appliedPromo.max_discount_amount) {
+          discount = Math.min(discount, appliedPromo.max_discount_amount);
+        }
+      } else {
+        discount = appliedPromo.discount_value;
+      }
+    }
+    
+    return { subtotal, deliveryFee, discount, total: subtotal + deliveryFee - discount };
   };
 
   const placeOrder = async () => {
@@ -288,7 +372,7 @@ export default function RestaurantMenu() {
 
     setIsOrdering(true);
     try {
-      const { subtotal, deliveryFee, total } = getTotal();
+      const { subtotal, deliveryFee } = getTotal();
 
       console.log("Creating order:", {
         customer_id: user.id,
@@ -298,20 +382,28 @@ export default function RestaurantMenu() {
         delivery_address: deliveryAddress,
         notes: notes || null,
         status: "pending",
+        scheduled_for: scheduledDate || null,
+        promo_code: appliedPromo?.code || null,
+        discount_amount: appliedPromo ? getTotal().discount : 0,
+        payment_method: paymentMethod,
       });
 
       // Create order
       const { data: order, error: orderError } = await supabase
         .from("orders")
-        .insert({
+        .insert([{
           customer_id: user.id,
           restaurant_id: restaurant!.id,
           total_amount: subtotal,
           delivery_fee: deliveryFee,
           delivery_address: deliveryAddress,
           notes: notes || null,
-          status: "pending",
-        })
+          status: "pending" as const,
+          scheduled_for: scheduledDate?.toISOString() || null,
+          promo_code: appliedPromo?.code || null,
+          discount_amount: appliedPromo ? getTotal().discount : 0,
+          payment_method: paymentMethod,
+        }])
         .select()
         .single();
 
@@ -325,6 +417,7 @@ export default function RestaurantMenu() {
         menu_item_id: item.id,
         quantity: item.quantity,
         price: item.price,
+        special_instructions: item.special_instructions || null,
       }));
 
       console.log("Creating order items:", orderItems);
@@ -345,6 +438,11 @@ export default function RestaurantMenu() {
       setCart([]);
       setDeliveryAddress("");
       setNotes("");
+      setPromoCode("");
+      setAppliedPromo(null);
+      setScheduledDate(undefined);
+      setPaymentMethod("cash");
+      setItemInstructions({});
       navigate("/customer");
     } catch (error: any) {
       console.error("Order creation error:", error);
@@ -391,9 +489,19 @@ export default function RestaurantMenu() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(`/group-order/new?restaurant=${restaurant.id}`)}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Start Group Order
+              </Button>
+            </div>
             <h1 className="text-xl font-bold">{restaurant.name}</h1>
             <Sheet>
               <SheetTrigger asChild>
@@ -417,59 +525,135 @@ export default function RestaurantMenu() {
                     <>
                       <div className="space-y-4">
                         {cart.map((item) => (
-                          <div key={item.id} className="flex gap-4 items-start">
-                            <img
-                              src={item.image_url}
-                              alt={item.name}
-                              className="w-16 h-16 object-cover rounded"
-                            />
-                            <div className="flex-1">
-                              <h4 className="font-semibold">{item.name}</h4>
-                              <p className="text-sm text-muted-foreground">{item.price} MAD</p>
-                              <div className="flex items-center gap-2 mt-2">
-                                <Button
-                                  size="icon"
-                                  variant="outline"
-                                  className="h-6 w-6"
-                                  onClick={() => updateQuantity(item.id, -1)}
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </Button>
-                                <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
-                                <Button
-                                  size="icon"
-                                  variant="outline"
-                                  className="h-6 w-6"
-                                  onClick={() => updateQuantity(item.id, 1)}
-                                >
-                                  <Plus className="h-3 w-3" />
-                                </Button>
+                          <div key={item.id} className="space-y-2">
+                            <div className="flex gap-4 items-start">
+                              <img
+                                src={item.image_url}
+                                alt={item.name}
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                              <div className="flex-1">
+                                <h4 className="font-semibold">{item.name}</h4>
+                                <p className="text-sm text-muted-foreground">{item.price} MAD</p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <Button
+                                    size="icon"
+                                    variant="outline"
+                                    className="h-6 w-6"
+                                    onClick={() => updateQuantity(item.id, -1)}
+                                  >
+                                    <Minus className="h-3 w-3" />
+                                  </Button>
+                                  <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
+                                  <Button
+                                    size="icon"
+                                    variant="outline"
+                                    className="h-6 w-6"
+                                    onClick={() => updateQuantity(item.id, 1)}
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </Button>
+                                </div>
                               </div>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-6 w-6"
+                                onClick={() => removeFromCart(item.id)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
                             </div>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-6 w-6"
-                              onClick={() => removeFromCart(item.id)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
+                            <Input
+                              placeholder="Special instructions (optional)"
+                              value={item.special_instructions || ""}
+                              onChange={(e) => {
+                                setCart(prev => prev.map(i => 
+                                  i.id === item.id 
+                                    ? { ...i, special_instructions: e.target.value }
+                                    : i
+                                ));
+                              }}
+                              className="text-sm"
+                            />
                           </div>
                         ))}
                       </div>
 
                       <div className="space-y-4 pt-4 border-t">
                         <div>
-                          <label className="text-sm font-medium mb-2 block">Delivery Address *</label>
+                          <Label htmlFor="delivery-address">Delivery Address *</Label>
                           <Input
+                            id="delivery-address"
                             placeholder="Enter your delivery address"
                             value={deliveryAddress}
                             onChange={(e) => setDeliveryAddress(e.target.value)}
                           />
                         </div>
+
                         <div>
-                          <label className="text-sm font-medium mb-2 block">Notes (Optional)</label>
+                          <Label>Schedule Order (Optional)</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                <Calendar className="mr-2 h-4 w-4" />
+                                {scheduledDate ? format(scheduledDate, "PPP p") : "Order now"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <CalendarComponent
+                                mode="single"
+                                selected={scheduledDate}
+                                onSelect={setScheduledDate}
+                                disabled={(date) => date < new Date()}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+
+                        <div>
+                          <Label>Payment Method</Label>
+                          <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="cash" id="cash" />
+                              <Label htmlFor="cash">Cash on Delivery</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="card" id="card" />
+                              <Label htmlFor="card">Card on Delivery</Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="promo">Promo Code</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              id="promo"
+                              placeholder="Enter promo code"
+                              value={promoCode}
+                              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                            />
+                            <Button 
+                              variant="outline" 
+                              onClick={applyPromoCode}
+                              disabled={!promoCode.trim() || !!appliedPromo}
+                            >
+                              <Tag className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          {appliedPromo && (
+                            <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+                              ✓ {appliedPromo.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <Label htmlFor="notes">Notes (Optional)</Label>
                           <Textarea
+                            id="notes"
                             placeholder="Any special instructions?"
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
@@ -486,6 +670,12 @@ export default function RestaurantMenu() {
                           <span>Delivery Fee</span>
                           <span>{getTotal().deliveryFee} MAD</span>
                         </div>
+                        {appliedPromo && (
+                          <div className="flex justify-between text-sm text-green-600">
+                            <span>Discount ({appliedPromo.code})</span>
+                            <span>-{getTotal().discount.toFixed(2)} MAD</span>
+                          </div>
+                        )}
                         <div className="flex justify-between font-bold text-lg">
                           <span>Total</span>
                           <span>{getTotal().total.toFixed(2)} MAD</span>

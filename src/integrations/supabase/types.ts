@@ -61,6 +61,89 @@ export type Database = {
           },
         ]
       }
+      group_order_participants: {
+        Row: {
+          group_order_id: string
+          id: string
+          joined_at: string | null
+          order_id: string | null
+          user_id: string
+        }
+        Insert: {
+          group_order_id: string
+          id?: string
+          joined_at?: string | null
+          order_id?: string | null
+          user_id: string
+        }
+        Update: {
+          group_order_id?: string
+          id?: string
+          joined_at?: string | null
+          order_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_order_participants_group_order_id_fkey"
+            columns: ["group_order_id"]
+            isOneToOne: false
+            referencedRelation: "group_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_order_participants_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_orders: {
+        Row: {
+          created_at: string | null
+          delivery_address: string
+          expires_at: string | null
+          host_user_id: string
+          id: string
+          restaurant_id: string
+          scheduled_for: string | null
+          session_code: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          delivery_address: string
+          expires_at?: string | null
+          host_user_id: string
+          id?: string
+          restaurant_id: string
+          scheduled_for?: string | null
+          session_code: string
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          delivery_address?: string
+          expires_at?: string | null
+          host_user_id?: string
+          id?: string
+          restaurant_id?: string
+          scheduled_for?: string | null
+          session_code?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_orders_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_items: {
         Row: {
           category: string | null
@@ -157,6 +240,7 @@ export type Database = {
           order_id: string
           price: number
           quantity: number
+          special_instructions: string | null
         }
         Insert: {
           created_at?: string
@@ -165,6 +249,7 @@ export type Database = {
           order_id: string
           price: number
           quantity: number
+          special_instructions?: string | null
         }
         Update: {
           created_at?: string
@@ -173,6 +258,7 @@ export type Database = {
           order_id?: string
           price?: number
           quantity?: number
+          special_instructions?: string | null
         }
         Relationships: [
           {
@@ -200,11 +286,15 @@ export type Database = {
           delivery_fee: number
           delivery_latitude: number | null
           delivery_longitude: number | null
+          discount_amount: number | null
           estimated_delivery_time: number | null
           id: string
           notes: string | null
+          payment_method: string | null
+          promo_code: string | null
           restaurant_id: string
           rider_id: string | null
+          scheduled_for: string | null
           status: Database["public"]["Enums"]["order_status"]
           total_amount: number
           updated_at: string
@@ -217,11 +307,15 @@ export type Database = {
           delivery_fee?: number
           delivery_latitude?: number | null
           delivery_longitude?: number | null
+          discount_amount?: number | null
           estimated_delivery_time?: number | null
           id?: string
           notes?: string | null
+          payment_method?: string | null
+          promo_code?: string | null
           restaurant_id: string
           rider_id?: string | null
+          scheduled_for?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           total_amount: number
           updated_at?: string
@@ -234,11 +328,15 @@ export type Database = {
           delivery_fee?: number
           delivery_latitude?: number | null
           delivery_longitude?: number | null
+          discount_amount?: number | null
           estimated_delivery_time?: number | null
           id?: string
           notes?: string | null
+          payment_method?: string | null
+          promo_code?: string | null
           restaurant_id?: string
           rider_id?: string | null
+          scheduled_for?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           total_amount?: number
           updated_at?: string
@@ -277,6 +375,54 @@ export type Database = {
           id?: string
           phone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean | null
+          max_discount_amount: number | null
+          min_order_amount: number | null
+          usage_count: number | null
+          usage_limit: number | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description: string
+          discount_type: string
+          discount_value: number
+          id?: string
+          is_active?: boolean | null
+          max_discount_amount?: number | null
+          min_order_amount?: number | null
+          usage_count?: number | null
+          usage_limit?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean | null
+          max_discount_amount?: number | null
+          min_order_amount?: number | null
+          usage_count?: number | null
+          usage_limit?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
         }
         Relationships: []
       }
