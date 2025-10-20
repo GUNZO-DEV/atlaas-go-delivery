@@ -94,7 +94,8 @@ export default function RiderDashboard() {
   };
 
   const toggleAvailability = async () => {
-    if (!isAvailable && locationPermission !== 'granted') {
+    // Block if location permission is not granted
+    if (locationPermission !== 'granted') {
       await requestLocationPermission();
       return;
     }
@@ -516,51 +517,84 @@ export default function RiderDashboard() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Today's Deliveries
+        {locationPermission !== 'granted' ? (
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <Navigation className="h-6 w-6" />
+                Location Access Required
               </CardTitle>
+              <CardDescription>
+                You must enable location access to use the rider app
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-muted-foreground" />
-                <span className="text-2xl font-bold">{stats.todayDeliveries}</span>
+            <CardContent className="space-y-4">
+              <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                <h3 className="font-semibold mb-2">Why do we need your location?</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Track your position during deliveries</li>
+                  <li>• Show you available orders nearby</li>
+                  <li>• Provide accurate navigation to pickup and delivery locations</li>
+                  <li>• Keep customers informed of delivery progress</li>
+                </ul>
               </div>
+              <Button 
+                onClick={requestLocationPermission}
+                className="w-full"
+                size="lg"
+              >
+                <Navigation className="h-5 w-5 mr-2" />
+                Enable Location Access
+              </Button>
             </CardContent>
           </Card>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Today's Deliveries
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-2xl font-bold">{stats.todayDeliveries}</span>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Today's Earnings
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-                <span className="text-2xl font-bold">{stats.todayEarnings.toFixed(2)} MAD</span>
-              </div>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Today's Earnings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-2xl font-bold">{stats.todayEarnings.toFixed(2)} MAD</span>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Active Deliveries
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Navigation className="h-4 w-4 text-muted-foreground" />
-                <span className="text-2xl font-bold">{stats.activeDeliveries}</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Active Deliveries
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <Navigation className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-2xl font-bold">{stats.activeDeliveries}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-        <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full">
+            <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="available">Available</TabsTrigger>
             <TabsTrigger value="active">Active</TabsTrigger>
@@ -693,6 +727,8 @@ export default function RiderDashboard() {
               ))}
           </TabsContent>
         </Tabs>
+          </>
+        )}
       </main>
     </div>
   );
