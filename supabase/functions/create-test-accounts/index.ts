@@ -23,79 +23,130 @@ serve(async (req) => {
       }
     );
 
-    // Create merchant account
-    const { data: merchantAuth, error: merchantAuthError } = await supabaseAdmin.auth.admin.createUser({
-      email: 'merchant@test.com',
-      password: 'merchant123',
-      email_confirm: true,
-      user_metadata: { full_name: 'Test Merchant' }
-    });
+    // Create or get merchant account
+    let merchantId: string;
+    const { data: existingMerchant } = await supabaseAdmin.auth.admin.listUsers();
+    const merchantExists = existingMerchant?.users.find(u => u.email === 'merchant@test.com');
+    
+    if (merchantExists) {
+      merchantId = merchantExists.id;
+      console.log('Merchant already exists:', merchantId);
+      
+      // Update password
+      await supabaseAdmin.auth.admin.updateUserById(merchantId, {
+        password: 'merchant123'
+      });
+    } else {
+      const { data: merchantAuth, error: merchantAuthError } = await supabaseAdmin.auth.admin.createUser({
+        email: 'merchant@test.com',
+        password: 'merchant123',
+        email_confirm: true,
+        user_metadata: { full_name: 'Test Merchant' }
+      });
 
-    if (merchantAuthError) {
-      console.error('Merchant auth error:', merchantAuthError);
-      throw merchantAuthError;
+      if (merchantAuthError) {
+        console.error('Merchant auth error:', merchantAuthError);
+        throw merchantAuthError;
+      }
+
+      merchantId = merchantAuth.user.id;
+      console.log('Created merchant:', merchantId);
     }
 
-    const merchantId = merchantAuth.user.id;
-    console.log('Created merchant:', merchantId);
+    // Create or get rider account
+    let riderId: string;
+    const riderExists = existingMerchant?.users.find(u => u.email === 'rider@test.com');
+    
+    if (riderExists) {
+      riderId = riderExists.id;
+      console.log('Rider already exists:', riderId);
+      
+      await supabaseAdmin.auth.admin.updateUserById(riderId, {
+        password: 'rider123'
+      });
+    } else {
+      const { data: riderAuth, error: riderAuthError } = await supabaseAdmin.auth.admin.createUser({
+        email: 'rider@test.com',
+        password: 'rider123',
+        email_confirm: true,
+        user_metadata: { full_name: 'Test Rider' }
+      });
 
-    // Create rider account
-    const { data: riderAuth, error: riderAuthError } = await supabaseAdmin.auth.admin.createUser({
-      email: 'rider@test.com',
-      password: 'rider123',
-      email_confirm: true,
-      user_metadata: { full_name: 'Test Rider' }
-    });
+      if (riderAuthError) {
+        console.error('Rider auth error:', riderAuthError);
+        throw riderAuthError;
+      }
 
-    if (riderAuthError) {
-      console.error('Rider auth error:', riderAuthError);
-      throw riderAuthError;
+      riderId = riderAuth.user.id;
+      console.log('Created rider:', riderId);
     }
 
-    const riderId = riderAuth.user.id;
-    console.log('Created rider:', riderId);
+    // Create or get customer account
+    let customerId: string;
+    const customerExists = existingMerchant?.users.find(u => u.email === 'customer@test.com');
+    
+    if (customerExists) {
+      customerId = customerExists.id;
+      console.log('Customer already exists:', customerId);
+      
+      await supabaseAdmin.auth.admin.updateUserById(customerId, {
+        password: 'customer123'
+      });
+    } else {
+      const { data: customerAuth, error: customerAuthError } = await supabaseAdmin.auth.admin.createUser({
+        email: 'customer@test.com',
+        password: 'customer123',
+        email_confirm: true,
+        user_metadata: { full_name: 'Test Customer' }
+      });
 
-    // Create customer account
-    const { data: customerAuth, error: customerAuthError } = await supabaseAdmin.auth.admin.createUser({
-      email: 'customer@test.com',
-      password: 'customer123',
-      email_confirm: true,
-      user_metadata: { full_name: 'Test Customer' }
-    });
+      if (customerAuthError) {
+        console.error('Customer auth error:', customerAuthError);
+        throw customerAuthError;
+      }
 
-    if (customerAuthError) {
-      console.error('Customer auth error:', customerAuthError);
-      throw customerAuthError;
+      customerId = customerAuth.user.id;
+      console.log('Created customer:', customerId);
     }
 
-    const customerId = customerAuth.user.id;
-    console.log('Created customer:', customerId);
-
-    // Create restaurant for merchant
-    const { data: restaurant, error: restaurantError } = await supabaseAdmin
+    // Create or get restaurant for merchant
+    let restaurant: any;
+    const { data: existingRestaurant } = await supabaseAdmin
       .from('restaurants')
-      .insert({
-        merchant_id: merchantId,
-        name: 'Atlas Tajine House',
-        description: 'Authentic Moroccan cuisine in the heart of Marrakech. Specializing in traditional tajines, couscous, and pastries.',
-        address: '45 Rue des Banques, Médina, Marrakech',
-        phone: '+212524389234',
-        cuisine_type: 'Moroccan',
-        latitude: 31.6295,
-        longitude: -7.9811,
-        image_url: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800',
-        is_active: true,
-        commission_rate: 10.00
-      })
-      .select()
-      .single();
+      .select('*')
+      .eq('merchant_id', merchantId)
+      .maybeSingle();
 
-    if (restaurantError) {
-      console.error('Restaurant error:', restaurantError);
-      throw restaurantError;
+    if (existingRestaurant) {
+      restaurant = existingRestaurant;
+      console.log('Restaurant already exists:', restaurant.id);
+    } else {
+      const { data: newRestaurant, error: restaurantError } = await supabaseAdmin
+        .from('restaurants')
+        .insert({
+          merchant_id: merchantId,
+          name: 'Atlas Tajine House',
+          description: 'Authentic Moroccan cuisine in the heart of Marrakech. Specializing in traditional tajines, couscous, and pastries.',
+          address: '45 Rue des Banques, Médina, Marrakech',
+          phone: '+212524389234',
+          cuisine_type: 'Moroccan',
+          latitude: 31.6295,
+          longitude: -7.9811,
+          image_url: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800',
+          is_active: true,
+          commission_rate: 10.00
+        })
+        .select()
+        .single();
+
+      if (restaurantError) {
+        console.error('Restaurant error:', restaurantError);
+        throw restaurantError;
+      }
+
+      restaurant = newRestaurant;
+      console.log('Created restaurant:', restaurant.id);
     }
-
-    console.log('Created restaurant:', restaurant.id);
 
     // Create menu items
     const menuItems = [
@@ -173,16 +224,26 @@ serve(async (req) => {
       }
     ];
 
-    const { error: menuError } = await supabaseAdmin
+    // Check if menu items already exist
+    const { data: existingItems } = await supabaseAdmin
       .from('menu_items')
-      .insert(menuItems);
+      .select('id')
+      .eq('restaurant_id', restaurant.id);
 
-    if (menuError) {
-      console.error('Menu items error:', menuError);
-      throw menuError;
+    if (!existingItems || existingItems.length === 0) {
+      const { error: menuError } = await supabaseAdmin
+        .from('menu_items')
+        .insert(menuItems);
+
+      if (menuError) {
+        console.error('Menu items error:', menuError);
+        throw menuError;
+      }
+
+      console.log('Created menu items');
+    } else {
+      console.log('Menu items already exist');
     }
-
-    console.log('Created menu items');
 
     return new Response(
       JSON.stringify({
