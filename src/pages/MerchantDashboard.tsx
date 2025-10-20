@@ -63,7 +63,7 @@ export default function MerchantDashboard() {
       .select("role")
       .eq("user_id", user.id)
       .eq("role", "merchant")
-      .single();
+      .maybeSingle();
 
     if (!roles) {
       toast({
@@ -84,7 +84,7 @@ export default function MerchantDashboard() {
         .from("restaurants")
         .select("*")
         .eq("merchant_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       setRestaurant(data);

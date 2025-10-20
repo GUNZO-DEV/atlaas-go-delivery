@@ -56,7 +56,7 @@ export default function RiderDashboard() {
       .select("role")
       .eq("user_id", user.id)
       .eq("role", "rider")
-      .single();
+      .maybeSingle();
 
     if (!roles) {
       toast({

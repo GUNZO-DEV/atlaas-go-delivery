@@ -31,7 +31,7 @@ export default function TrackDelivery() {
         .from("delivery_tracking")
         .select("*")
         .eq("order_id", orderId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       setTracking(data);
