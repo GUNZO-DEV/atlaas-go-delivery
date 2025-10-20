@@ -904,6 +904,10 @@ export type Database = {
         Args: { admin_id: string; rider_profile_id: string }
         Returns: undefined
       }
+      assign_merchant_role: {
+        Args: { user_id_param: string }
+        Returns: undefined
+      }
       create_notification: {
         Args: {
           p_message: string

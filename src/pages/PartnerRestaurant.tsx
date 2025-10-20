@@ -88,12 +88,10 @@ const PartnerRestaurant = () => {
 
       if (!authData.user) throw new Error("Failed to create account");
 
-      // Add merchant role
+      // Add merchant role using database function
       const { error: roleError } = await supabase
-        .from("user_roles")
-        .insert({
-          user_id: authData.user.id,
-          role: "merchant",
+        .rpc("assign_merchant_role", {
+          user_id_param: authData.user.id,
         });
 
       if (roleError) throw roleError;
