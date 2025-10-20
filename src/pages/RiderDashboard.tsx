@@ -786,23 +786,26 @@ export default function RiderDashboard() {
                       </div>
                     </div>
                     
-                    {order.status === "picking_it_up" ? (
-                      <Button 
-                        className="w-full animate-scale-in" 
-                        onClick={() => markPickedUp(order.id)}
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Mark as Picked Up
-                      </Button>
-                    ) : (
-                      <Button 
-                        className="w-full animate-scale-in" 
-                        onClick={() => completeDelivery(order.id)}
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Complete Delivery
-                      </Button>
-                    )}
+                    <div className="flex gap-2">
+                      <OrderChat orderId={order.id} userType="rider" />
+                      {order.status === "picking_it_up" ? (
+                        <Button 
+                          className="flex-1 animate-scale-in" 
+                          onClick={() => markPickedUp(order.id)}
+                        >
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Mark as Picked Up
+                        </Button>
+                      ) : (
+                        <Button 
+                          className="flex-1 animate-scale-in" 
+                          onClick={() => completeDelivery(order.id)}
+                        >
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Complete Delivery
+                        </Button>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
