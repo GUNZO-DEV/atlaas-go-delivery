@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, MapPin, Package, Clock, CheckCircle, Star, RotateCcw } from "lucide-react";
 import ReviewDialog from "@/components/ReviewDialog";
+import NotificationBell from "@/components/NotificationBell";
+import OrderChat from "@/components/OrderChat";
 
 interface Order {
   id: string;
@@ -201,9 +203,12 @@ export default function CustomerDashboard() {
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">My Orders</h1>
-          <Button variant="outline" onClick={handleSignOut}>
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Button variant="outline" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -265,13 +270,16 @@ export default function CustomerDashboard() {
                           <span>{order.total_amount + order.delivery_fee} MAD</span>
                         </div>
                         <div className="flex gap-2">
-                          {order.status === "picked_up" && (
-                            <Button
-                              className="flex-1"
-                              onClick={() => navigate(`/track/${order.id}`)}
-                            >
-                              Track Delivery
-                            </Button>
+                          {(order.status === "picked_up" || order.status === "confirmed") && (
+                            <>
+                              <Button
+                                className="flex-1"
+                                onClick={() => navigate(`/track/${order.id}`)}
+                              >
+                                Track Delivery
+                              </Button>
+                              <OrderChat orderId={order.id} userType="customer" />
+                            </>
                           )}
                           {order.status === "delivered" && (
                             <Button

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, MapPin, Navigation, Clock } from "lucide-react";
+import OrderChat from "@/components/OrderChat";
 
 interface TrackingData {
   status: string;
@@ -19,11 +20,28 @@ export default function TrackDelivery() {
   const { toast } = useToast();
   const [tracking, setTracking] = useState<TrackingData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState<any>(null);
 
   useEffect(() => {
+    fetchOrder();
     fetchTracking();
     setupRealtimeSubscription();
   }, [orderId]);
+
+  const fetchOrder = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("id", orderId)
+        .single();
+
+      if (error) throw error;
+      setOrder(data);
+    } catch (error: any) {
+      console.error("Error fetching order:", error);
+    }
+  };
 
   const fetchTracking = async () => {
     try {
@@ -144,6 +162,12 @@ export default function TrackDelivery() {
                 >
                   View on Google Maps
                 </Button>
+              </div>
+            )}
+
+            {order && (
+              <div className="pt-4 border-t">
+                <OrderChat orderId={orderId!} userType="customer" />
               </div>
             )}
           </CardContent>
