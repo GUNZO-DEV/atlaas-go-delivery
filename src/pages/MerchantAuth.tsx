@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Store, ArrowLeft } from "lucide-react";
+import { signUpSchema, signInSchema } from "@/lib/validation";
 
 const MerchantAuth = () => {
   const navigate = useNavigate();
@@ -40,12 +41,19 @@ const MerchantAuth = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
+      // Validate input
+      const validatedData = signUpSchema.parse({
+        email: email.trim(),
         password,
+        fullName: fullName.trim(),
+      });
+
+      const { data, error } = await supabase.auth.signUp({
+        email: validatedData.email,
+        password: validatedData.password,
         options: {
           data: {
-            full_name: fullName,
+            full_name: validatedData.fullName,
           },
           emailRedirectTo: `${window.location.origin}/merchant`,
         },
@@ -69,8 +77,8 @@ const MerchantAuth = () => {
       });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Validation Error",
+        description: error.errors?.[0]?.message || error.message,
         variant: "destructive",
       });
     } finally {
@@ -83,9 +91,15 @@ const MerchantAuth = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+      // Validate input
+      const validatedData = signInSchema.parse({
+        email: email.trim(),
         password,
+      });
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: validatedData.email,
+        password: validatedData.password,
       });
 
       if (error) throw error;
@@ -109,8 +123,8 @@ const MerchantAuth = () => {
       navigate("/merchant");
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Validation Error",
+        description: error.errors?.[0]?.message || error.message,
         variant: "destructive",
       });
     } finally {
@@ -221,8 +235,11 @@ const MerchantAuth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={8}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Must be 8+ characters with uppercase, lowercase, and number
+                  </p>
                 </div>
 
                 <Button

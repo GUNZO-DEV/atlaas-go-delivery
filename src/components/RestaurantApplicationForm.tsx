@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Store } from "lucide-react";
+import { restaurantApplicationSchema } from "@/lib/validation";
 
 interface RestaurantApplicationFormProps {
   onSuccess: () => void;
@@ -32,11 +33,21 @@ const RestaurantApplicationForm = ({ onSuccess }: RestaurantApplicationFormProps
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Validate input
+      const validatedData = restaurantApplicationSchema.parse({
+        restaurant_name: formData.restaurant_name.trim(),
+        description: formData.description.trim(),
+        cuisine_type: formData.cuisine_type.trim(),
+        address: formData.address.trim(),
+        phone: formData.phone.trim(),
+        business_license: formData.business_license.trim(),
+      });
+
       const { error } = await supabase
         .from("restaurant_applications")
         .insert({
           merchant_id: user.id,
-          ...formData,
+          ...validatedData,
         });
 
       if (error) throw error;
@@ -49,8 +60,8 @@ const RestaurantApplicationForm = ({ onSuccess }: RestaurantApplicationFormProps
       onSuccess();
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Validation Error",
+        description: error.errors?.[0]?.message || error.message,
         variant: "destructive",
       });
     } finally {
@@ -111,9 +122,12 @@ const RestaurantApplicationForm = ({ onSuccess }: RestaurantApplicationFormProps
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+212 6XX-XXXXXX"
+                placeholder="+212612345678"
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                Format: +212 followed by 9 digits (e.g., +212612345678)
+              </p>
             </div>
           </div>
 
