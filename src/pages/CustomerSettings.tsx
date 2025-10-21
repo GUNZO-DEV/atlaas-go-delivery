@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, User, Lock, Bell, MapPin, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import NotificationSettings from "@/components/NotificationSettings";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -264,6 +265,11 @@ export default function CustomerSettings() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Push Notifications */}
+        <div className="mb-6">
+          <NotificationSettings />
+        </div>
 
         {/* Danger Zone */}
         <Card className="border-destructive">

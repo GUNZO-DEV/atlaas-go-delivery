@@ -49,6 +49,48 @@ export type Database = {
           },
         ]
       }
+      delivery_metrics: {
+        Row: {
+          actual_minutes: number | null
+          completed_at: string | null
+          created_at: string
+          day_of_week: number
+          distance_km: number | null
+          estimated_minutes: number
+          hour_of_day: number
+          id: string
+          order_id: string
+          restaurant_id: string
+          weather_condition: string | null
+        }
+        Insert: {
+          actual_minutes?: number | null
+          completed_at?: string | null
+          created_at?: string
+          day_of_week: number
+          distance_km?: number | null
+          estimated_minutes: number
+          hour_of_day: number
+          id?: string
+          order_id: string
+          restaurant_id: string
+          weather_condition?: string | null
+        }
+        Update: {
+          actual_minutes?: number | null
+          completed_at?: string | null
+          created_at?: string
+          day_of_week?: number
+          distance_km?: number | null
+          estimated_minutes?: number
+          hour_of_day?: number
+          id?: string
+          order_id?: string
+          restaurant_id?: string
+          weather_condition?: string | null
+        }
+        Relationships: []
+      }
       delivery_tracking: {
         Row: {
           actual_delivery_time: string | null
@@ -633,6 +675,33 @@ export type Database = {
           usage_limit?: number | null
           valid_from?: string | null
           valid_until?: string | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
         }
         Relationships: []
       }
