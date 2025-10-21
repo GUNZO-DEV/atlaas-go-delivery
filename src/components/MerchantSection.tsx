@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Percent, BarChart3, Wallet } from "lucide-react";
-import moroccanFood from "@/assets/moroccan-food.jpg";
+import SoukToSuccessAnimation from "@/components/SoukToSuccessAnimation";
 
 const MerchantSection = () => {
   return (
@@ -16,19 +16,10 @@ const MerchantSection = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          {/* Image */}
+          {/* Animation */}
           <div className="order-2 lg:order-1">
             <div className="relative rounded-3xl overflow-hidden shadow-elevation hover-lift">
-              <img 
-                src={moroccanFood} 
-                alt="Moroccan Restaurant Food" 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 to-transparent" />
-              <div className="absolute bottom-6 left-6 text-white">
-                <p className="text-sm font-semibold mb-1">Traditional Quality</p>
-                <p className="text-3xl font-bold">From Souk to Success</p>
-              </div>
+              <SoukToSuccessAnimation />
             </div>
           </div>
 
