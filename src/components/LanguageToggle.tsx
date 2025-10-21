@@ -12,9 +12,9 @@ const LanguageToggle = () => {
   return (
     <Button
       onClick={toggleLanguage}
-      variant="outline"
+      variant="ghost"
       size="sm"
-      className="fixed top-4 right-4 z-50 backdrop-blur-md bg-card/80 hover:bg-card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 shadow-lg"
+      className="text-white hover:bg-white/20 border-0 transition-all duration-300"
     >
       <Globe className="w-4 h-4 mr-2" />
       <span className="font-semibold">{language === 'en' ? 'FR' : 'EN'}</span>

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Package, Bike, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
+import LanguageToggle from "@/components/LanguageToggle";
 
 const Hero = () => {
   return (
@@ -47,6 +48,13 @@ const Hero = () => {
             Sign Up
           </Button>
         </Link>
+      </div>
+
+      {/* Language Toggle - Bottom Left */}
+      <div className="absolute bottom-6 left-6 z-20">
+        <div className="backdrop-blur-xl bg-white/10 border-2 border-white/30 rounded-lg p-2 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+          <LanguageToggle />
+        </div>
       </div>
 
       {/* Content */}
