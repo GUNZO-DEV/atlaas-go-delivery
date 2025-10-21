@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin, Package, Bike, Crown } from "lucide-react";
+import { ArrowRight, MapPin, Package, Bike, Crown, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
 import DarkModeToggle from "@/components/DarkModeToggle";
@@ -8,6 +10,23 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const Hero = () => {
   const { t } = useLanguage();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
+
+  const checkAdminStatus = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: roles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    setIsAdmin(roles?.some(r => r.role === 'admin') || false);
+  };
   
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -41,6 +60,17 @@ const Hero = () => {
         <div className="backdrop-blur-xl bg-white/10 border-2 border-white/30 rounded-lg p-1 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
           <LanguageToggle />
         </div>
+        {isAdmin && (
+          <Link to="/admin">
+            <Button 
+              variant="outline" 
+              className="backdrop-blur-xl bg-primary/20 hover:bg-primary/30 border-2 border-primary/50 text-white font-semibold shadow-[0_4px_24px_rgba(217,119,6,0.3)] hover:shadow-[0_4px_32px_rgba(217,119,6,0.5)] transition-all hover:scale-105"
+            >
+              <Shield className="mr-2 h-4 w-4" />
+              Admin
+            </Button>
+          </Link>
+        )}
         <Link to="/auth?mode=login" className="hidden sm:block">
           <Button 
             variant="outline" 
