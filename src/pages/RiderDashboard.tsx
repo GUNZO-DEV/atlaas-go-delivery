@@ -768,15 +768,18 @@ export default function RiderDashboard() {
                   <CardContent className="space-y-4">
                     <OrderStatusTimeline currentStatus={order.status} />
                     
-                    <RiderNavigationMap
-                      restaurantLat={order.restaurant?.latitude}
-                      restaurantLng={order.restaurant?.longitude}
-                      restaurantName={order.restaurant?.name}
-                      restaurantAddress={order.restaurant?.address}
-                      deliveryLat={order.delivery_latitude}
-                      deliveryLng={order.delivery_longitude}
-                      deliveryAddress={order.delivery_address}
-                    />
+                    <div className="relative">
+                      <RiderNavigationMap
+                        restaurantLat={order.restaurant?.latitude}
+                        restaurantLng={order.restaurant?.longitude}
+                        restaurantName={order.restaurant?.name}
+                        restaurantAddress={order.restaurant?.address}
+                        deliveryLat={order.delivery_latitude}
+                        deliveryLng={order.delivery_longitude}
+                        deliveryAddress={order.delivery_address}
+                      />
+                      <OrderChat orderId={order.id} userType="rider" floating />
+                    </div>
                     <div className="space-y-2">
                       <div className="flex items-start gap-2">
                         <MapPin className="h-4 w-4 mt-1 text-green-500" />
@@ -790,7 +793,6 @@ export default function RiderDashboard() {
                     </div>
                     
                     <div className="flex gap-2">
-                      <OrderChat orderId={order.id} userType="rider" />
                       {order.status === "picking_it_up" ? (
                         <Button 
                           className="flex-1 animate-scale-in" 

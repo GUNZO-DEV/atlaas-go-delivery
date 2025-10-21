@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Send, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { chatMessageSchema } from "@/lib/validation";
@@ -26,13 +26,15 @@ interface Message {
 interface OrderChatProps {
   orderId: string;
   userType: 'customer' | 'merchant' | 'rider';
+  floating?: boolean;
 }
 
-export default function OrderChat({ orderId, userType }: OrderChatProps) {
+export default function OrderChat({ orderId, userType, floating = false }: OrderChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [user, setUser] = useState<any>(null);
   const [sending, setSending] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -150,6 +152,77 @@ export default function OrderChat({ orderId, userType }: OrderChatProps) {
         return 'Unknown';
     }
   };
+
+  if (floating) {
+    return (
+      <div className="fixed bottom-4 right-4 z-[9999] flex flex-col">
+        {isMinimized ? (
+          <Button
+            onClick={() => setIsMinimized(false)}
+            className="shadow-lg"
+            size="lg"
+          >
+            <MessageCircle className="h-5 w-5 mr-2" />
+            Chat {messages.length > 0 && `(${messages.length})`}
+          </Button>
+        ) : (
+          <Card className="w-[380px] shadow-2xl">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Order Chat</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsMinimized(true)}
+                >
+                  _
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="flex flex-col h-[400px]">
+                <ScrollArea className="flex-1 px-4">
+                  <div className="space-y-3 py-2">
+                    {messages.map((msg) => (
+                      <Card
+                        key={msg.id}
+                        className={`p-3 ${
+                          msg.sender_id === user?.id
+                            ? 'bg-primary text-primary-foreground ml-auto'
+                            : 'bg-muted'
+                        } max-w-[80%]`}
+                      >
+                        <div className="text-xs font-semibold mb-1">
+                          {getSenderLabel(msg.sender_type)}
+                        </div>
+                        <p className="text-sm">{msg.message}</p>
+                        <div className="text-xs opacity-70 mt-1">
+                          {new Date(msg.created_at).toLocaleTimeString()}
+                        </div>
+                      </Card>
+                    ))}
+                    <div ref={scrollRef} />
+                  </div>
+                </ScrollArea>
+                <div className="flex gap-2 p-4 border-t">
+                  <Input
+                    placeholder="Type a message..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                    disabled={sending}
+                  />
+                  <Button onClick={sendMessage} disabled={sending || !newMessage.trim()}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
 
   return (
     <Sheet>
