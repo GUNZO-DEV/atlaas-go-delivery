@@ -6,7 +6,7 @@ const MerchantSection = () => {
   return (
     <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
             Fair to Every Merchant
           </h2>
@@ -34,7 +34,7 @@ const MerchantSection = () => {
 
           {/* Benefits */}
           <div className="order-1 lg:order-2 space-y-8">
-            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift border-2 border-primary/20">
+            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift border-2 border-primary/20 transition-all duration-300">
               <div className="flex items-start gap-4">
                 <div className="bg-primary text-primary-foreground rounded-xl p-4">
                   <Percent className="w-8 h-8" />
@@ -49,7 +49,7 @@ const MerchantSection = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift">
+            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift transition-all duration-300">
               <div className="flex items-start gap-4">
                 <div className="bg-accent text-accent-foreground rounded-xl p-4">
                   <BarChart3 className="w-8 h-8" />
@@ -64,7 +64,7 @@ const MerchantSection = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift">
+            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift transition-all duration-300">
               <div className="flex items-start gap-4">
                 <div className="bg-midnight text-midnight-foreground rounded-xl p-4">
                   <Wallet className="w-8 h-8" />
@@ -79,7 +79,7 @@ const MerchantSection = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift">
+            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift transition-all duration-300">
               <div className="flex items-start gap-4">
                 <div className="bg-primary text-primary-foreground rounded-xl p-4">
                   <TrendingUp className="w-8 h-8" />
