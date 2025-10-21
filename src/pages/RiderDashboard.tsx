@@ -241,13 +241,15 @@ export default function RiderDashboard() {
       (o) => new Date(o.created_at).toDateString() === today
     );
 
+    const deliveredCount = myOrders.filter((o) => o.status === "delivered").length;
+
     setStats({
       todayDeliveries: todayOrders.filter((o) => o.status === "delivered").length,
       todayEarnings: todayOrders
         .filter((o) => o.status === "delivered")
         .reduce((sum, o) => sum + Number(o.delivery_fee), 0),
       activeDeliveries: myOrders.filter((o) => o.status === "picked_up").length,
-      allTimeDeliveries: riderProfile?.total_deliveries || 0,
+      allTimeDeliveries: deliveredCount,
     });
   };
 
