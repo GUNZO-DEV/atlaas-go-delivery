@@ -31,8 +31,11 @@ const Hero = () => {
         </div>
       </Link>
 
-      {/* Auth Buttons - Top Right */}
-      <div className="absolute top-6 right-6 z-20 flex gap-3">
+      {/* Auth Buttons & Language Toggle - Top Right */}
+      <div className="absolute top-6 right-6 z-20 flex gap-3 items-center">
+        <div className="backdrop-blur-xl bg-white/10 border-2 border-white/30 rounded-lg p-1 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+          <LanguageToggle />
+        </div>
         <Link to="/auth?mode=login">
           <Button 
             variant="outline" 
@@ -48,13 +51,6 @@ const Hero = () => {
             Sign Up
           </Button>
         </Link>
-      </div>
-
-      {/* Language Toggle - Bottom Left */}
-      <div className="absolute bottom-6 left-6 z-20">
-        <div className="backdrop-blur-xl bg-white/10 border-2 border-white/30 rounded-lg p-2 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
-          <LanguageToggle />
-        </div>
       </div>
 
       {/* Content */}
