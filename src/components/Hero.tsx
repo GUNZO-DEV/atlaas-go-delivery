@@ -3,6 +3,7 @@ import { ArrowRight, MapPin, Package, Bike, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
+import DarkModeToggle from "@/components/DarkModeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Hero = () => {
@@ -36,6 +37,7 @@ const Hero = () => {
 
       {/* Auth Buttons & Language Toggle - Top Right */}
       <div className="absolute top-6 right-6 z-20 flex gap-3 items-center">
+        <DarkModeToggle />
         <div className="backdrop-blur-xl bg-white/10 border-2 border-white/30 rounded-lg p-1 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
           <LanguageToggle />
         </div>
