@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin, Package, Bike } from "lucide-react";
+import { ArrowRight, MapPin, Package, Bike, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 
@@ -18,6 +18,17 @@ const Hero = () => {
         {/* Subtle dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/40" />
       </div>
+
+      {/* Prime Membership Badge - Top Left */}
+      <Link to="/auth" className="absolute top-6 left-6 z-20">
+        <div className="group backdrop-blur-md bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 rounded-full px-6 py-3 border border-primary/30 transition-all hover:scale-105 shadow-glow">
+          <div className="flex items-center gap-2">
+            <Crown className="w-5 h-5 text-primary-glow animate-pulse" />
+            <span className="text-white font-semibold">Join ATLAAS Prime</span>
+            <span className="text-primary-glow text-sm">49 MAD/mo</span>
+          </div>
+        </div>
+      </Link>
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 text-center">
