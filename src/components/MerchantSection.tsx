@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Percent, BarChart3, Wallet } from "lucide-react";
-import MoroccanLifeCarousel from "@/components/MoroccanLifeCarousel";
+import moroccanFood from "@/assets/moroccan-food.jpg";
+
 const MerchantSection = () => {
-  return <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative">
+  return (
+    <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
@@ -13,11 +15,36 @@ const MerchantSection = () => {
           </p>
         </div>
 
+        {/* Success Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-4xl mx-auto">
+          <div className="text-center p-6 bg-card/50 rounded-2xl backdrop-blur-sm border border-primary/20 hover-scale transition-all duration-300">
+            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">250+</div>
+            <p className="text-muted-foreground font-medium">Local Restaurants Joined</p>
+          </div>
+          <div className="text-center p-6 bg-card/50 rounded-2xl backdrop-blur-sm border border-primary/20 hover-scale transition-all duration-300">
+            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">+18%</div>
+            <p className="text-muted-foreground font-medium">Average Profit Increase</p>
+          </div>
+          <div className="text-center p-6 bg-card/50 rounded-2xl backdrop-blur-sm border border-primary/20 hover-scale transition-all duration-300">
+            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">100%</div>
+            <p className="text-muted-foreground font-medium">Trusted by Cafés & Patisseries</p>
+          </div>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          {/* Cinematic Carousel */}
+          {/* Image */}
           <div className="order-2 lg:order-1">
             <div className="relative rounded-3xl overflow-hidden shadow-elevation hover-lift">
-              
+              <img 
+                src={moroccanFood} 
+                alt="Moroccan Restaurant Food" 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 to-transparent" />
+              <div className="absolute bottom-6 left-6 text-white">
+                <p className="text-sm font-semibold mb-1">Traditional Quality</p>
+                <p className="text-3xl font-bold">From Souk to Success</p>
+              </div>
             </div>
           </div>
 
@@ -83,12 +110,17 @@ const MerchantSection = () => {
               </div>
             </div>
 
-            <Button size="lg" className="w-full bg-primary hover:bg-primary-glow text-white py-6 text-lg font-semibold shadow-glow">
+            <Button 
+              size="lg" 
+              className="w-full bg-primary hover:bg-primary-glow text-white py-6 text-lg font-semibold shadow-glow"
+            >
               Join as Partner Restaurant
             </Button>
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default MerchantSection;

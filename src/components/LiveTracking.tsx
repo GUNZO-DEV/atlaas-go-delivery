@@ -55,16 +55,16 @@ const LiveTracking = () => {
                   </div>
                 </div>
 
-                {/* Moving Driver Pin - Enhanced Animation */}
-                <div className="absolute top-32 right-20 z-10">
-                  <div className="relative animate-[move-path_6s_ease-in-out_infinite]">
+                {/* Moving Driver Pin */}
+                <div className="absolute top-32 right-20 z-10 move-driver">
+                  <div className="relative">
                     <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-50 animate-pulse-ring" />
                     <div className="relative bg-primary text-primary-foreground rounded-full p-3 shadow-lg">
-                      <Navigation className="w-6 h-6 animate-[spin_3s_linear_infinite]" />
+                      <Navigation className="w-6 h-6" />
                     </div>
                   </div>
-                  <div className="mt-2 text-xs font-semibold bg-card px-2 py-1 rounded shadow animate-pulse">
-                    Driver • Moving
+                  <div className="mt-2 text-xs font-semibold bg-card px-2 py-1 rounded shadow">
+                    Driver
                   </div>
                 </div>
 

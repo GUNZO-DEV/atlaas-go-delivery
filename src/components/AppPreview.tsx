@@ -97,17 +97,17 @@ const AppPreview = () => {
 
           {/* Phone Mockup */}
           <div className="relative">
-            <div className="relative hover-scale transition-all duration-500">
+            <div className="relative">
               {/* Glow Effect */}
               <div className="absolute inset-0 bg-gradient-morocco blur-3xl opacity-20 animate-float" />
               
               {/* Phone Frame */}
-              <div className="relative bg-midnight rounded-[3rem] p-4 shadow-elevation hover:shadow-glow transition-shadow duration-500">
+              <div className="relative bg-midnight rounded-[3rem] p-4 shadow-elevation">
                 <div className="bg-background rounded-[2.5rem] overflow-hidden">
                   <img 
                     src={appMockup} 
                     alt="ATLAAS GO App Interface" 
-                    className="w-full h-auto transition-transform duration-700 hover:scale-105"
+                    className="w-full h-auto"
                   />
                 </div>
                 
