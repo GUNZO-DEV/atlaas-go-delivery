@@ -5,9 +5,11 @@ import MerchantSection from "@/components/MerchantSection";
 import DriverSection from "@/components/DriverSection";
 import CustomerSection from "@/components/CustomerSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import CityPresenceMap from "@/components/CityPresenceMap";
 import AppPreview from "@/components/AppPreview";
 import FutureVisionBanner from "@/components/FutureVisionBanner";
 import Footer from "@/components/Footer";
+import LanguageToggle from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Store, Bike } from "lucide-react";
@@ -17,6 +19,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <LanguageToggle />
       <Hero />
       
       {/* Quick Order Section */}
@@ -101,6 +104,7 @@ const Index = () => {
       <DriverSection />
       <CustomerSection />
       <TestimonialsSection />
+      <CityPresenceMap />
       <AppPreview />
       <FutureVisionBanner />
       <Footer />
