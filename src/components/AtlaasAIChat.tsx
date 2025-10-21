@@ -8,6 +8,13 @@ import { useToast } from "@/hooks/use-toast";
 
 type Message = { role: "user" | "assistant"; content: string };
 
+const SUGGESTIONS = [
+  "🍽️ What's trending in my city?",
+  "⭐ Recommend top-rated restaurants",
+  "🥘 Show me Moroccan specialties",
+  "🚀 What's the fastest delivery?",
+];
+
 export const AtlaasAIChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -103,10 +110,11 @@ export const AtlaasAIChat = () => {
     }
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (messageText?: string) => {
+    const text = messageText || input;
+    if (!text.trim() || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: input };
+    const userMessage: Message = { role: "user", content: text };
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -115,10 +123,14 @@ export const AtlaasAIChat = () => {
     setIsLoading(false);
   };
 
+  const handleSuggestionClick = (suggestion: string) => {
+    handleSend(suggestion);
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      handleSend(input);
     }
   };
 
@@ -126,7 +138,7 @@ export const AtlaasAIChat = () => {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
         size="icon"
       >
         <Bot className="h-6 w-6" />
@@ -135,7 +147,7 @@ export const AtlaasAIChat = () => {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-[380px] h-[600px] shadow-2xl flex flex-col bg-background border-primary/20">
+    <Card className="fixed bottom-6 right-6 w-[380px] h-[600px] shadow-2xl flex flex-col bg-background border-primary/20 z-50">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="flex items-center gap-2">
@@ -161,10 +173,23 @@ export const AtlaasAIChat = () => {
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         {messages.length === 0 && (
-          <div className="text-center text-muted-foreground py-8">
+          <div className="text-center text-muted-foreground py-4">
             <Bot className="h-12 w-12 mx-auto mb-3 text-primary/50" />
-            <p className="text-sm">Ask me anything about ATLAAS GO!</p>
-            <p className="text-xs mt-2">Order help • Restaurant recommendations • Delivery tracking</p>
+            <p className="text-sm font-semibold mb-2">Ask me anything about ATLAAS GO!</p>
+            <p className="text-xs mb-4">Order help • Restaurant recommendations • Delivery tracking</p>
+            <div className="grid grid-cols-1 gap-2 mt-4">
+              {SUGGESTIONS.map((suggestion, idx) => (
+                <Button
+                  key={idx}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="text-xs h-auto py-2 px-3 whitespace-normal text-left justify-start hover:bg-primary/10"
+                >
+                  {suggestion}
+                </Button>
+              ))}
+            </div>
           </div>
         )}
         {messages.map((msg, idx) => (
@@ -208,7 +233,7 @@ export const AtlaasAIChat = () => {
             className="flex-1"
           />
           <Button
-            onClick={handleSend}
+            onClick={() => handleSend(input)}
             disabled={isLoading || !input.trim()}
             size="icon"
             className="bg-primary hover:bg-primary/90"
