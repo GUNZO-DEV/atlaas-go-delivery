@@ -4,7 +4,9 @@ import LiveTracking from "@/components/LiveTracking";
 import MerchantSection from "@/components/MerchantSection";
 import DriverSection from "@/components/DriverSection";
 import CustomerSection from "@/components/CustomerSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
 import AppPreview from "@/components/AppPreview";
+import FutureVisionBanner from "@/components/FutureVisionBanner";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -98,7 +100,9 @@ const Index = () => {
       <MerchantSection />
       <DriverSection />
       <CustomerSection />
+      <TestimonialsSection />
       <AppPreview />
+      <FutureVisionBanner />
       <Footer />
     </div>
   );
