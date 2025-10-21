@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Percent, BarChart3, Wallet } from "lucide-react";
 import moroccanFood from "@/assets/moroccan-food.jpg";
+import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const MerchantSection = () => {
@@ -19,18 +20,31 @@ const MerchantSection = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          {/* Image */}
+          {/* Fading Text Over Images */}
           <div className="order-2 lg:order-1">
-            <div className="relative rounded-3xl overflow-hidden shadow-elevation hover-lift">
-              <img 
-                src={moroccanFood} 
-                alt="Moroccan Restaurant Food" 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 to-transparent" />
-              <div className="absolute bottom-6 left-6 text-white">
-                <p className="text-sm font-semibold mb-1">{t('merchant.traditional')}</p>
-                <p className="text-3xl font-bold">{t('merchant.soukSuccess')}</p>
+            <div className="relative h-[500px] rounded-3xl overflow-hidden shadow-elevation hover-lift">
+              {/* Background Images - Crossfade */}
+              <div className="absolute inset-0">
+                <img 
+                  src={moroccanFood} 
+                  alt="Moroccan Tagines" 
+                  className="absolute inset-0 w-full h-full object-cover animate-[fadeInOut_8s_ease-in-out_infinite]"
+                />
+                <img 
+                  src={atlasHero} 
+                  alt="City Lights" 
+                  className="absolute inset-0 w-full h-full object-cover animate-[fadeInOut_8s_ease-in-out_infinite_4s]"
+                />
+              </div>
+              
+              {/* Dark Overlay for Text Contrast */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+              
+              {/* Fading Text */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <h3 className="text-4xl md:text-6xl font-bold text-white text-center px-8 animate-[textFade_4s_ease-in-out_infinite] drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+                  From Souk to Success
+                </h3>
               </div>
             </div>
           </div>
