@@ -1,7 +1,8 @@
-import { MapPin, Mail, Phone, Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Mail, Phone, Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import AtlaasGoLogo from "./AtlaasGoLogo";
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -14,11 +15,8 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-3 mb-6">
-              <MapPin className="w-8 h-8 text-primary-glow" />
-              <h3 className="text-3xl font-bold">
-                ATLAAS <span className="text-primary-glow">GO</span>
-              </h3>
+            <div className="mb-6">
+              <AtlaasGoLogo className="w-56 h-auto" />
             </div>
             <p className="text-midnight-foreground/70 mb-4 italic">
               "From the mountains to your door."
@@ -109,8 +107,7 @@ const Footer = () => {
                   +212 5 23 45 67 89
                 </a>
               </li>
-              <li className="flex items-center gap-2 text-midnight-foreground/70">
-                <MapPin className="w-4 h-4 text-primary" />
+              <li className="text-midnight-foreground/70">
                 <span>Casablanca, Morocco</span>
               </li>
             </ul>
