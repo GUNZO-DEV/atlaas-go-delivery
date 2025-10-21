@@ -19,7 +19,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      <LanguageToggle />
       <Hero />
       
       {/* Quick Order Section */}
