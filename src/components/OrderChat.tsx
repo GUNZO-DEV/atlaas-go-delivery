@@ -49,7 +49,11 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
     fetchMessages();
     
     const channel = supabase
-      .channel(`chat-${orderId}`)
+      .channel(`chat-${orderId}-${Math.random()}`, {
+        config: {
+          broadcast: { self: true },
+        },
+      })
       .on(
         'postgres_changes',
         {
@@ -61,11 +65,22 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
         (payload) => {
           console.log('New message received:', payload);
           const newMsg = payload.new as Message;
-          setMessages(prev => [...prev, newMsg]);
+          setMessages(prev => {
+            // Avoid duplicates
+            if (prev.some(m => m.id === newMsg.id)) {
+              return prev;
+            }
+            return [...prev, newMsg];
+          });
           scrollToBottom();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to chat updates');
+        }
+      });
 
     return () => {
       console.log('Cleaning up chat subscription');
@@ -118,22 +133,27 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
 
     setSending(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("chat_messages")
         .insert({
           order_id: orderId,
           sender_id: user.id,
           sender_type: userType,
           message: validation.data.message,
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
+      console.log('Message sent successfully:', data);
       setNewMessage("");
+      scrollToBottom();
     } catch (error: any) {
+      console.error('Error sending message:', error);
       toast({
         title: "Error",
-        description: "Failed to send message",
+        description: error.message || "Failed to send message",
         variant: "destructive",
       });
     } finally {
