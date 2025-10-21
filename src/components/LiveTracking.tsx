@@ -1,6 +1,9 @@
 import { MapPin, Navigation, Clock, Package } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const LiveTracking = () => {
+  const { t } = useLanguage();
+  
   return (
     <section className="py-24 bg-background relative overflow-hidden">
       <div className="absolute inset-0 zellij-pattern opacity-50" />
@@ -8,10 +11,10 @@ const LiveTracking = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
-            Live Tracking in Real-Time
+            {t('tracking.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mt-8">
-            Watch your order journey from restaurant to your door. Just like magic, but better — it's real.
+            {t('tracking.subtitle')}
           </p>
         </div>
 

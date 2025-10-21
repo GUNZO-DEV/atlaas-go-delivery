@@ -1,4 +1,5 @@
 import { MapPin } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const cities = [
   { name: "Casablanca", top: "45%", left: "15%", delay: "0ms" },
@@ -10,6 +11,8 @@ const cities = [
 ];
 
 const CityPresenceMap = () => {
+  const { t } = useLanguage();
+  
   return (
     <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative overflow-hidden">
       <div className="absolute inset-0 zellij-pattern opacity-10" />
@@ -17,10 +20,10 @@ const CityPresenceMap = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
-            We're Delivering Across Morocco
+            {t('cities.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mt-8">
-            From the Atlas Mountains to the Atlantic coast, ATLAAS GO serves communities nationwide.
+            {t('cities.subtitle')}
           </p>
         </div>
 

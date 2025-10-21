@@ -101,6 +101,18 @@ export const translations: Translations = {
   'driver.avgEarnings': { en: 'Average Weekly Earnings', fr: 'Gains Hebdomadaires Moyens' },
   'driver.happyRiders': { en: 'Happy Riders', fr: 'Livreurs Heureux' },
   'driver.ridersCount': { en: '1,200+ Riders', fr: '1 200+ Livreurs' },
+  
+  // Live Tracking
+  'tracking.title': { en: 'Live Tracking in Real-Time', fr: 'Suivi en Direct en Temps Réel' },
+  'tracking.subtitle': { en: "Watch your order journey from restaurant to your door. Just like magic, but better — it's real.", fr: 'Suivez le parcours de votre commande du restaurant à votre porte. Comme par magie, mais en mieux — c\'est réel.' },
+  
+  // City Presence
+  'cities.title': { en: "We're Delivering Across Morocco", fr: 'Nous Livrons à Travers le Maroc' },
+  'cities.subtitle': { en: 'From the Atlas Mountains to the Atlantic coast, ATLAAS GO serves communities nationwide.', fr: 'Des montagnes de l\'Atlas à la côte atlantique, ATLAAS GO dessert les communautés à travers le pays.' },
+  
+  // Testimonials
+  'testimonials.title': { en: 'Trusted Across Morocco', fr: 'Approuvé à Travers le Maroc' },
+  'testimonials.subtitle': { en: "Real stories from real people building Morocco's future, one delivery at a time.", fr: 'Histoires réelles de vraies personnes construisant l\'avenir du Maroc, une livraison à la fois.' },
 };
 
 interface LanguageContextType {

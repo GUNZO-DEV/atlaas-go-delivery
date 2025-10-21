@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const testimonials = [
   {
@@ -26,6 +27,8 @@ const testimonials = [
 ];
 
 const TestimonialsSection = () => {
+  const { t } = useLanguage();
+  
   return (
     <section className="py-24 bg-gradient-to-b from-background to-secondary/20 relative overflow-hidden">
       <div className="absolute inset-0 zellij-pattern opacity-20" />
@@ -33,10 +36,10 @@ const TestimonialsSection = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
-            Trusted Across Morocco
+            {t('testimonials.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mt-8">
-            Real stories from real people building Morocco's future, one delivery at a time.
+            {t('testimonials.subtitle')}
           </p>
         </div>
 
