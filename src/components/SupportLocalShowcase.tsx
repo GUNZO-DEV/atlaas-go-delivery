@@ -120,7 +120,7 @@ const SupportLocalShowcase = () => {
                 You've supported <span className="font-bold text-primary">5 Moroccan-owned businesses</span> this week
               </p>
               <p className="text-sm text-muted-foreground">
-                Together we're building a stronger local economy 🕌
+                Together we're building a stronger local economy 🇲🇦
               </p>
             </CardContent>
           </Card>
@@ -143,7 +143,7 @@ const SupportLocalShowcase = () => {
                     htmlFor="support-local" 
                     className="font-semibold cursor-pointer flex items-center gap-2"
                   >
-                    <span className="text-lg">🕌</span>
+                    <span className="text-lg">🇲🇦</span>
                     Show only Support Local restaurants
                   </label>
                 </div>
