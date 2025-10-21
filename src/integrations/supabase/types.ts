@@ -221,6 +221,125 @@ export type Database = {
           },
         ]
       }
+      job_applications: {
+        Row: {
+          cover_letter: string | null
+          created_at: string | null
+          current_position: string | null
+          email: string
+          full_name: string
+          id: string
+          job_id: string
+          linkedin_url: string | null
+          notes: string | null
+          phone: string
+          portfolio_url: string | null
+          resume_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+          years_of_experience: number | null
+        }
+        Insert: {
+          cover_letter?: string | null
+          created_at?: string | null
+          current_position?: string | null
+          email: string
+          full_name: string
+          id?: string
+          job_id: string
+          linkedin_url?: string | null
+          notes?: string | null
+          phone: string
+          portfolio_url?: string | null
+          resume_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+          years_of_experience?: number | null
+        }
+        Update: {
+          cover_letter?: string | null
+          created_at?: string | null
+          current_position?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          job_id?: string
+          linkedin_url?: string | null
+          notes?: string | null
+          phone?: string
+          portfolio_url?: string | null
+          resume_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+          years_of_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_postings: {
+        Row: {
+          created_at: string | null
+          department: string
+          description: string
+          employment_type: string
+          id: string
+          is_active: boolean | null
+          location: string
+          posted_by: string | null
+          requirements: string
+          responsibilities: string
+          salary_range: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department: string
+          description: string
+          employment_type?: string
+          id?: string
+          is_active?: boolean | null
+          location: string
+          posted_by?: string | null
+          requirements: string
+          responsibilities: string
+          salary_range?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string
+          description?: string
+          employment_type?: string
+          id?: string
+          is_active?: boolean | null
+          location?: string
+          posted_by?: string | null
+          requirements?: string
+          responsibilities?: string
+          salary_range?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       loyalty_redemptions: {
         Row: {
           coupon_code: string | null
@@ -1270,6 +1389,10 @@ export type Database = {
       }
       reject_rider_application: {
         Args: { admin_id: string; reason: string; rider_profile_id: string }
+        Returns: undefined
+      }
+      update_application_status: {
+        Args: { p_application_id: string; p_notes?: string; p_status: string }
         Returns: undefined
       }
     }
