@@ -95,39 +95,22 @@ const AppPreview = () => {
             </div>
           </div>
 
-          {/* App Preview */}
-          <div className="relative animate-float flex justify-center lg:justify-start">
-            <div className="relative transition-all duration-500 w-full max-w-[350px]">
-              {/* Pulsing Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-morocco blur-3xl opacity-20 animate-[pulse_3s_ease-in-out_infinite]" />
-              <div className="absolute inset-0 bg-primary/20 blur-2xl animate-[pulse_2s_ease-in-out_infinite_1s]" />
-              
-              {/* App Screenshot */}
-              <div className="relative rounded-3xl overflow-hidden shadow-elevation hover:shadow-glow transition-shadow duration-500 animate-[phoneFloat_4s_ease-in-out_infinite]">
-                <img 
-                  src={appMockup} 
-                  alt="ATLAAS GO App Interface" 
-                  className="w-full h-auto"
-                />
+          {/* Phone Mockup */}
+          <div className="relative flex justify-center lg:justify-start">
+            <div className="relative w-[300px]">
+              {/* Phone Frame */}
+              <div className="relative bg-midnight rounded-[3rem] p-3 shadow-elevation">
+                <div className="bg-background rounded-[2.5rem] overflow-hidden aspect-[9/19]">
+                  <img 
+                    src={appMockup} 
+                    alt="ATLAAS GO App Interface" 
+                    className="w-full h-full object-cover object-top"
+                  />
+                </div>
                 
-                {/* Animated Screen Overlay Effects */}
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-accent/5 animate-[shimmer_3s_ease-in-out_infinite]" />
+                {/* Notch */}
+                <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-midnight w-24 h-5 rounded-full" />
               </div>
-
-              {/* Floating Elements with Enhanced Animations */}
-              <div className="absolute -top-4 -right-6 bg-primary text-primary-foreground rounded-2xl p-3 shadow-glow animate-[floatBadge_3s_ease-in-out_infinite] hover:scale-110 transition-transform">
-                <div className="text-xl font-bold animate-[pulse_2s_ease-in-out_infinite]">4.9★</div>
-                <div className="text-[10px]">User Rating</div>
-              </div>
-
-              <div className="absolute -bottom-4 -left-6 bg-accent text-accent-foreground rounded-2xl p-3 shadow-glow animate-[floatBadge_3s_ease-in-out_infinite_1s] hover:scale-110 transition-transform">
-                <div className="text-xl font-bold animate-[pulse_2s_ease-in-out_infinite_0.5s]">50K+</div>
-                <div className="text-[10px]">Downloads</div>
-              </div>
-
-              {/* Rotating Glow Rings */}
-              <div className="absolute inset-0 rounded-3xl border-2 border-primary/20 animate-[rotateRing_10s_linear_infinite]" />
-              <div className="absolute inset-0 rounded-3xl border-2 border-accent/20 animate-[rotateRing_15s_linear_infinite_reverse]" />
             </div>
           </div>
         </div>
