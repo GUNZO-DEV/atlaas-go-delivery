@@ -9,8 +9,8 @@ const Footer = () => {
   const { t } = useLanguage();
 
   return (
-    <footer className="bg-gradient-to-b from-midnight to-midnight/95 text-midnight-foreground relative overflow-hidden">
-      <div className="absolute inset-0 zellij-pattern opacity-5" />
+    <footer className="bg-gradient-to-b from-card to-card/95 border-t border-border relative overflow-hidden">
+      <div className="absolute inset-0 zellij-pattern opacity-10" />
       
       <div className="container mx-auto px-6 py-16 relative z-10">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
@@ -22,10 +22,10 @@ const Footer = () => {
                 ATLAAS <span className="text-primary-glow">GO</span>
               </h3>
             </div>
-            <p className="text-secondary/90 mb-4 italic font-medium">
+            <p className="text-muted-foreground mb-4 italic font-medium">
               "{t('hero.tagline')}"
             </p>
-            <p className="text-secondary/70 text-sm leading-relaxed">
+            <p className="text-muted-foreground/80 text-sm leading-relaxed">
               {t('hero.description')}
             </p>
           </div>
@@ -39,7 +39,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/about")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   {t('footer.about')}
                 </button>
@@ -47,7 +47,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   {t('footer.howItWorks')}
                 </button>
@@ -55,7 +55,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/partner-restaurant")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   {t('partner.restaurant')}
                 </button>
@@ -63,7 +63,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/rider-auth")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   {t('hero.becomeRider')}
                 </button>
@@ -71,7 +71,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/careers")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   {t('footer.careers')}
                 </button>
@@ -88,7 +88,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/help")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   {t('footer.helpCenter')}
                 </button>
@@ -96,7 +96,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/safety")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   {t('footer.safety')}
                 </button>
@@ -104,7 +104,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/terms")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   {t('footer.terms')}
                 </button>
@@ -112,7 +112,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/privacy")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   {t('footer.privacy')}
                 </button>
@@ -120,7 +120,7 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => navigate("/privacy")} 
-                  className="text-secondary/80 hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
                 >
                   Cookie Policy
                 </button>
@@ -134,7 +134,7 @@ const Footer = () => {
               {t('footer.contact')}
             </h4>
             <ul className="space-y-4">
-              <li className="flex items-center gap-3 text-secondary/80 group">
+              <li className="flex items-center gap-3 text-muted-foreground group">
                 <Mail className="w-5 h-5 text-primary group-hover:text-primary-glow transition-colors" />
                 <a 
                   href="mailto:hello@atlaasgo.ma" 
@@ -143,7 +143,7 @@ const Footer = () => {
                   hello@atlaasgo.ma
                 </a>
               </li>
-              <li className="flex items-center gap-3 text-secondary/80 group">
+              <li className="flex items-center gap-3 text-muted-foreground group">
                 <Phone className="w-5 h-5 text-primary group-hover:text-primary-glow transition-colors" />
                 <a 
                   href="tel:+212523456789" 
@@ -152,7 +152,7 @@ const Footer = () => {
                   +212 5 23 45 67 89
                 </a>
               </li>
-              <li className="flex items-center gap-3 text-secondary/80">
+              <li className="flex items-center gap-3 text-muted-foreground">
                 <MapPin className="w-5 h-5 text-primary" />
                 <span>Casablanca, Morocco</span>
               </li>
@@ -163,28 +163,28 @@ const Footer = () => {
               <Button
                 size="icon"
                 variant="outline"
-                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-secondary hover:text-white transition-all hover:scale-110"
+                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-foreground hover:text-white transition-all hover:scale-110"
               >
                 <Facebook className="w-5 h-5" />
               </Button>
               <Button
                 size="icon"
                 variant="outline"
-                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-secondary hover:text-white transition-all hover:scale-110"
+                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-foreground hover:text-white transition-all hover:scale-110"
               >
                 <Instagram className="w-5 h-5" />
               </Button>
               <Button
                 size="icon"
                 variant="outline"
-                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-secondary hover:text-white transition-all hover:scale-110"
+                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-foreground hover:text-white transition-all hover:scale-110"
               >
                 <Twitter className="w-5 h-5" />
               </Button>
               <Button
                 size="icon"
                 variant="outline"
-                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-secondary hover:text-white transition-all hover:scale-110"
+                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-foreground hover:text-white transition-all hover:scale-110"
               >
                 <Linkedin className="w-5 h-5" />
               </Button>
@@ -193,17 +193,17 @@ const Footer = () => {
         </div>
 
         {/* Newsletter */}
-        <div className="border-t border-primary/20 pt-12 mb-12">
+        <div className="border-t border-border pt-12 mb-12">
           <div className="max-w-2xl mx-auto text-center">
             <h4 className="text-2xl font-bold mb-3 text-primary-glow">Stay Updated</h4>
-            <p className="text-secondary/70 mb-6 text-lg">
+            <p className="text-muted-foreground mb-6 text-lg">
               Get the latest news and exclusive offers from ATLAAS GO
             </p>
             <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <Input 
                 type="email" 
                 placeholder="Your email address" 
-                className="bg-white/10 border-primary/30 text-white placeholder:text-secondary/50 focus:border-primary focus:ring-primary"
+                className="bg-background border-input placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
               />
               <Button className="bg-primary hover:bg-primary-glow text-white font-semibold shadow-glow hover:scale-105 transition-all">
                 Subscribe
@@ -213,14 +213,14 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-primary/20 pt-8 text-center">
-          <p className="text-secondary/60 text-sm mb-3">
+        <div className="border-t border-border pt-8 text-center">
+          <p className="text-muted-foreground text-sm mb-3">
             © 2025 ATLAAS GO. All rights reserved.
           </p>
           <p className="text-primary-glow font-bold text-xl italic mb-4 animate-pulse">
             "ATLAAS GO — Strength. Speed. Morocco."
           </p>
-          <p className="text-secondary/60 text-sm flex items-center justify-center gap-2">
+          <p className="text-muted-foreground text-sm flex items-center justify-center gap-2">
             <span>🇲🇦</span>
             {t('footer.built')}
             <span>🇲🇦</span>
