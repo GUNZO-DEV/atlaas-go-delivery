@@ -70,7 +70,7 @@ const Hero = () => {
           </div>
 
           {/* Tagline */}
-          <p className="text-2xl md:text-3xl text-secondary mb-4 font-light italic">
+          <p className="text-2xl md:text-3xl text-white/90 mb-4 font-light italic">
             "{t('hero.tagline')}"
           </p>
 
@@ -79,7 +79,7 @@ const Hero = () => {
             {t('hero.headline')}
           </h2>
 
-          <p className="text-xl md:text-2xl text-secondary/90 mb-12 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-3xl mx-auto">
             {t('hero.description')}
           </p>
 
