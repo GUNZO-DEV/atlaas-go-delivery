@@ -7,6 +7,7 @@ import CustomerSection from "@/components/CustomerSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import CityPresenceMap from "@/components/CityPresenceMap";
 import AppPreview from "@/components/AppPreview";
+import SupportLocalShowcase from "@/components/SupportLocalShowcase";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -106,6 +107,7 @@ const Index = () => {
       <TestimonialsSection />
       <CityPresenceMap />
       <AppPreview />
+      <SupportLocalShowcase />
       <Footer />
       <AtlaasAIChat />
     </div>
