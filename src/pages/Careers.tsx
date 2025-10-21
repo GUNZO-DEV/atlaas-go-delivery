@@ -1,9 +1,57 @@
-import { Briefcase, Users, TrendingUp, Heart } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Briefcase, Users, TrendingUp, Heart, MapPin, Clock } from "lucide-react";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { JobApplicationDialog } from "@/components/JobApplicationDialog";
+
+interface JobPosting {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  employment_type: string;
+  description: string;
+  requirements: string;
+  responsibilities: string;
+  salary_range: string | null;
+}
 
 const Careers = () => {
+  const [jobs, setJobs] = useState<JobPosting[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedJob, setSelectedJob] = useState<{ id: string; title: string } | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("job_postings")
+        .select("*")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (error: any) {
+      toast.error("Failed to load job postings");
+      console.error("Error fetching jobs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApplyClick = (job: JobPosting) => {
+    setSelectedJob({ id: job.id, title: job.title });
+    setDialogOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-16">
@@ -69,67 +117,68 @@ const Careers = () => {
 
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6">Open Positions</h2>
-            <div className="space-y-4">
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold mb-2">Senior Full-Stack Developer</h3>
-                      <p className="text-muted-foreground">Casablanca • Full-time</p>
-                    </div>
-                    <Button>Apply Now</Button>
-                  </div>
-                  <p className="text-muted-foreground">
-                    Build and scale our platform using React, Node.js, and modern cloud technologies. 3+ years experience required.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold mb-2">Product Designer</h3>
-                      <p className="text-muted-foreground">Casablanca • Full-time</p>
-                    </div>
-                    <Button>Apply Now</Button>
-                  </div>
-                  <p className="text-muted-foreground">
-                    Design beautiful, intuitive experiences for customers, riders, and restaurants. Portfolio required.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold mb-2">Operations Manager</h3>
-                      <p className="text-muted-foreground">Casablanca • Full-time</p>
-                    </div>
-                    <Button>Apply Now</Button>
-                  </div>
-                  <p className="text-muted-foreground">
-                    Manage daily operations, optimize delivery routes, and ensure exceptional service quality. 2+ years in logistics.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold mb-2">Marketing Specialist</h3>
-                      <p className="text-muted-foreground">Casablanca • Full-time</p>
-                    </div>
-                    <Button>Apply Now</Button>
-                  </div>
-                  <p className="text-muted-foreground">
-                    Drive growth through digital marketing, content creation, and community engagement. Experience in tech startups preferred.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Loading job postings...</p>
+              </div>
+            ) : jobs.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No open positions at the moment. Check back soon!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {jobs.map((job) => (
+                  <Card key={job.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold mb-2">{job.title}</h3>
+                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-3">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              {job.location}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              {job.employment_type}
+                            </span>
+                            <span className="px-2 py-1 rounded bg-primary/10 text-primary">
+                              {job.department}
+                            </span>
+                          </div>
+                          {job.salary_range && (
+                            <p className="text-sm font-semibold text-primary mb-2">
+                              {job.salary_range}
+                            </p>
+                          )}
+                          <p className="text-muted-foreground line-clamp-2">
+                            {job.description}
+                          </p>
+                        </div>
+                        <Button onClick={() => handleApplyClick(job)} className="md:mt-0">
+                          Apply Now
+                        </Button>
+                      </div>
+                      <details className="mt-4">
+                        <summary className="cursor-pointer text-primary font-semibold">
+                          View Details
+                        </summary>
+                        <div className="mt-4 space-y-4">
+                          <div>
+                            <h4 className="font-semibold mb-2">Requirements:</h4>
+                            <p className="text-muted-foreground whitespace-pre-line">{job.requirements}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold mb-2">Responsibilities:</h4>
+                            <p className="text-muted-foreground whitespace-pre-line">{job.responsibilities}</p>
+                          </div>
+                        </div>
+                      </details>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="bg-card p-8 rounded-lg border">
@@ -154,6 +203,15 @@ const Careers = () => {
         </div>
       </div>
       <Footer />
+      
+      {selectedJob && (
+        <JobApplicationDialog
+          jobId={selectedJob.id}
+          jobTitle={selectedJob.title}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
+      )}
     </div>
   );
 };
