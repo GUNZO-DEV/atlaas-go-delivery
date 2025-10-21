@@ -30,6 +30,25 @@ const Hero = () => {
         </div>
       </Link>
 
+      {/* Auth Buttons - Top Right */}
+      <div className="absolute top-6 right-6 z-20 flex gap-3">
+        <Link to="/auth?mode=login">
+          <Button 
+            variant="outline" 
+            className="backdrop-blur-xl bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white font-semibold shadow-[0_4px_24px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_32px_rgba(0,0,0,0.4)] transition-all hover:scale-105"
+          >
+            Log In
+          </Button>
+        </Link>
+        <Link to="/auth?mode=signup">
+          <Button 
+            className="backdrop-blur-xl bg-white hover:bg-white/90 text-primary font-bold shadow-[0_4px_24px_rgba(255,255,255,0.3)] hover:shadow-[0_4px_32px_rgba(255,255,255,0.4)] transition-all hover:scale-105"
+          >
+            Sign Up
+          </Button>
+        </Link>
+      </div>
+
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 text-center">
         <div className="animate-fade-in-up">
