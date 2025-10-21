@@ -64,11 +64,9 @@ const RiderAuth = () => {
       }
 
       toast({
-        title: "Success!",
-        description: "Rider account created successfully.",
+        title: "Check your email!",
+        description: "We've sent you a verification link. Please check your email to activate your rider account.",
       });
-
-      setTimeout(() => navigate("/rider"), 1000);
     } catch (error: any) {
       toast({
         title: "Error",

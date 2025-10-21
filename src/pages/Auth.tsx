@@ -35,11 +35,9 @@ const Auth = () => {
       if (error) throw error;
 
       toast({
-        title: "Success!",
-        description: "Account created successfully. Redirecting...",
+        title: "Check your email!",
+        description: "We've sent you a verification link. Please check your email to activate your account.",
       });
-
-      setTimeout(() => navigate("/"), 1000);
     } catch (error: any) {
       toast({
         title: "Error",

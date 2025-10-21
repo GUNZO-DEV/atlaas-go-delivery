@@ -64,11 +64,9 @@ const MerchantAuth = () => {
       }
 
       toast({
-        title: "Success!",
-        description: "Restaurant account created successfully.",
+        title: "Check your email!",
+        description: "We've sent you a verification link. Please check your email to activate your restaurant account.",
       });
-
-      setTimeout(() => navigate("/merchant"), 1000);
     } catch (error: any) {
       toast({
         title: "Error",
