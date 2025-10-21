@@ -12,6 +12,7 @@ import LanguageToggle from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Store, Bike } from "lucide-react";
+import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -106,6 +107,7 @@ const Index = () => {
       <CityPresenceMap />
       <AppPreview />
       <Footer />
+      <AtlaasAIChat />
     </div>
   );
 };
