@@ -156,7 +156,7 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
 
   if (floating) {
     return (
-      <div className={`fixed bottom-4 right-4 z-50 transition-all duration-300 ${
+      <div className={`fixed bottom-4 right-4 z-[9999] transition-all duration-300 ${
         isMinimized ? 'w-14 h-14' : isExpanded ? 'w-96 h-[500px]' : 'w-80 h-96'
       }`}>
         {isMinimized ? (
