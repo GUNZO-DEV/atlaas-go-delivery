@@ -47,6 +47,7 @@ export default function RiderDashboard() {
     todayDeliveries: 0,
     todayEarnings: 0,
     activeDeliveries: 0,
+    allTimeDeliveries: 0,
   });
   const [isAvailable, setIsAvailable] = useState(false);
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
@@ -246,6 +247,7 @@ export default function RiderDashboard() {
         .filter((o) => o.status === "delivered")
         .reduce((sum, o) => sum + Number(o.delivery_fee), 0),
       activeDeliveries: myOrders.filter((o) => o.status === "picked_up").length,
+      allTimeDeliveries: riderProfile?.total_deliveries || 0,
     });
   };
 
@@ -657,7 +659,7 @@ export default function RiderDashboard() {
               <WeatherPrayerWidget />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -668,6 +670,20 @@ export default function RiderDashboard() {
                   <div className="flex items-center gap-2">
                     <Package className="h-4 w-4 text-muted-foreground" />
                     <span className="text-2xl font-bold">{stats.todayDeliveries}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    All-time Deliveries
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-2xl font-bold">{stats.allTimeDeliveries}</span>
                   </div>
                 </CardContent>
               </Card>
