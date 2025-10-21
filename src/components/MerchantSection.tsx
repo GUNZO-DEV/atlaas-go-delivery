@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Percent, BarChart3, Wallet } from "lucide-react";
 import MoroccanLifeCarousel from "@/components/MoroccanLifeCarousel";
-
 const MerchantSection = () => {
-  return (
-    <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative">
+  return <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
@@ -19,7 +17,7 @@ const MerchantSection = () => {
           {/* Cinematic Carousel */}
           <div className="order-2 lg:order-1">
             <div className="relative rounded-3xl overflow-hidden shadow-elevation hover-lift">
-              <MoroccanLifeCarousel />
+              
             </div>
           </div>
 
@@ -85,17 +83,12 @@ const MerchantSection = () => {
               </div>
             </div>
 
-            <Button 
-              size="lg" 
-              className="w-full bg-primary hover:bg-primary-glow text-white py-6 text-lg font-semibold shadow-glow"
-            >
+            <Button size="lg" className="w-full bg-primary hover:bg-primary-glow text-white py-6 text-lg font-semibold shadow-glow">
               Join as Partner Restaurant
             </Button>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default MerchantSection;
