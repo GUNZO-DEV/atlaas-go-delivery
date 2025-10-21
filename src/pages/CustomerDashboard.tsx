@@ -14,6 +14,7 @@ import LoyaltyCard from "@/components/LoyaltyCard";
 import WalletCard from "@/components/WalletCard";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
+import { PrimeCard } from "@/components/PrimeCard";
 
 interface Order {
   id: string;
@@ -301,7 +302,8 @@ export default function CustomerDashboard() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <PrimeCard />
           <LoyaltyCard />
           <WalletCard />
         </div>

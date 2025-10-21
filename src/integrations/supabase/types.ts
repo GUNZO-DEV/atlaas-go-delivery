@@ -510,14 +510,55 @@ export type Database = {
         }
         Relationships: []
       }
+      prime_memberships: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          payment_method: string | null
+          price: number
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          payment_method?: string | null
+          price?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          payment_method?: string | null
+          price?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           full_name: string | null
           id: string
+          is_prime_member: boolean | null
           loyalty_points: number | null
           phone: string | null
+          prime_expires_at: string | null
           updated_at: string
           wallet_balance: number | null
         }
@@ -526,8 +567,10 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          is_prime_member?: boolean | null
           loyalty_points?: number | null
           phone?: string | null
+          prime_expires_at?: string | null
           updated_at?: string
           wallet_balance?: number | null
         }
@@ -536,8 +579,10 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          is_prime_member?: boolean | null
           loyalty_points?: number | null
           phone?: string | null
+          prime_expires_at?: string | null
           updated_at?: string
           wallet_balance?: number | null
         }
