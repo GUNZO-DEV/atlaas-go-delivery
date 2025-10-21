@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Package, Bike } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 
 const Hero = () => {
+  const { t } = useLanguage();
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image - Fully Animated Mountains */}
@@ -32,17 +35,17 @@ const Hero = () => {
 
           {/* Tagline */}
           <p className="text-2xl md:text-3xl text-secondary mb-4 font-light italic">
-            "From the mountains to your door."
+            "{t('hero.tagline')}"
           </p>
 
           {/* Main Headline */}
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Fast. Fair. <span className="text-gradient-morocco">100% Moroccan.</span>
+            {t('hero.headline').split('100%')[0]}
+            <span className="text-gradient-morocco">100% {t('hero.headline').split('100%')[1]}</span>
           </h2>
 
           <p className="text-xl md:text-2xl text-secondary/90 mb-12 max-w-3xl mx-auto">
-            Morocco's first delivery platform built with our merchants and riders in mind. 
-            Only 10% commission. Real-time tracking. Pure Moroccan hospitality.
+            {t('hero.description')}
           </p>
 
           {/* CTA Buttons */}
@@ -53,7 +56,7 @@ const Hero = () => {
                 className="bg-primary hover:bg-primary-glow text-white px-8 py-6 text-lg font-semibold shadow-glow transition-all hover:scale-105"
               >
                 <Package className="mr-2" />
-                Order Now
+                {t('hero.orderNow')}
                 <ArrowRight className="ml-2" />
               </Button>
             </Link>
@@ -64,7 +67,7 @@ const Hero = () => {
                 className="bg-accent hover:bg-accent/90 text-accent-foreground border-2 border-accent-foreground/20 px-8 py-6 text-lg font-semibold shadow-glow transition-all hover:scale-105 animate-pulse-glow"
               >
                 <Bike className="mr-2" />
-                Become a Rider
+                {t('hero.becomeRider')}
               </Button>
             </Link>
           </div>
@@ -73,15 +76,15 @@ const Hero = () => {
           <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20">
               <div className="text-4xl font-bold text-primary-glow mb-2">10%</div>
-              <div className="text-white/90">Commission Only</div>
+              <div className="text-white/90">{t('hero.commission')}</div>
             </div>
             <div className="backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20">
               <div className="text-4xl font-bold text-primary-glow mb-2">24/7</div>
-              <div className="text-white/90">Live Support</div>
+              <div className="text-white/90">{t('hero.support')}</div>
             </div>
             <div className="backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20">
               <div className="text-4xl font-bold text-primary-glow mb-2">100%</div>
-              <div className="text-white/90">Moroccan</div>
+              <div className="text-white/90">{t('hero.moroccan')}</div>
             </div>
           </div>
         </div>
