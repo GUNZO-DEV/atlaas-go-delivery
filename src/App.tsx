@@ -23,6 +23,12 @@ import CustomerSettings from "./pages/CustomerSettings";
 import RiderSettings from "./pages/RiderSettings";
 import MerchantSettings from "./pages/MerchantSettings";
 import Install from "./pages/Install";
+import About from "./pages/About";
+import HelpCenter from "./pages/HelpCenter";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Safety from "./pages/Safety";
+import Careers from "./pages/Careers";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +58,12 @@ const App = () => (
           <Route path="/customer/settings" element={<CustomerSettings />} />
           <Route path="/rider/settings" element={<RiderSettings />} />
           <Route path="/merchant/settings" element={<MerchantSettings />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/help" element={<HelpCenter />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/safety" element={<Safety />} />
+          <Route path="/careers" element={<Careers />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
