@@ -174,11 +174,8 @@ const Footer = () => {
           <p className="text-midnight-foreground/50 text-sm mb-2">
             © 2025 ATLAAS GO. All rights reserved.
           </p>
-          <p className="text-primary-glow font-semibold text-lg italic mb-3">
+          <p className="text-primary-glow font-semibold text-lg italic">
             "ATLAAS GO — Strength. Speed. Morocco."
-          </p>
-          <p className="text-midnight-foreground/60 text-sm flex items-center justify-center gap-2">
-            Built proudly in Morocco 🇲🇦 by young innovators
           </p>
         </div>
       </div>

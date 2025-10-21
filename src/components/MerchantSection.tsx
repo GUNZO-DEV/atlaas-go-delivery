@@ -6,29 +6,13 @@ const MerchantSection = () => {
   return (
     <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16 animate-fade-in">
+        <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
             Fair to Every Merchant
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mt-8">
             We believe Moroccan businesses deserve better. That's why we only take 10% commission.
           </p>
-        </div>
-
-        {/* Success Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-4xl mx-auto">
-          <div className="text-center p-6 bg-card/50 rounded-2xl backdrop-blur-sm border border-primary/20 hover-scale transition-all duration-300">
-            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">250+</div>
-            <p className="text-muted-foreground font-medium">Local Restaurants Joined</p>
-          </div>
-          <div className="text-center p-6 bg-card/50 rounded-2xl backdrop-blur-sm border border-primary/20 hover-scale transition-all duration-300">
-            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">+18%</div>
-            <p className="text-muted-foreground font-medium">Average Profit Increase</p>
-          </div>
-          <div className="text-center p-6 bg-card/50 rounded-2xl backdrop-blur-sm border border-primary/20 hover-scale transition-all duration-300">
-            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">100%</div>
-            <p className="text-muted-foreground font-medium">Trusted by Cafés & Patisseries</p>
-          </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
@@ -50,7 +34,7 @@ const MerchantSection = () => {
 
           {/* Benefits */}
           <div className="order-1 lg:order-2 space-y-8">
-            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift border-2 border-primary/20 transition-all duration-300">
+            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift border-2 border-primary/20">
               <div className="flex items-start gap-4">
                 <div className="bg-primary text-primary-foreground rounded-xl p-4">
                   <Percent className="w-8 h-8" />
@@ -65,7 +49,7 @@ const MerchantSection = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift transition-all duration-300">
+            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift">
               <div className="flex items-start gap-4">
                 <div className="bg-accent text-accent-foreground rounded-xl p-4">
                   <BarChart3 className="w-8 h-8" />
@@ -80,7 +64,7 @@ const MerchantSection = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift transition-all duration-300">
+            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift">
               <div className="flex items-start gap-4">
                 <div className="bg-midnight text-midnight-foreground rounded-xl p-4">
                   <Wallet className="w-8 h-8" />
@@ -95,7 +79,7 @@ const MerchantSection = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift transition-all duration-300">
+            <div className="bg-card rounded-2xl p-8 shadow-warm hover-lift">
               <div className="flex items-start gap-4">
                 <div className="bg-primary text-primary-foreground rounded-xl p-4">
                   <TrendingUp className="w-8 h-8" />
