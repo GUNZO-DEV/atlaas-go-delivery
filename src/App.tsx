@@ -22,6 +22,7 @@ import PartnerRestaurant from "./pages/PartnerRestaurant";
 import CustomerSettings from "./pages/CustomerSettings";
 import RiderSettings from "./pages/RiderSettings";
 import MerchantSettings from "./pages/MerchantSettings";
+import Install from "./pages/Install";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/merchant-auth" element={<MerchantAuth />} />
           <Route path="/rider-auth" element={<RiderAuth />} />
+          <Route path="/install" element={<Install />} />
           <Route path="/partner-restaurant" element={<PartnerRestaurant />} />
           <Route path="/restaurants" element={<Restaurants />} />
           <Route path="/customer" element={<CustomerDashboard />} />
