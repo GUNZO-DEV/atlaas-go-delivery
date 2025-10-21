@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Smartphone, QrCode, Apple, Play } from "lucide-react";
-import appMockup from "@/assets/app-mockup.jpg";
+import moroccanFood from "@/assets/moroccan-food.jpg";
+import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 
 const AppPreview = () => {
   return (
@@ -95,36 +96,41 @@ const AppPreview = () => {
             </div>
           </div>
 
-          {/* Phone Mockup */}
-          <div className="relative">
-            <div className="relative hover-scale transition-all duration-500">
-              {/* Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-morocco blur-3xl opacity-20 animate-float" />
-              
-              {/* Phone Frame */}
-              <div className="relative bg-midnight rounded-[3rem] p-4 shadow-elevation hover:shadow-glow transition-shadow duration-500">
-                <div className="bg-background rounded-[2.5rem] overflow-hidden">
-                  <img 
-                    src={appMockup} 
-                    alt="ATLAAS GO App Interface" 
-                    className="w-full h-auto transition-transform duration-700 hover:scale-105"
-                  />
-                </div>
-                
-                {/* Notch */}
-                <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-midnight w-32 h-6 rounded-full" />
-              </div>
+          {/* Fading Text Over Images */}
+          <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-elevation">
+            {/* Background Images - Crossfade */}
+            <div className="absolute inset-0">
+              <img 
+                src={moroccanFood} 
+                alt="Moroccan Tagines" 
+                className="absolute inset-0 w-full h-full object-cover animate-[fadeInOut_8s_ease-in-out_infinite]"
+              />
+              <img 
+                src={atlasHero} 
+                alt="City Lights" 
+                className="absolute inset-0 w-full h-full object-cover animate-[fadeInOut_8s_ease-in-out_infinite_4s]"
+              />
+            </div>
+            
+            {/* Dark Overlay for Text Contrast */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+            
+            {/* Fading Text */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <h3 className="text-5xl md:text-7xl font-bold text-white text-center px-8 animate-[textFade_4s_ease-in-out_infinite] drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+                From Souk to Success
+              </h3>
+            </div>
 
-              {/* Floating Elements */}
-              <div className="absolute -top-8 -right-8 bg-primary text-primary-foreground rounded-2xl p-4 shadow-glow animate-float">
-                <div className="text-2xl font-bold">4.9★</div>
-                <div className="text-xs">User Rating</div>
-              </div>
+            {/* Floating Elements */}
+            <div className="absolute top-8 right-8 bg-primary/90 backdrop-blur-sm text-primary-foreground rounded-2xl p-4 shadow-glow animate-float">
+              <div className="text-2xl font-bold">4.9★</div>
+              <div className="text-xs">User Rating</div>
+            </div>
 
-              <div className="absolute -bottom-8 -left-8 bg-accent text-accent-foreground rounded-2xl p-4 shadow-glow animate-float" style={{ animationDelay: '1s' }}>
-                <div className="text-2xl font-bold">50K+</div>
-                <div className="text-xs">Downloads</div>
-              </div>
+            <div className="absolute bottom-8 left-8 bg-accent/90 backdrop-blur-sm text-accent-foreground rounded-2xl p-4 shadow-glow animate-float" style={{ animationDelay: '1s' }}>
+              <div className="text-2xl font-bold">50K+</div>
+              <div className="text-xs">Downloads</div>
             </div>
           </div>
         </div>

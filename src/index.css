@@ -222,4 +222,26 @@ All colors MUST be HSL.
   .animate-ken-burns {
     animation: ken-burns 20s ease-in-out infinite alternate;
   }
+
+  /* Fade In/Out for Images */
+  @keyframes fadeInOut {
+    0%, 100% {
+      opacity: 0;
+    }
+    25%, 75% {
+      opacity: 1;
+    }
+  }
+
+  /* Text Fade Animation */
+  @keyframes textFade {
+    0%, 100% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    20%, 80% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
