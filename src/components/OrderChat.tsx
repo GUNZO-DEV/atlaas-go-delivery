@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Send, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { chatMessageSchema } from "@/lib/validation";
 import {
   Sheet,
   SheetContent,
@@ -101,6 +102,17 @@ export default function OrderChat({ orderId, userType }: OrderChatProps) {
   const sendMessage = async () => {
     if (!newMessage.trim() || !user) return;
 
+    // Validate message
+    const validation = chatMessageSchema.safeParse({ message: newMessage });
+    if (!validation.success) {
+      toast({
+        title: "Invalid message",
+        description: validation.error.issues[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSending(true);
     try {
       const { error } = await supabase
@@ -109,14 +121,13 @@ export default function OrderChat({ orderId, userType }: OrderChatProps) {
           order_id: orderId,
           sender_id: user.id,
           sender_type: userType,
-          message: newMessage.trim(),
+          message: validation.data.message,
         });
 
       if (error) throw error;
 
       setNewMessage("");
     } catch (error: any) {
-      console.error("Error sending message:", error);
       toast({
         title: "Error",
         description: "Failed to send message",

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { reviewSchema } from "@/lib/validation";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,22 @@ export default function ReviewDialog({
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
+    // Validate review data
+    const validation = reviewSchema.safeParse({
+      restaurant_rating: restaurantRating,
+      rider_rating: riderId ? riderRating : undefined,
+      comment: comment,
+    });
+
+    if (!validation.success) {
+      toast({
+        title: "Invalid review",
+        description: validation.error.issues[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -48,9 +65,9 @@ export default function ReviewDialog({
         customer_id: user.id,
         restaurant_id: restaurantId,
         rider_id: riderId || null,
-        restaurant_rating: restaurantRating,
-        rider_rating: riderId ? riderRating : null,
-        comment: comment.trim() || null,
+        restaurant_rating: validation.data.restaurant_rating,
+        rider_rating: validation.data.rider_rating || null,
+        comment: validation.data.comment || null,
       });
 
       if (error) throw error;

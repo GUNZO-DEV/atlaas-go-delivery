@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { HelpCircle } from "lucide-react";
+import { supportTicketSchema } from "@/lib/validation";
 import {
   Dialog,
   DialogContent,
@@ -37,10 +38,17 @@ export default function SupportTicketDialog({ orderId }: SupportTicketDialogProp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!subject.trim() || !message.trim()) {
+    // Validate ticket data
+    const validation = supportTicketSchema.safeParse({
+      subject,
+      message,
+      priority,
+    });
+
+    if (!validation.success) {
       toast({
-        title: "Missing information",
-        description: "Please fill in all fields",
+        title: "Invalid input",
+        description: validation.error.issues[0].message,
         variant: "destructive",
       });
       return;
@@ -56,9 +64,9 @@ export default function SupportTicketDialog({ orderId }: SupportTicketDialogProp
         .insert({
           user_id: user.id,
           order_id: orderId || null,
-          subject: subject.trim(),
-          message: message.trim(),
-          priority,
+          subject: validation.data.subject,
+          message: validation.data.message,
+          priority: validation.data.priority,
           status: "open",
         });
 
