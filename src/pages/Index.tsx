@@ -7,7 +7,6 @@ import CustomerSection from "@/components/CustomerSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import CityPresenceMap from "@/components/CityPresenceMap";
 import AppPreview from "@/components/AppPreview";
-import FutureVisionBanner from "@/components/FutureVisionBanner";
 import Footer from "@/components/Footer";
 import LanguageToggle from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
@@ -106,7 +105,6 @@ const Index = () => {
       <TestimonialsSection />
       <CityPresenceMap />
       <AppPreview />
-      <FutureVisionBanner />
       <Footer />
     </div>
   );
