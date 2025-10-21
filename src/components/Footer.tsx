@@ -1,8 +1,11 @@
 import { MapPin, Mail, Phone, Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   return (
     <footer className="bg-midnight text-midnight-foreground relative overflow-hidden">
       <div className="absolute inset-0 zellij-pattern opacity-10" />
@@ -31,29 +34,29 @@ const Footer = () => {
             <h4 className="text-lg font-bold mb-4 text-primary-glow">Quick Links</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/about")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   About Us
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   How It Works
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/partner-restaurant")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   Become a Partner
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/rider-auth")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   Become a Rider
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/careers")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   Careers
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -63,29 +66,29 @@ const Footer = () => {
             <h4 className="text-lg font-bold mb-4 text-primary-glow">Support</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/help")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   Help Center
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/safety")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   Safety
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/terms")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   Terms of Service
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/privacy")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   Privacy Policy
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
+                <button onClick={() => navigate("/privacy")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
                   Cookie Policy
-                </a>
+                </button>
               </li>
             </ul>
           </div>
