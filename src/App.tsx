@@ -19,6 +19,9 @@ import RiderEarnings from "./pages/RiderEarnings";
 import MerchantAuth from "./pages/MerchantAuth";
 import RiderAuth from "./pages/RiderAuth";
 import PartnerRestaurant from "./pages/PartnerRestaurant";
+import CustomerSettings from "./pages/CustomerSettings";
+import RiderSettings from "./pages/RiderSettings";
+import MerchantSettings from "./pages/MerchantSettings";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +47,9 @@ const App = () => (
           <Route path="/group-order/:mode?" element={<GroupOrder />} />
           <Route path="/merchant/analytics" element={<MerchantAnalytics />} />
           <Route path="/rider/earnings" element={<RiderEarnings />} />
+          <Route path="/customer/settings" element={<CustomerSettings />} />
+          <Route path="/rider/settings" element={<RiderSettings />} />
+          <Route path="/merchant/settings" element={<MerchantSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

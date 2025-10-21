@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Store, Package, DollarSign, TrendingUp, Download, Mail, Plus, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, Store, Package, DollarSign, TrendingUp, Download, Mail, Plus, Clock, CheckCircle, XCircle, Settings } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
@@ -860,6 +860,9 @@ export default function MerchantDashboard() {
             </Button>
             <SupportTicketDialog />
             <NotificationBell />
+            <Button variant="outline" size="icon" onClick={() => navigate("/merchant/settings")}>
+              <Settings className="h-4 w-4" />
+            </Button>
             <Button variant="outline" onClick={handleSignOut}>
               Sign Out
             </Button>

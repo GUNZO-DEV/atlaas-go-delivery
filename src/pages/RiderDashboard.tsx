@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Navigation, Package, DollarSign, Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Loader2, MapPin, Navigation, Package, DollarSign, Clock, CheckCircle, XCircle, AlertTriangle, Settings } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
@@ -572,6 +572,9 @@ export default function RiderDashboard() {
               </Button>
               <SupportTicketDialog />
               <NotificationBell />
+              <Button variant="outline" size="icon" onClick={() => navigate("/rider/settings")}>
+                <Settings className="h-4 w-4" />
+              </Button>
               <Button variant="outline" onClick={handleSignOut}>
                 Sign Out
               </Button>
