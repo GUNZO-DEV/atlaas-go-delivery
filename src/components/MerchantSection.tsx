@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Percent, BarChart3, Wallet } from "lucide-react";
-import SoukToSuccessAnimation from "@/components/SoukToSuccessAnimation";
+import MoroccanLifeCarousel from "@/components/MoroccanLifeCarousel";
 
 const MerchantSection = () => {
   return (
@@ -16,10 +16,10 @@ const MerchantSection = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          {/* Animation */}
+          {/* Cinematic Carousel */}
           <div className="order-2 lg:order-1">
             <div className="relative rounded-3xl overflow-hidden shadow-elevation hover-lift">
-              <SoukToSuccessAnimation />
+              <MoroccanLifeCarousel />
             </div>
           </div>
 
