@@ -113,6 +113,27 @@ export const translations: Translations = {
   // Testimonials
   'testimonials.title': { en: 'Trusted Across Morocco', fr: 'Approuvé à Travers le Maroc' },
   'testimonials.subtitle': { en: "Real stories from real people building Morocco's future, one delivery at a time.", fr: 'Histoires réelles de vraies personnes construisant l\'avenir du Maroc, une livraison à la fois.' },
+  
+  // Footer
+  'footer.quickLinks': { en: 'Quick Links', fr: 'Liens Rapides' },
+  'footer.about': { en: 'About Us', fr: 'À Propos' },
+  'footer.howItWorks': { en: 'How It Works', fr: 'Comment Ça Marche' },
+  'footer.careers': { en: 'Careers', fr: 'Carrières' },
+  'footer.support': { en: 'Support', fr: 'Support' },
+  'footer.helpCenter': { en: 'Help Center', fr: 'Centre d\'Aide' },
+  'footer.safety': { en: 'Safety', fr: 'Sécurité' },
+  'footer.terms': { en: 'Terms of Service', fr: 'Conditions d\'Utilisation' },
+  'footer.privacy': { en: 'Privacy Policy', fr: 'Politique de Confidentialité' },
+  'footer.contact': { en: 'Contact Us', fr: 'Contactez-Nous' },
+  'footer.built': { en: 'Built with pride in Morocco', fr: 'Construit avec fierté au Maroc' },
+  
+  // Prime
+  'prime.join': { en: 'Join Prime', fr: 'Rejoindre Prime' },
+  'prime.month': { en: 'month', fr: 'mois' },
+  
+  // Auth
+  'auth.login': { en: 'Login', fr: 'Connexion' },
+  'auth.signup': { en: 'Sign Up', fr: 'S\'inscrire' },
 };
 
 interface LanguageContextType {
