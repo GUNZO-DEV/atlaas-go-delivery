@@ -24,6 +24,10 @@ export const translations: Translations = {
   'order.title': { en: 'Order Now from Atlas Tajine House', fr: 'Commander au Atlas Tajine House' },
   'order.subtitle': { en: 'Authentic Moroccan cuisine delivered to your door', fr: 'Cuisine marocaine authentique livrée à votre porte' },
   'order.browse': { en: 'Browse All Restaurants', fr: 'Parcourir les Restaurants' },
+  'order.browseTitle': { en: 'Browse All Restaurants', fr: 'Parcourir Tous les Restaurants' },
+  'order.browseDesc': { en: 'Search, filter, and discover Moroccan restaurants', fr: 'Recherchez, filtrez et découvrez les restaurants marocains' },
+  'order.atlasTitle': { en: 'Atlas Tajine House', fr: 'Atlas Tajine House' },
+  'order.atlasDesc': { en: 'Traditional tajines, couscous, and authentic Moroccan dishes', fr: 'Tajines traditionnels, couscous et plats marocains authentiques' },
   'order.viewMenu': { en: 'View Menu & Order', fr: 'Voir Menu & Commander' },
   
   // Partners
@@ -55,6 +59,14 @@ export const translations: Translations = {
   'footer.terms': { en: 'Terms of Service', fr: 'Conditions d\'Utilisation' },
   'footer.privacy': { en: 'Privacy Policy', fr: 'Politique de Confidentialité' },
   'footer.built': { en: 'Built proudly in Morocco 🇲🇦 by young innovators', fr: 'Fièrement construit au Maroc 🇲🇦 par de jeunes innovateurs' },
+  
+  // Prime Membership
+  'prime.join': { en: 'Join ATLAAS Prime', fr: 'Rejoindre ATLAAS Prime' },
+  'prime.month': { en: 'month', fr: 'mois' },
+  
+  // Auth
+  'auth.login': { en: 'Log In', fr: 'Connexion' },
+  'auth.signup': { en: 'Sign Up', fr: 'S\'inscrire' },
 };
 
 interface LanguageContextType {

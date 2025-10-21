@@ -2,9 +2,11 @@ import { MapPin, Mail, Phone, Facebook, Instagram, Linkedin, Twitter } from "luc
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Footer = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-midnight text-midnight-foreground relative overflow-hidden">
@@ -21,41 +23,40 @@ const Footer = () => {
               </h3>
             </div>
             <p className="text-midnight-foreground/70 mb-4 italic">
-              "From the mountains to your door."
+              "{t('hero.tagline')}"
             </p>
             <p className="text-midnight-foreground/70 text-sm">
-              Morocco's first truly fair delivery platform. 
-              Built by Moroccans, for Morocco.
+              {t('hero.description')}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-bold mb-4 text-primary-glow">Quick Links</h4>
+            <h4 className="text-lg font-bold mb-4 text-primary-glow">{t('footer.quickLinks')}</h4>
             <ul className="space-y-3">
               <li>
                 <button onClick={() => navigate("/about")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
-                  About Us
+                  {t('footer.about')}
                 </button>
               </li>
               <li>
                 <button onClick={() => navigate("/")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
-                  How It Works
+                  {t('footer.howItWorks')}
                 </button>
               </li>
               <li>
                 <button onClick={() => navigate("/partner-restaurant")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
-                  Become a Partner
+                  {t('partner.restaurant')}
                 </button>
               </li>
               <li>
                 <button onClick={() => navigate("/rider-auth")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
-                  Become a Rider
+                  {t('hero.becomeRider')}
                 </button>
               </li>
               <li>
                 <button onClick={() => navigate("/careers")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
-                  Careers
+                  {t('footer.careers')}
                 </button>
               </li>
             </ul>
@@ -63,26 +64,26 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h4 className="text-lg font-bold mb-4 text-primary-glow">Support</h4>
+            <h4 className="text-lg font-bold mb-4 text-primary-glow">{t('footer.support')}</h4>
             <ul className="space-y-3">
               <li>
                 <button onClick={() => navigate("/help")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
-                  Help Center
+                  {t('footer.helpCenter')}
                 </button>
               </li>
               <li>
                 <button onClick={() => navigate("/safety")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
-                  Safety
+                  {t('footer.safety')}
                 </button>
               </li>
               <li>
                 <button onClick={() => navigate("/terms")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
-                  Terms of Service
+                  {t('footer.terms')}
                 </button>
               </li>
               <li>
                 <button onClick={() => navigate("/privacy")} className="text-midnight-foreground/70 hover:text-primary-glow transition-colors">
-                  Privacy Policy
+                  {t('footer.privacy')}
                 </button>
               </li>
               <li>
@@ -95,7 +96,7 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="text-lg font-bold mb-4 text-primary-glow">Contact</h4>
+            <h4 className="text-lg font-bold mb-4 text-primary-glow">{t('footer.contact')}</h4>
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-midnight-foreground/70">
                 <Mail className="w-4 h-4 text-primary" />
@@ -178,7 +179,7 @@ const Footer = () => {
             "ATLAAS GO — Strength. Speed. Morocco."
           </p>
           <p className="text-midnight-foreground/60 text-sm flex items-center justify-center gap-2">
-            Built proudly in Morocco 🇲🇦 by young innovators
+            {t('footer.built')}
           </p>
         </div>
       </div>

@@ -3,8 +3,11 @@ import { ArrowRight, MapPin, Package, Bike, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Hero = () => {
+  const { t } = useLanguage();
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image - Fully Animated Mountains */}
@@ -25,8 +28,8 @@ const Hero = () => {
         <div className="group backdrop-blur-xl bg-gradient-to-r from-primary via-primary/90 to-primary/80 hover:from-primary-glow hover:via-primary hover:to-primary/90 rounded-full px-6 py-3 border-2 border-white/30 transition-all hover:scale-105 shadow-[0_8px_32px_rgba(217,119,6,0.5)] hover:shadow-[0_8px_48px_rgba(217,119,6,0.7)]">
           <div className="flex items-center gap-2">
             <Crown className="w-5 h-5 text-white drop-shadow-lg animate-pulse" />
-            <span className="text-white font-bold drop-shadow-lg">Join ATLAAS Prime</span>
-            <span className="text-white/90 text-sm font-semibold drop-shadow-lg">49 MAD/mo</span>
+            <span className="text-white font-bold drop-shadow-lg">{t('prime.join')}</span>
+            <span className="text-white/90 text-sm font-semibold drop-shadow-lg">49 MAD/{t('prime.month')}</span>
           </div>
         </div>
       </Link>
@@ -41,14 +44,14 @@ const Hero = () => {
             variant="outline" 
             className="backdrop-blur-xl bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white font-semibold shadow-[0_4px_24px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_32px_rgba(0,0,0,0.4)] transition-all hover:scale-105"
           >
-            Log In
+            {t('auth.login')}
           </Button>
         </Link>
         <Link to="/auth?mode=signup">
           <Button 
             className="backdrop-blur-xl bg-white hover:bg-white/90 text-primary font-bold shadow-[0_4px_24px_rgba(255,255,255,0.3)] hover:shadow-[0_4px_32px_rgba(255,255,255,0.4)] transition-all hover:scale-105"
           >
-            Sign Up
+            {t('auth.signup')}
           </Button>
         </Link>
       </div>
@@ -66,17 +69,16 @@ const Hero = () => {
 
           {/* Tagline */}
           <p className="text-2xl md:text-3xl text-secondary mb-4 font-light italic">
-            "From the mountains to your door."
+            "{t('hero.tagline')}"
           </p>
 
           {/* Main Headline */}
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Fast. Fair. <span className="text-gradient-morocco">100% Moroccan.</span>
+            {t('hero.headline')}
           </h2>
 
           <p className="text-xl md:text-2xl text-secondary/90 mb-12 max-w-3xl mx-auto">
-            Morocco's first delivery platform built with our merchants and riders in mind. 
-            Only 10% commission. Real-time tracking. Pure Moroccan hospitality.
+            {t('hero.description')}
           </p>
 
           {/* CTA Buttons */}
@@ -87,7 +89,7 @@ const Hero = () => {
                 className="bg-primary hover:bg-primary-glow text-white px-8 py-6 text-lg font-semibold shadow-glow transition-all hover:scale-105"
               >
                 <Package className="mr-2" />
-                Order Now
+                {t('hero.orderNow')}
                 <ArrowRight className="ml-2" />
               </Button>
             </Link>
@@ -98,7 +100,7 @@ const Hero = () => {
                 className="bg-accent hover:bg-accent/90 text-accent-foreground border-2 border-accent-foreground/20 px-8 py-6 text-lg font-semibold shadow-glow transition-all hover:scale-105 animate-pulse-glow"
               >
                 <Bike className="mr-2" />
-                Become a Rider
+                {t('hero.becomeRider')}
               </Button>
             </Link>
           </div>
@@ -107,15 +109,15 @@ const Hero = () => {
           <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20">
               <div className="text-4xl font-bold text-primary-glow mb-2">10%</div>
-              <div className="text-white/90">Commission Only</div>
+              <div className="text-white/90">{t('hero.commission')}</div>
             </div>
             <div className="backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20">
               <div className="text-4xl font-bold text-primary-glow mb-2">24/7</div>
-              <div className="text-white/90">Live Support</div>
+              <div className="text-white/90">{t('hero.support')}</div>
             </div>
             <div className="backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20">
               <div className="text-4xl font-bold text-primary-glow mb-2">100%</div>
-              <div className="text-white/90">Moroccan</div>
+              <div className="text-white/90">{t('hero.moroccan')}</div>
             </div>
           </div>
         </div>
