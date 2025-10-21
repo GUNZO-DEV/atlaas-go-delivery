@@ -179,6 +179,53 @@ export type Database = {
           },
         ]
       }
+      loyalty_redemptions: {
+        Row: {
+          coupon_code: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          order_id: string | null
+          points_spent: number
+          reward_id: string
+          used: boolean | null
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          coupon_code?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          points_spent: number
+          reward_id: string
+          used?: boolean | null
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          coupon_code?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          points_spent?: number
+          reward_id?: string
+          used?: boolean | null
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_redemptions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loyalty_transactions: {
         Row: {
           created_at: string | null
@@ -703,6 +750,45 @@ export type Database = {
           },
         ]
       }
+      rewards: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          points_cost: number
+          reward_type: string
+          reward_value: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          points_cost: number
+          reward_type: string
+          reward_value: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          points_cost?: number
+          reward_type?: string
+          reward_value?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       rider_badges: {
         Row: {
           badge_type: string
@@ -1059,6 +1145,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      redeem_reward: {
+        Args: { p_reward_id: string; p_user_id: string }
+        Returns: string
       }
       reject_restaurant_application: {
         Args: { admin_id: string; application_id: string; reason: string }
