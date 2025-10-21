@@ -1,6 +1,9 @@
 import { ShoppingBag, Coffee, Package, Sparkles } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CustomerSection = () => {
+  const { t } = useLanguage();
+  
   return (
     <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative overflow-hidden">
       <div className="absolute inset-0 zellij-pattern opacity-30" />
@@ -8,10 +11,10 @@ const CustomerSection = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
-            From Souk to Sofa
+            {t('customer.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mt-8">
-            Everything Morocco has to offer, delivered to your doorstep with care and speed.
+            {t('customer.subtitle')}
           </p>
         </div>
 
@@ -22,22 +25,22 @@ const CustomerSection = () => {
               <div className="bg-gradient-morocco text-white rounded-2xl p-6 mb-6 shadow-glow">
                 <Coffee className="w-12 h-12 mx-auto" />
               </div>
-              <h3 className="text-2xl font-bold mb-3 text-center">Food & Dining</h3>
+              <h3 className="text-2xl font-bold mb-3 text-center">{t('customer.food')}</h3>
               <p className="text-muted-foreground text-center mb-4">
-                From traditional tagines to modern cafés. Taste Morocco, delivered hot and fresh.
+                {t('customer.foodDesc')}
               </p>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span>Local restaurants</span>
+                  <span>{t('customer.localRest')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span>Fast food chains</span>
+                  <span>{t('customer.fastFood')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span>Traditional souks</span>
+                  <span>{t('customer.souks')}</span>
                 </div>
               </div>
             </div>
@@ -49,22 +52,22 @@ const CustomerSection = () => {
               <div className="bg-gradient-atlas text-white rounded-2xl p-6 mb-6 shadow-elevation">
                 <ShoppingBag className="w-12 h-12 mx-auto" />
               </div>
-              <h3 className="text-2xl font-bold mb-3 text-center">Groceries</h3>
+              <h3 className="text-2xl font-bold mb-3 text-center">{t('customer.groceries')}</h3>
               <p className="text-muted-foreground text-center mb-4">
-                Fresh produce, pantry essentials, and everything you need for your Moroccan kitchen.
+                {t('customer.groceriesDesc')}
               </p>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-accent" />
-                  <span>Fresh vegetables</span>
+                  <span>{t('customer.freshVeg')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-accent" />
-                  <span>Meat & seafood</span>
+                  <span>{t('customer.meat')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-accent" />
-                  <span>Spices & herbs</span>
+                  <span>{t('customer.spices')}</span>
                 </div>
               </div>
             </div>
@@ -76,22 +79,22 @@ const CustomerSection = () => {
               <div className="bg-midnight text-midnight-foreground rounded-2xl p-6 mb-6 shadow-elevation">
                 <Package className="w-12 h-12 mx-auto" />
               </div>
-              <h3 className="text-2xl font-bold mb-3 text-center">Local Shops</h3>
+              <h3 className="text-2xl font-bold mb-3 text-center">{t('customer.shops')}</h3>
               <p className="text-muted-foreground text-center mb-4">
-                Support local businesses. From handicrafts to household items, shop Moroccan.
+                {t('customer.shopsDesc')}
               </p>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-midnight" />
-                  <span>Artisan crafts</span>
+                  <span>{t('customer.crafts')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-midnight" />
-                  <span>Electronics</span>
+                  <span>{t('customer.electronics')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-midnight" />
-                  <span>Fashion & beauty</span>
+                  <span>{t('customer.fashion')}</span>
                 </div>
               </div>
             </div>
@@ -103,22 +106,22 @@ const CustomerSection = () => {
               <div className="bg-gradient-sunset text-midnight rounded-2xl p-6 mb-6 shadow-glow">
                 <Sparkles className="w-12 h-12 mx-auto" />
               </div>
-              <h3 className="text-2xl font-bold mb-3 text-center">Health & More</h3>
+              <h3 className="text-2xl font-bold mb-3 text-center">{t('customer.health')}</h3>
               <p className="text-muted-foreground text-center mb-4">
-                Medicines, wellness products, and health essentials delivered with care.
+                {t('customer.healthDesc')}
               </p>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span>Pharmacies</span>
+                  <span>{t('customer.pharmacies')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span>Health products</span>
+                  <span>{t('customer.healthProducts')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span>Personal care</span>
+                  <span>{t('customer.personalCare')}</span>
                 </div>
               </div>
             </div>
@@ -129,10 +132,10 @@ const CustomerSection = () => {
         <div className="mt-16 text-center">
           <div className="inline-block bg-card rounded-2xl p-8 shadow-elevation">
             <p className="text-2xl font-bold mb-2">
-              Everything Morocco, One App
+              {t('customer.oneApp')}
             </p>
             <p className="text-muted-foreground text-lg">
-              Download ATLAAS GO and experience Moroccan delivery done right.
+              {t('customer.downloadCTA')}
             </p>
           </div>
         </div>

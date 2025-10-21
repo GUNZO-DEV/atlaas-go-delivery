@@ -1,17 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Percent, BarChart3, Wallet } from "lucide-react";
 import moroccanFood from "@/assets/moroccan-food.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const MerchantSection = () => {
+  const { t } = useLanguage();
+  
   return (
     <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
-            Fair to Every Merchant
+            {t('merchant.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mt-8">
-            We believe Moroccan businesses deserve better. That's why we only take 10% commission.
+            {t('merchant.subtitle')}
           </p>
         </div>
 
@@ -26,8 +29,8 @@ const MerchantSection = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 to-transparent" />
               <div className="absolute bottom-6 left-6 text-white">
-                <p className="text-sm font-semibold mb-1">Traditional Quality</p>
-                <p className="text-3xl font-bold">From Souk to Success</p>
+                <p className="text-sm font-semibold mb-1">{t('merchant.traditional')}</p>
+                <p className="text-3xl font-bold">{t('merchant.soukSuccess')}</p>
               </div>
             </div>
           </div>
@@ -40,10 +43,9 @@ const MerchantSection = () => {
                   <Percent className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-3 text-primary">Only 10% Commission</h3>
+                  <h3 className="text-2xl font-bold mb-3 text-primary">{t('merchant.commission')}</h3>
                   <p className="text-muted-foreground text-lg">
-                    Other platforms take 20-30%. We keep it fair so small businesses can thrive. 
-                    Your success is our success.
+                    {t('merchant.commissionDesc')}
                   </p>
                 </div>
               </div>
@@ -55,10 +57,9 @@ const MerchantSection = () => {
                   <BarChart3 className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-3">Smart Dashboard</h3>
+                  <h3 className="text-2xl font-bold mb-3">{t('merchant.dashboard')}</h3>
                   <p className="text-muted-foreground text-lg">
-                    Track orders, earnings, and customer reviews in real-time. 
-                    Simple analytics built for Moroccan merchants.
+                    {t('merchant.dashboardDesc')}
                   </p>
                 </div>
               </div>
@@ -70,10 +71,9 @@ const MerchantSection = () => {
                   <Wallet className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-3">Weekly Payouts</h3>
+                  <h3 className="text-2xl font-bold mb-3">{t('merchant.payouts')}</h3>
                   <p className="text-muted-foreground text-lg">
-                    Get paid every week, on time, every time. No hidden fees. No surprises.
-                    Just honest business.
+                    {t('merchant.payoutsDesc')}
                   </p>
                 </div>
               </div>
@@ -85,10 +85,9 @@ const MerchantSection = () => {
                   <TrendingUp className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-3">Grow Your Business</h3>
+                  <h3 className="text-2xl font-bold mb-3">{t('merchant.grow')}</h3>
                   <p className="text-muted-foreground text-lg">
-                    Reach more customers across Morocco. Free marketing support. 
-                    We help you succeed.
+                    {t('merchant.growDesc')}
                   </p>
                 </div>
               </div>
@@ -98,7 +97,7 @@ const MerchantSection = () => {
               size="lg" 
               className="w-full bg-primary hover:bg-primary-glow text-white py-6 text-lg font-semibold shadow-glow"
             >
-              Join as Partner Restaurant
+              {t('merchant.joinButton')}
             </Button>
           </div>
         </div>
