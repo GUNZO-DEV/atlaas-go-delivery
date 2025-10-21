@@ -21,11 +21,11 @@ const Hero = () => {
 
       {/* Prime Membership Badge - Top Left */}
       <Link to="/auth" className="absolute top-6 left-6 z-20">
-        <div className="group backdrop-blur-md bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 rounded-full px-6 py-3 border border-primary/30 transition-all hover:scale-105 shadow-glow">
+        <div className="group backdrop-blur-xl bg-gradient-to-r from-primary via-primary/90 to-primary/80 hover:from-primary-glow hover:via-primary hover:to-primary/90 rounded-full px-6 py-3 border-2 border-white/30 transition-all hover:scale-105 shadow-[0_8px_32px_rgba(217,119,6,0.5)] hover:shadow-[0_8px_48px_rgba(217,119,6,0.7)]">
           <div className="flex items-center gap-2">
-            <Crown className="w-5 h-5 text-primary-glow animate-pulse" />
-            <span className="text-white font-semibold">Join ATLAAS Prime</span>
-            <span className="text-primary-glow text-sm">49 MAD/mo</span>
+            <Crown className="w-5 h-5 text-white drop-shadow-lg animate-pulse" />
+            <span className="text-white font-bold drop-shadow-lg">Join ATLAAS Prime</span>
+            <span className="text-white/90 text-sm font-semibold drop-shadow-lg">49 MAD/mo</span>
           </div>
         </div>
       </Link>
