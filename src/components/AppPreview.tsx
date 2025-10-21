@@ -95,21 +95,74 @@ const AppPreview = () => {
             </div>
           </div>
 
-          {/* Phone Mockup */}
-          <div className="relative flex justify-center lg:justify-start">
-            <div className="relative w-[300px]">
-              {/* Phone Frame */}
-              <div className="relative bg-midnight rounded-[3rem] p-3 shadow-elevation">
-                <div className="bg-background rounded-[2.5rem] overflow-hidden aspect-[9/19]">
-                  <img 
-                    src={appMockup} 
-                    alt="ATLAAS GO App Interface" 
-                    className="w-full h-full object-cover object-top"
-                  />
+          {/* Workflow Visualization */}
+          <div className="relative">
+            <div className="space-y-8">
+              {/* Step 1 */}
+              <div className="flex items-center gap-4 animate-fade-in">
+                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-2xl font-bold shadow-glow">
+                  1
                 </div>
-                
-                {/* Notch */}
-                <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-midnight w-24 h-5 rounded-full" />
+                <div className="flex-1">
+                  <div className="bg-card rounded-2xl p-6 shadow-warm border-l-4 border-primary">
+                    <h3 className="text-xl font-bold mb-2">Order Placed</h3>
+                    <p className="text-muted-foreground">Customer browses restaurants and places order</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex justify-center">
+                <div className="w-1 h-8 bg-gradient-to-b from-primary to-accent rounded-full animate-pulse" />
+              </div>
+
+              {/* Step 2 */}
+              <div className="flex items-center gap-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <div className="flex-shrink-0 w-16 h-16 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-2xl font-bold shadow-glow">
+                  2
+                </div>
+                <div className="flex-1">
+                  <div className="bg-card rounded-2xl p-6 shadow-warm border-l-4 border-accent">
+                    <h3 className="text-xl font-bold mb-2">Restaurant Prepares</h3>
+                    <p className="text-muted-foreground">Restaurant receives and prepares the order</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex justify-center">
+                <div className="w-1 h-8 bg-gradient-to-b from-accent to-midnight rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
+              </div>
+
+              {/* Step 3 */}
+              <div className="flex items-center gap-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                <div className="flex-shrink-0 w-16 h-16 bg-midnight text-midnight-foreground rounded-full flex items-center justify-center text-2xl font-bold shadow-glow">
+                  3
+                </div>
+                <div className="flex-1">
+                  <div className="bg-card rounded-2xl p-6 shadow-warm border-l-4 border-midnight">
+                    <h3 className="text-xl font-bold mb-2">Rider Picks Up</h3>
+                    <p className="text-muted-foreground">Rider collects order and starts delivery</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex justify-center">
+                <div className="w-1 h-8 bg-gradient-to-b from-midnight to-primary rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+              </div>
+
+              {/* Step 4 */}
+              <div className="flex items-center gap-4 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-2xl font-bold shadow-glow animate-pulse">
+                  4
+                </div>
+                <div className="flex-1">
+                  <div className="bg-card rounded-2xl p-6 shadow-warm border-l-4 border-primary">
+                    <h3 className="text-xl font-bold mb-2">Delivered</h3>
+                    <p className="text-muted-foreground">Order arrives at customer's door with live tracking</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
