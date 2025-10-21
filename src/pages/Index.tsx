@@ -47,17 +47,22 @@ const Index = () => {
                 </CardContent>
               </Card>
               
-              <Card className="w-full max-w-md hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer" onClick={() => navigate("/restaurant")}>
+              <Card className="w-full max-w-md hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer border-primary/20" onClick={() => navigate("/restaurant")}>
                 <CardContent className="p-6">
-                  <img 
-                    src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" 
-                    alt="Atlas Tajine House" 
-                    className="w-full h-48 object-cover rounded-lg mb-4 transition-transform"
-                  />
-                  <h3 className="text-2xl font-bold mb-2">{t('order.atlasTitle')}</h3>
-                  <p className="text-muted-foreground mb-4">{t('order.atlasDesc')}</p>
-                  <Button className="w-full" size="lg">
-                    {t('order.viewMenu')}
+                  <div className="relative">
+                    <img 
+                      src="/images/bonsai-sushi-bar.jpg" 
+                      alt="Bonsai Sushi Bar - Fresh Sushi" 
+                      className="w-full h-48 object-cover rounded-lg mb-4 transition-transform"
+                    />
+                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                      Order Now! 🍣
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2 text-primary">Bonsai Sushi Bar</h3>
+                  <p className="text-muted-foreground mb-4">Fresh sushi & Japanese cuisine made to perfection. Limited availability - order now before it's too late!</p>
+                  <Button className="w-full" size="lg" variant="default">
+                    Order Now - Don't Miss Out!
                   </Button>
                 </CardContent>
               </Card>
