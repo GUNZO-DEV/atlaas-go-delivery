@@ -360,7 +360,7 @@ export default function CustomerDashboard() {
                         ))}
                       </div>
                       {order.restaurant?.latitude && order.restaurant?.longitude && order.delivery_latitude && order.delivery_longitude && (
-                        <div className="mt-2 h-[180px] rounded-lg overflow-hidden border">
+                        <div className="mt-2 h-[180px] rounded-lg overflow-hidden border relative">
                           <LiveTrackingMap
                             restaurantLat={order.restaurant.latitude}
                             restaurantLng={order.restaurant.longitude}
@@ -368,6 +368,7 @@ export default function CustomerDashboard() {
                             customerLng={order.delivery_longitude}
                             deliveryAddress={order.delivery_address}
                           />
+                          <OrderChat orderId={order.id} userType="customer" floating />
                         </div>
                       )}
                       <div className="pt-4 border-t space-y-3">
@@ -395,16 +396,13 @@ export default function CustomerDashboard() {
                         </div>
                         <div className="flex gap-2">
                           {["confirmed", "preparing", "ready", "picked_up"].includes(order.status) && (
-                            <>
-                              <Button
-                                className="flex-1"
-                                onClick={() => navigate(`/track/${order.id}`)}
-                              >
-                                <MapPin className="h-4 w-4 mr-2" />
-                                Track Order
-                              </Button>
-                              <OrderChat orderId={order.id} userType="customer" />
-                            </>
+                            <Button
+                              className="w-full"
+                              onClick={() => navigate(`/track/${order.id}`)}
+                            >
+                              <MapPin className="h-4 w-4 mr-2" />
+                              Track Order
+                            </Button>
                           )}
                           {order.status === "delivered" && (
                             <>
@@ -463,7 +461,7 @@ export default function CustomerDashboard() {
                   <CardDescription>Follow your delivery in real-time</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <div className="h-[400px]">
+                  <div className="relative h-[400px]">
                     <LiveTrackingMap
                       restaurantLat={trackingData.order?.restaurant?.latitude}
                       restaurantLng={trackingData.order?.restaurant?.longitude}
@@ -473,6 +471,7 @@ export default function CustomerDashboard() {
                       customerLng={trackingData.order?.delivery_longitude}
                       deliveryAddress={trackingData.order?.delivery_address}
                     />
+                    <OrderChat orderId={activeOrderId} userType="customer" floating />
                   </div>
                 </CardContent>
               </Card>
@@ -516,7 +515,7 @@ export default function CustomerDashboard() {
                         ))}
                       </div>
                       {order.restaurant?.latitude && order.restaurant?.longitude && order.delivery_latitude && order.delivery_longitude && (
-                        <div className="mt-2 h-[180px] rounded-lg overflow-hidden border">
+                        <div className="mt-2 h-[180px] rounded-lg overflow-hidden border relative">
                           <LiveTrackingMap
                             restaurantLat={order.restaurant.latitude}
                             restaurantLng={order.restaurant.longitude}
@@ -524,6 +523,7 @@ export default function CustomerDashboard() {
                             customerLng={order.delivery_longitude}
                             deliveryAddress={order.delivery_address}
                           />
+                          <OrderChat orderId={order.id} userType="customer" floating />
                         </div>
                       )}
                       <div className="pt-4 border-t">
