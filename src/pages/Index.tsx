@@ -15,15 +15,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Fixed Partner Login Button */}
-      <Button
-        className="fixed left-4 top-1/2 -translate-y-1/2 z-50 rotate-90 origin-center"
-        onClick={() => navigate("/merchant-auth")}
-        size="lg"
-      >
-        Partner Login
-      </Button>
-      
       <Hero />
       
       {/* Quick Order Section */}
