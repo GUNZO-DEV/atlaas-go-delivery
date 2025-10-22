@@ -184,43 +184,44 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
           <Button
             onClick={() => setIsMinimized(false)}
             className="shadow-lg"
-            size="lg"
+            size="sm"
           >
-            <MessageCircle className="h-5 w-5 mr-2" />
+            <MessageCircle className="h-4 w-4 mr-2" />
             Chat {messages.length > 0 && `(${messages.length})`}
           </Button>
         ) : (
-          <Card className="w-[380px] shadow-2xl">
-            <CardHeader className="pb-3">
+          <Card className="w-[320px] shadow-2xl">
+            <CardHeader className="pb-2 py-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Order Chat</CardTitle>
+                <CardTitle className="text-base">Chat</CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsMinimized(true)}
+                  className="h-6 w-6 p-0"
                 >
                   _
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="flex flex-col h-[400px]">
-                <ScrollArea className="flex-1 px-4">
-                  <div className="space-y-3 py-2">
+              <div className="flex flex-col h-[320px]">
+                <ScrollArea className="flex-1 px-3">
+                  <div className="space-y-2 py-2">
                     {messages.map((msg) => (
                       <Card
                         key={msg.id}
-                        className={`p-3 ${
+                        className={`p-2 ${
                           msg.sender_id === user?.id
                             ? 'bg-primary text-primary-foreground ml-auto'
                             : 'bg-muted'
                         } max-w-[80%]`}
                       >
-                        <div className="text-xs font-semibold mb-1">
+                        <div className="text-[10px] font-semibold mb-0.5">
                           {getSenderLabel(msg.sender_type)}
                         </div>
-                        <p className="text-sm">{msg.message}</p>
-                        <div className="text-xs opacity-70 mt-1">
+                        <p className="text-xs">{msg.message}</p>
+                        <div className="text-[10px] opacity-70 mt-0.5">
                           {new Date(msg.created_at).toLocaleTimeString()}
                         </div>
                       </Card>
@@ -228,7 +229,7 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
                     <div ref={scrollRef} />
                   </div>
                 </ScrollArea>
-                <div className="flex gap-2 p-4 border-t">
+                <div className="flex gap-2 p-3 border-t">
                   <Input
                     placeholder="Type a message..."
                     value={newMessage}
