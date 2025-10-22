@@ -302,8 +302,10 @@ export default function MerchantDashboard() {
   const setupRealtimeSubscription = () => {
     if (!restaurant) return;
 
+    console.log('[Merchant] Setting up realtime for restaurant:', restaurant.id);
+
     const channel = supabase
-      .channel("merchant-orders")
+      .channel(`merchant-orders-${restaurant.id}`)
       .on(
         "postgres_changes",
         {
@@ -313,7 +315,7 @@ export default function MerchantDashboard() {
           filter: `restaurant_id=eq.${restaurant.id}`,
         },
         (payload) => {
-          console.log("New order received!", payload);
+          console.log("[Merchant] New order received!", payload);
           playNotificationSound();
           toast({
             title: "🔔 New Order Received!",
@@ -331,11 +333,18 @@ export default function MerchantDashboard() {
           table: "orders",
           filter: `restaurant_id=eq.${restaurant.id}`,
         },
-        () => {
+        (payload) => {
+          console.log("[Merchant] Order updated:", payload);
+          toast({
+            title: "Order Status Changed",
+            description: `Order status updated to ${payload.new.status}`,
+          });
           fetchOrders();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[Merchant] Subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -997,6 +1006,13 @@ export default function MerchantDashboard() {
                           </span>
                         </div>
                       </div>
+
+                      {/* Merchant Chat */}
+                      {["confirmed", "preparing", "ready_for_pickup", "picking_it_up", "picked_up"].includes(order.status) && (
+                        <div className="pt-4 border-t">
+                          <OrderChat orderId={order.id} userType="merchant" />
+                        </div>
+                      )}
 
                       <div className="flex gap-2 pt-4">
                         <Button

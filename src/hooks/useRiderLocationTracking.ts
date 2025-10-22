@@ -49,8 +49,8 @@ export const useRiderLocationTracking = (orderId: string | null, isActive: boole
     // Update location immediately
     updateLocation();
 
-    // Then update every 10 seconds
-    intervalRef.current = setInterval(updateLocation, 10000);
+    // Then update every 5 seconds
+    intervalRef.current = setInterval(updateLocation, 5000);
 
     return () => {
       if (intervalRef.current) {
