@@ -27,9 +27,10 @@ interface OrderChatProps {
   orderId: string;
   userType: 'customer' | 'merchant' | 'rider';
   floating?: boolean;
+  compact?: boolean;
 }
 
-export default function OrderChat({ orderId, userType, floating = false }: OrderChatProps) {
+export default function OrderChat({ orderId, userType, floating = false, compact = false }: OrderChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [user, setUser] = useState<any>(null);
@@ -257,11 +258,11 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
           Chat
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg">
+      <SheetContent className={`w-full ${compact ? "sm:max-w-sm" : "sm:max-w-lg"}`}>
         <SheetHeader>
           <SheetTitle>Order Chat</SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col h-[calc(100vh-8rem)] mt-4">
+        <div className={`flex flex-col ${compact ? "h-[360px]" : "h-[calc(100vh-8rem)]"} mt-4`}>
           <ScrollArea className="flex-1 pr-4">
             <div className="space-y-4">
               {messages.map((msg) => (
