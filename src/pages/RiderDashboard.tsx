@@ -48,6 +48,7 @@ export default function RiderDashboard() {
     todayEarnings: 0,
     activeDeliveries: 0,
     allTimeDeliveries: 0,
+    totalEarnings: 0,
   });
   const [isAvailable, setIsAvailable] = useState(false);
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
@@ -69,6 +70,7 @@ export default function RiderDashboard() {
     checkAuth();
     checkRiderProfile();
     fetchOrders();
+    fetchTotalEarnings();
     setupRealtimeSubscription();
     checkLocationPermission();
   }, []);
@@ -234,6 +236,29 @@ export default function RiderDashboard() {
     }
   };
 
+  const fetchTotalEarnings = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("rider_earnings")
+        .select("total_earned")
+        .eq("rider_id", user.id);
+
+      if (error) throw error;
+
+      const total = data?.reduce((sum, earning) => sum + Number(earning.total_earned), 0) || 0;
+      
+      setStats(prev => ({
+        ...prev,
+        totalEarnings: total,
+      }));
+    } catch (error: any) {
+      console.error("Error fetching total earnings:", error);
+    }
+  };
+
   const calculateStats = (orders: Order[], userId: string) => {
     const today = new Date().toDateString();
     const myOrders = orders.filter((o) => o.rider_id === userId);
@@ -243,14 +268,15 @@ export default function RiderDashboard() {
 
     const deliveredCount = myOrders.filter((o) => o.status === "delivered").length;
 
-    setStats({
+    setStats(prev => ({
+      ...prev,
       todayDeliveries: todayOrders.filter((o) => o.status === "delivered").length,
       todayEarnings: todayOrders
         .filter((o) => o.status === "delivered")
         .reduce((sum, o) => sum + Number(o.delivery_fee), 0),
       activeDeliveries: myOrders.filter((o) => o.status === "picked_up").length,
       allTimeDeliveries: deliveredCount,
-    });
+    }));
   };
 
   const setupRealtimeSubscription = () => {
@@ -446,6 +472,9 @@ export default function RiderDashboard() {
         .eq("order_id", orderId);
 
       if (trackingError) throw trackingError;
+
+      // Refresh total earnings after completion
+      fetchTotalEarnings();
 
       toast({
         title: "Success",
@@ -681,7 +710,35 @@ export default function RiderDashboard() {
               <WeatherPrayerWidget />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total Earnings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-green-500" />
+                    <span className="text-2xl font-bold">{stats.totalEarnings.toFixed(2)} MAD</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Today's Earnings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-2xl font-bold">{stats.todayEarnings.toFixed(2)} MAD</span>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -706,20 +763,6 @@ export default function RiderDashboard() {
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-muted-foreground" />
                     <span className="text-2xl font-bold">{stats.allTimeDeliveries}</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Today's Earnings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-2xl font-bold">{stats.todayEarnings.toFixed(2)} MAD</span>
                   </div>
                 </CardContent>
               </Card>
