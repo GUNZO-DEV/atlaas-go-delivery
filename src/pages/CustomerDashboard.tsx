@@ -214,7 +214,9 @@ export default function CustomerDashboard() {
         return <Package className="h-4 w-4" />;
       case "preparing":
         return <Package className="h-4 w-4" />;
-      case "ready":
+      case "ready_for_pickup":
+        return <Package className="h-4 w-4" />;
+      case "picking_it_up":
         return <Package className="h-4 w-4" />;
       case "picked_up":
         return <MapPin className="h-4 w-4" />;
@@ -232,7 +234,8 @@ export default function CustomerDashboard() {
       case "confirmed":
       case "preparing":
         return "bg-blue-500";
-      case "ready":
+      case "ready_for_pickup":
+      case "picking_it_up":
       case "picked_up":
         return "bg-purple-500";
       case "delivered":
@@ -415,7 +418,7 @@ export default function CustomerDashboard() {
                           </span>
                         </div>
                         <div className="flex gap-2">
-                          {["confirmed", "preparing", "ready", "picked_up"].includes(order.status) && (
+                          {["confirmed", "preparing", "ready_for_pickup", "picking_it_up", "picked_up"].includes(order.status) && (
                             <Button
                               className="w-full"
                               onClick={() => navigate(`/track/${order.id}`)}
@@ -497,7 +500,7 @@ export default function CustomerDashboard() {
               </Card>
             )}
 
-            {filterOrders("pending").concat(filterOrders("confirmed"), filterOrders("preparing"), filterOrders("ready"), filterOrders("picked_up")).map((order) => {
+            {filterOrders("pending").concat(filterOrders("confirmed"), filterOrders("preparing"), filterOrders("ready_for_pickup"), filterOrders("picking_it_up"), filterOrders("picked_up")).map((order) => {
               // Set active order for map tracking
               if (order.status === "picked_up" && !activeOrderId) {
                 setActiveOrderId(order.id);
