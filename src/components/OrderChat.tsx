@@ -92,6 +92,11 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
       scrollToBottom();
     } catch (error: any) {
       console.error("Error fetching messages:", error);
+      toast({
+        title: "Chat unavailable",
+        description: "We couldn’t load chat messages for this order.",
+        variant: "destructive",
+      });
     }
   };
 

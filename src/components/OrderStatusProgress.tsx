@@ -8,8 +8,9 @@ const statusSteps = [
   { key: "pending", label: "Order Placed", icon: Clock },
   { key: "confirmed", label: "Confirmed", icon: CheckCircle },
   { key: "preparing", label: "Preparing", icon: Package },
-  { key: "ready", label: "Ready", icon: Truck },
-  { key: "picked_up", label: "Out for Delivery", icon: Truck },
+  { key: "ready_for_pickup", label: "Ready for Pickup", icon: Truck },
+  { key: "picking_it_up", label: "Rider on the way", icon: Truck },
+  { key: "picked_up", label: "Picked Up", icon: Truck },
   { key: "delivered", label: "Delivered", icon: Home },
 ];
 
@@ -23,7 +24,7 @@ export default function OrderStatusProgress({ currentStatus }: OrderStatusProgre
         <div className="absolute left-0 top-5 h-1 w-full bg-muted" />
         <div
           className="absolute left-0 top-5 h-1 bg-primary transition-all duration-500"
-          style={{ width: `${(currentIndex / (statusSteps.length - 1)) * 100}%` }}
+          style={{ width: `${(Math.max(0, currentIndex) / (statusSteps.length - 1)) * 100}%` }}
         />
 
         {/* Status Steps */}
