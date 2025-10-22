@@ -391,7 +391,7 @@ export default function CustomerDashboard() {
                             customerLng={order.delivery_longitude}
                             deliveryAddress={order.delivery_address}
                           />
-                          <OrderChat orderId={order.id} userType="customer" floating />
+                          <OrderChat orderId={order.id} userType="customer" />
                         </div>
                       )}
                       <div className="pt-4 border-t space-y-3">
@@ -494,7 +494,7 @@ export default function CustomerDashboard() {
                       customerLng={trackingData.order?.delivery_longitude}
                       deliveryAddress={trackingData.order?.delivery_address}
                     />
-                    <OrderChat orderId={activeOrderId} userType="customer" floating />
+                    <OrderChat orderId={activeOrderId} userType="customer" />
                   </div>
                 </CardContent>
               </Card>
@@ -546,7 +546,7 @@ export default function CustomerDashboard() {
                             customerLng={order.delivery_longitude}
                             deliveryAddress={order.delivery_address}
                           />
-                          <OrderChat orderId={order.id} userType="customer" floating />
+                          <OrderChat orderId={order.id} userType="customer" />
                         </div>
                       )}
                       <div className="pt-4 border-t">
