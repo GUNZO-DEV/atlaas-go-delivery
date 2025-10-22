@@ -179,7 +179,7 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
 
   if (floating) {
     return (
-      <div className="fixed bottom-4 right-4 z-[9999] flex flex-col">
+      <div className="absolute bottom-4 right-4 z-50 flex flex-col">
         {isMinimized ? (
           <Button
             onClick={() => setIsMinimized(false)}
