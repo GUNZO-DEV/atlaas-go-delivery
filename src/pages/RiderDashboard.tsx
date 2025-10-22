@@ -816,7 +816,7 @@ export default function RiderDashboard() {
                         deliveryLng={order.delivery_longitude}
                         deliveryAddress={order.delivery_address}
                       />
-                      <OrderChat orderId={order.id} userType="rider" />
+                      <OrderChat orderId={order.id} userType="rider" floating />
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-start gap-2">
