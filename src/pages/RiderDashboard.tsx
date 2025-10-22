@@ -623,9 +623,6 @@ export default function RiderDashboard() {
                 <DollarSign className="h-4 w-4 mr-2" />
                 Earnings
               </Button>
-              {activeOrder && (
-                <OrderChat orderId={activeOrder.id} userType="rider" />
-              )}
               <SupportTicketDialog />
               <NotificationBell />
               <Button variant="outline" size="icon" onClick={() => navigate("/rider/settings")}>
