@@ -45,10 +45,11 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
   useEffect(() => {
     if (!user || !orderId) return;
 
+    console.log(`[Chat] Setting up for order ${orderId}, user ${user.id}, type ${userType}`);
     fetchMessages();
     
     const channel = supabase
-      .channel(`chat-${orderId}`)
+      .channel(`chat-${orderId}-${user.id}`)
       .on(
         'postgres_changes',
         {
@@ -58,19 +59,25 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
           filter: `order_id=eq.${orderId}`,
         },
         (payload) => {
-          console.log('New message received:', payload);
+          console.log('[Chat] New message received:', payload);
           const newMsg = payload.new as Message;
-          setMessages(prev => [...prev, newMsg]);
+          setMessages(prev => {
+            // Avoid duplicates
+            if (prev.some(m => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
           scrollToBottom();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[Chat] Subscription status:', status);
+      });
 
     return () => {
-      console.log('Cleaning up chat subscription');
+      console.log('[Chat] Cleaning up chat subscription');
       supabase.removeChannel(channel);
     };
-  }, [user, orderId]);
+  }, [user, orderId, userType]);
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -122,6 +129,8 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
 
     setSending(true);
     try {
+      console.log('[Chat] Sending message:', { orderId, userType, message: validation.data.message });
+      
       const { error } = await supabase
         .from("chat_messages")
         .insert({
@@ -131,13 +140,23 @@ export default function OrderChat({ orderId, userType, floating = false }: Order
           message: validation.data.message,
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Chat] Error sending message:', error);
+        throw error;
+      }
 
+      console.log('[Chat] Message sent successfully');
       setNewMessage("");
+      
+      toast({
+        title: "Message sent",
+        description: "Your message was delivered successfully",
+      });
     } catch (error: any) {
+      console.error('[Chat] Failed to send message:', error);
       toast({
         title: "Error",
-        description: "Failed to send message",
+        description: error.message || "Failed to send message",
         variant: "destructive",
       });
     } finally {

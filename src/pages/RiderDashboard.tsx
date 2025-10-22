@@ -254,24 +254,44 @@ export default function RiderDashboard() {
   };
 
   const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel("rider-orders")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "orders",
-        },
-        () => {
-          fetchOrders();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user?.id;
     };
+    
+    getUserId().then(userId => {
+      if (!userId) return;
+      
+      const channel = supabase
+        .channel("rider-orders")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "orders",
+            filter: `rider_id=eq.${userId}`,
+          },
+          (payload) => {
+            console.log('[Rider] Order updated:', payload);
+            fetchOrders();
+            
+            if (payload.eventType === 'UPDATE') {
+              toast({
+                title: "Order Updated",
+                description: `Order status changed to ${payload.new.status}`,
+              });
+            }
+          }
+        )
+        .subscribe((status) => {
+          console.log('[Rider] Subscription status:', status);
+        });
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    });
   };
 
   const acceptOrder = async (orderId: string) => {
