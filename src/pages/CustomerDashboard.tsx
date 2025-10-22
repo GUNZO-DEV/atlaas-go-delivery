@@ -116,6 +116,8 @@ export default function CustomerDashboard() {
   };
 
   const setupRealtimeSubscription = () => {
+    if (!user) return;
+    
     const channel = supabase
       .channel("customer-orders")
       .on(
@@ -124,9 +126,19 @@ export default function CustomerDashboard() {
           event: "*",
           schema: "public",
           table: "orders",
+          filter: `customer_id=eq.${user.id}`,
         },
-        () => {
+        (payload) => {
+          console.log('Order updated:', payload);
           fetchOrders();
+          
+          // Show toast for status changes
+          if (payload.eventType === 'UPDATE') {
+            toast({
+              title: "Order Updated",
+              description: `Your order status changed to ${payload.new.status}`,
+            });
+          }
         }
       )
       .subscribe();
@@ -155,12 +167,13 @@ export default function CustomerDashboard() {
           )
         `)
         .eq("order_id", orderId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      setTrackingData(data);
+      setTrackingData(data || null);
     } catch (error: any) {
       console.error("Error fetching tracking data:", error);
+      setTrackingData(null);
     }
   };
 
@@ -170,13 +183,20 @@ export default function CustomerDashboard() {
       .on(
         "postgres_changes",
         {
-          event: "UPDATE",
+          event: "*",
           schema: "public",
           table: "delivery_tracking",
           filter: `order_id=eq.${orderId}`,
         },
         (payload) => {
-          setTrackingData(payload.new);
+          console.log('Tracking updated:', payload);
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            setTrackingData(payload.new);
+            toast({
+              title: "Location Updated",
+              description: "Your delivery location has been updated",
+            });
+          }
         }
       )
       .subscribe();
