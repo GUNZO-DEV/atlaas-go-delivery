@@ -849,7 +849,7 @@ export default function RiderDashboard() {
                   <CardContent className="space-y-4">
                     <OrderStatusTimeline currentStatus={order.status} />
                     
-                    <div className="relative">
+                    <div className="relative min-h-[400px]">
                       <RiderNavigationMap
                         restaurantLat={order.restaurant?.latitude}
                         restaurantLng={order.restaurant?.longitude}
