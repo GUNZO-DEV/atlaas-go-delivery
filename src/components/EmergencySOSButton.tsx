@@ -7,6 +7,7 @@ import { AlertTriangle, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { emergencyContactSchema } from "@/lib/validation";
 
 interface EmergencyContact {
   name: string;
@@ -55,10 +56,16 @@ const EmergencySOSButton = () => {
   };
 
   const saveEmergencyContact = async () => {
-    if (!contactForm.name || !contactForm.phone) {
+    // Validate using Zod schema
+    const validation = emergencyContactSchema.safeParse({
+      name: contactForm.name,
+      phone: contactForm.phone,
+    });
+
+    if (!validation.success) {
       toast({
-        title: "Missing information",
-        description: "Please provide name and phone number",
+        title: "Validation Error",
+        description: validation.error.issues[0].message,
         variant: "destructive",
       });
       return;

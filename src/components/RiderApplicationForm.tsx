@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bike } from "lucide-react";
+import { riderApplicationSchema } from "@/lib/validation";
 
 interface RiderApplicationFormProps {
   onSuccess: () => void;
@@ -28,6 +29,25 @@ const RiderApplicationForm = ({ onSuccess }: RiderApplicationFormProps) => {
     setLoading(true);
 
     try {
+      // Validate using Zod schema
+      const validation = riderApplicationSchema.safeParse({
+        vehicle_type: formData.vehicle_type,
+        vehicle_plate: formData.vehicle_plate_number,
+        license_number: formData.license_number,
+        phone: formData.phone,
+        city: formData.city,
+      });
+
+      if (!validation.success) {
+        toast({
+          title: "Validation Error",
+          description: validation.error.issues[0].message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 

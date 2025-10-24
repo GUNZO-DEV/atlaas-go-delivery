@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { walletAmountSchema } from "@/lib/validation";
 
 interface Transaction {
   id: string;
@@ -69,19 +70,13 @@ const WalletCard = () => {
 
   const handleTopUp = async () => {
     const amount = parseFloat(topUpAmount);
-    if (isNaN(amount) || amount <= 0) {
+    
+    // Validate using Zod schema
+    const validation = walletAmountSchema.safeParse({ amount });
+    if (!validation.success) {
       toast({
-        title: "Invalid amount",
-        description: "Please enter a valid amount",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (amount < 10) {
-      toast({
-        title: "Minimum top-up",
-        description: "Minimum top-up amount is 10 MAD",
+        title: "Validation Error",
+        description: validation.error.issues[0].message,
         variant: "destructive",
       });
       return;

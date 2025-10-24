@@ -6,10 +6,60 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
+const RATE_LIMIT_MAX_REQUESTS = 50; // Max 50 requests per hour per IP
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Rate limiting by IP address
+    const clientIP = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+    const now = Date.now();
+    
+    const clientData = rateLimitMap.get(clientIP);
+    
+    if (clientData) {
+      // Check if rate limit window has expired
+      if (now > clientData.resetTime) {
+        // Reset the counter
+        rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+      } else {
+        // Check if limit exceeded
+        if (clientData.count >= RATE_LIMIT_MAX_REQUESTS) {
+          const retryAfter = Math.ceil((clientData.resetTime - now) / 1000);
+          return new Response(
+            JSON.stringify({ 
+              error: "Rate limit exceeded. Please try again later.",
+              retryAfter: retryAfter 
+            }), 
+            {
+              status: 429,
+              headers: { 
+                ...corsHeaders, 
+                "Content-Type": "application/json",
+                "Retry-After": retryAfter.toString()
+              },
+            }
+          );
+        }
+        // Increment counter
+        clientData.count++;
+      }
+    } else {
+      // First request from this IP
+      rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    }
+
+    // Clean up old entries (optional, prevents memory buildup)
+    for (const [ip, data] of rateLimitMap.entries()) {
+      if (now > data.resetTime + RATE_LIMIT_WINDOW) {
+        rateLimitMap.delete(ip);
+      }
+    }
+
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");

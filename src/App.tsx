@@ -30,6 +30,7 @@ import Privacy from "./pages/Privacy";
 import Safety from "./pages/Safety";
 import Careers from "./pages/Careers";
 import RealtimeDemo from "./pages/RealtimeDemo";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -47,18 +48,18 @@ const App = () => (
           <Route path="/install" element={<Install />} />
           <Route path="/partner-restaurant" element={<PartnerRestaurant />} />
           <Route path="/restaurants" element={<Restaurants />} />
-          <Route path="/customer" element={<CustomerDashboard />} />
-          <Route path="/merchant" element={<MerchantDashboard />} />
-          <Route path="/rider" element={<RiderDashboard />} />
-          <Route path="/track/:orderId" element={<TrackDelivery />} />
+          <Route path="/customer" element={<ProtectedRoute requiredRole="customer"><CustomerDashboard /></ProtectedRoute>} />
+          <Route path="/merchant" element={<ProtectedRoute requiredRole="merchant"><MerchantDashboard /></ProtectedRoute>} />
+          <Route path="/rider" element={<ProtectedRoute requiredRole="rider"><RiderDashboard /></ProtectedRoute>} />
+          <Route path="/track/:orderId" element={<ProtectedRoute><TrackDelivery /></ProtectedRoute>} />
           <Route path="/test-setup" element={<TestSetup />} />
           <Route path="/restaurant/:restaurantId?" element={<RestaurantMenu />} />
           <Route path="/group-order/:mode?" element={<GroupOrder />} />
-          <Route path="/merchant/analytics" element={<MerchantAnalytics />} />
-          <Route path="/rider/earnings" element={<RiderEarnings />} />
-          <Route path="/customer/settings" element={<CustomerSettings />} />
-          <Route path="/rider/settings" element={<RiderSettings />} />
-          <Route path="/merchant/settings" element={<MerchantSettings />} />
+          <Route path="/merchant/analytics" element={<ProtectedRoute requiredRole="merchant"><MerchantAnalytics /></ProtectedRoute>} />
+          <Route path="/rider/earnings" element={<ProtectedRoute requiredRole="rider"><RiderEarnings /></ProtectedRoute>} />
+          <Route path="/customer/settings" element={<ProtectedRoute requiredRole="customer"><CustomerSettings /></ProtectedRoute>} />
+          <Route path="/rider/settings" element={<ProtectedRoute requiredRole="rider"><RiderSettings /></ProtectedRoute>} />
+          <Route path="/merchant/settings" element={<ProtectedRoute requiredRole="merchant"><MerchantSettings /></ProtectedRoute>} />
           <Route path="/about" element={<About />} />
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/terms" element={<Terms />} />
