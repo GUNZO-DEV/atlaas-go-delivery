@@ -833,6 +833,15 @@ export default function RiderDashboard() {
           </TabsContent>
 
           <TabsContent value="active" className="space-y-4">
+            {/* Fixed Chat for Active Order */}
+            {orders.filter((o) => o.status === "picking_it_up" || o.status === "picked_up").length > 0 && (
+              <OrderChat 
+                orderId={orders.filter((o) => o.status === "picking_it_up" || o.status === "picked_up")[0].id} 
+                userType="rider" 
+                floating 
+              />
+            )}
+            
             {orders
               .filter((o) => o.status === "picking_it_up" || o.status === "picked_up")
               .map((order) => (
@@ -859,7 +868,6 @@ export default function RiderDashboard() {
                         deliveryLng={order.delivery_longitude}
                         deliveryAddress={order.delivery_address}
                       />
-                      <OrderChat orderId={order.id} userType="rider" floating />
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-start gap-2">
