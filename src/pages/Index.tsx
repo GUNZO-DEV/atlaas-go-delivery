@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Hero from "@/components/Hero";
 import LiveTracking from "@/components/LiveTracking";
+import RealtimeDemoSection from "@/components/RealtimeDemoSection";
 import MerchantSection from "@/components/MerchantSection";
 import DriverSection from "@/components/DriverSection";
 import CustomerSection from "@/components/CustomerSection";
@@ -72,6 +73,7 @@ const Index = () => {
       </section>
 
       <LiveTracking />
+      <RealtimeDemoSection />
       
       {/* Login Section */}
       <section className="py-16 bg-background">
