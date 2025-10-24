@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Hero from "@/components/Hero";
+import CulturalBrandingSection from "@/components/CulturalBrandingSection";
 import LiveTracking from "@/components/LiveTracking";
 import RealtimeDemoSection from "@/components/RealtimeDemoSection";
 import MerchantSection from "@/components/MerchantSection";
@@ -107,6 +108,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <CulturalBrandingSection />
 
       <MerchantSection />
       <DriverSection />
