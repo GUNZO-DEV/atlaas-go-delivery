@@ -149,27 +149,6 @@ const Footer = () => {
                   <span className="text-xs">General Inquiries</span>
                 </div>
               </li>
-              <li className="flex items-start gap-3 text-muted-foreground group">
-                <Mail className="w-5 h-5 text-primary group-hover:text-primary-glow transition-colors mt-0.5" />
-                <div className="flex flex-col gap-1">
-                  <a 
-                    href="mailto:m.tahraoui@aui.ma" 
-                    className="hover:text-primary-glow transition-colors"
-                  >
-                    m.tahraoui@aui.ma
-                  </a>
-                  <span className="text-xs">Founder</span>
-                </div>
-              </li>
-              <li className="flex items-center gap-3 text-muted-foreground group">
-                <Phone className="w-5 h-5 text-primary group-hover:text-primary-glow transition-colors" />
-                <a 
-                  href="tel:+212671455673" 
-                  className="hover:text-primary-glow transition-colors"
-                >
-                  +212 671 455 673
-                </a>
-              </li>
               <li className="flex items-center gap-3 text-muted-foreground">
                 <MapPin className="w-5 h-5 text-primary" />
                 <span>Ifrane, Morocco</span>
