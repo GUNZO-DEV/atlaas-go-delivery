@@ -71,7 +71,7 @@ const Hero = () => {
 
           {/* Main Headline - Cinematic */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-tight tracking-tight">
-            From the <span className="text-accent drop-shadow-[0_0_30px_rgba(195,91,50,1)]">Atlas</span>
+            From the <span className="text-accent drop-shadow-[0_0_30px_rgba(195,91,50,1)]">Atlas Mountains</span>
             <br />
             to Your <span className="text-primary-glow drop-shadow-[0_0_30px_rgba(23,94,84,1)]">Door</span>
           </h1>
