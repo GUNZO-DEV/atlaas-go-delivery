@@ -1,11 +1,10 @@
 import { ShoppingBag, Coffee, Package, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-
 const CustomerSection = () => {
-  const { t } = useLanguage();
-  
-  return (
-    <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative overflow-hidden">
+  const {
+    t
+  } = useLanguage();
+  return <section className="py-24 bg-gradient-to-b from-secondary/20 to-background relative overflow-hidden">
       <div className="absolute inset-0 zellij-pattern opacity-30" />
       
       <div className="container mx-auto px-6 relative z-10">
@@ -129,17 +128,8 @@ const CustomerSection = () => {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-16 text-center inline-block bg-card rounded-2xl p-8 shadow-elevation mx-auto">
-            <p className="text-2xl font-bold mb-2">
-              {t('customer.oneApp')}
-            </p>
-            <p className="text-muted-foreground text-lg">
-              {t('customer.downloadCTA')}
-            </p>
-        </div>
+        
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default CustomerSection;
