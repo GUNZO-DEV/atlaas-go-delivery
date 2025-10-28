@@ -1,16 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Package, Bike, Crown, Store } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import AtlaasGoLogo from "@/components/AtlaasGoLogo";
+import { PrimeMembershipDialog } from "@/components/PrimeMembershipDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Hero = () => {
   const { t } = useLanguage();
+  const [isPrimeDialogOpen, setIsPrimeDialogOpen] = useState(false);
+  
+  const handlePrimeSuccess = () => {
+    setIsPrimeDialogOpen(false);
+  };
   
   return (
+    <>
+    <PrimeMembershipDialog 
+      open={isPrimeDialogOpen} 
+      onOpenChange={setIsPrimeDialogOpen}
+      onSuccess={handlePrimeSuccess}
+    />
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image - Cinematic Mountains */}
       <div className="absolute inset-0 z-0">
@@ -94,6 +107,15 @@ const Hero = () => {
               </Button>
             </Link>
             
+            <Button 
+              size="lg"
+              onClick={() => setIsPrimeDialogOpen(true)}
+              className="bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary text-white px-10 py-8 text-xl font-bold rounded-2xl shadow-[0_0_40px_rgba(23,94,84,0.6)] hover:shadow-[0_0_60px_rgba(23,94,84,0.8)] transition-all hover:scale-105 border-2 border-white/20"
+            >
+              <Crown className="mr-2 w-7 h-7" />
+              Join Prime
+            </Button>
+            
             <Link to="/partner-restaurant">
               <Button 
                 size="lg"
@@ -114,6 +136,7 @@ const Hero = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 
