@@ -96,8 +96,7 @@ const AppPreview = () => {
           </div>
 
           {/* Workflow Visualization */}
-          <div className="relative">
-            <div className="space-y-8">
+          <div className="space-y-8">
               {/* Step 1 */}
               <div className="flex items-center gap-4 animate-fade-in">
                 <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-2xl font-bold shadow-glow">
@@ -162,7 +161,6 @@ const AppPreview = () => {
                     <h3 className="text-xl font-bold mb-2">Delivered</h3>
                     <p className="text-muted-foreground">Order arrives at customer's door with live tracking</p>
                   </div>
-                </div>
               </div>
             </div>
           </div>

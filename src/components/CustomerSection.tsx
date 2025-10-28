@@ -129,15 +129,13 @@ const CustomerSection = () => {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-16 text-center">
-          <div className="inline-block bg-card rounded-2xl p-8 shadow-elevation">
+        <div className="mt-16 text-center inline-block bg-card rounded-2xl p-8 shadow-elevation mx-auto">
             <p className="text-2xl font-bold mb-2">
               {t('customer.oneApp')}
             </p>
             <p className="text-muted-foreground text-lg">
               {t('customer.downloadCTA')}
             </p>
-          </div>
         </div>
       </div>
     </section>

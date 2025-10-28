@@ -54,7 +54,6 @@ const RealtimeDemoSection = () => {
       <div className="absolute inset-0 zellij-pattern opacity-30" />
       
       <div className="container mx-auto px-4 relative z-10">
-        {/* Header */}
         <div className="text-center mb-16 animate-fade-in">
           <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border-2 border-primary/30 rounded-full px-6 py-2 mb-6">
             <span className="text-2xl">🇲🇦</span>
@@ -69,7 +68,6 @@ const RealtimeDemoSection = () => {
           </p>
         </div>
 
-        {/* Demo Container */}
         <div className="max-w-6xl mx-auto">
           <Card className="p-8 md:p-12 bg-card/80 backdrop-blur-xl border-2 shadow-xl">
             <div className="grid md:grid-cols-2 gap-12 items-center">

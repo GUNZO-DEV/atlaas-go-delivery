@@ -27,7 +27,6 @@ const CityPresenceMap = () => {
           </p>
         </div>
 
-        {/* Map Container */}
         <div className="max-w-4xl mx-auto">
           <div className="relative aspect-[4/3] bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/10 rounded-3xl border-2 border-primary/20 shadow-elevation p-8">
             {/* Simplified Morocco Shape */}

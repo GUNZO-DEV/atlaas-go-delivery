@@ -78,12 +78,10 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Trust Badge */}
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-3 bg-primary/10 text-primary px-6 py-3 rounded-full border-2 border-primary/20">
+        <div className="mt-16 text-center inline-flex items-center gap-3 bg-primary/10 text-primary px-6 py-3 rounded-full border-2 border-primary/20 mx-auto">
             <Star className="w-5 h-5 fill-primary" />
             <span className="font-semibold">Rated 4.8/5 by over 10,000 Moroccans</span>
             <Star className="w-5 h-5 fill-primary" />
-          </div>
         </div>
       </div>
     </section>
