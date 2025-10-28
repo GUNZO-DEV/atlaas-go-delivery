@@ -61,9 +61,8 @@ const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 text-center">
-        <div className="animate-fade-in-up">
-          {/* Morocco Flag Badge */}
+      <div className="relative z-10 container mx-auto px-6 text-center animate-fade-in-up">
+        {/* Morocco Flag Badge */}
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl border-2 border-white/30 rounded-full px-6 py-2 mb-8">
             <span className="text-3xl">🇲🇦</span>
             <span className="text-white font-bold text-lg">100% Moroccan</span>
@@ -125,7 +124,6 @@ const Hero = () => {
               <div className="text-secondary text-lg font-bold">Moroccan</div>
               <div className="text-white/70 text-sm mt-1">Built in Morocco</div>
             </div>
-          </div>
         </div>
       </div>
 

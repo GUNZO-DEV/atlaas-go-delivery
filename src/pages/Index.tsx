@@ -31,9 +31,8 @@ const Index = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('order.title')}</h2>
             <p className="text-muted-foreground">{t('order.subtitle')}</p>
           </div>
-          <div className="flex justify-center">
-            <div className="flex gap-6 justify-center flex-wrap">
-              <Card className="w-full max-w-md hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer" onClick={() => navigate("/restaurants")}>
+          <div className="flex gap-6 justify-center flex-wrap max-w-6xl mx-auto">
+            <Card className="w-full max-w-md hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer" onClick={() => navigate("/restaurants")}>
                 <CardContent className="p-6">
                   <img 
                     src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" 
@@ -67,7 +66,6 @@ const Index = () => {
                   </Button>
                 </CardContent>
               </Card>
-            </div>
           </div>
         </div>
       </section>
