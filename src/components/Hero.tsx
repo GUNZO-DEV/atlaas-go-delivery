@@ -1,29 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Package, Bike, Crown, Store } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import AtlaasGoLogo from "@/components/AtlaasGoLogo";
-import { PrimeMembershipDialog } from "@/components/PrimeMembershipDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Hero = () => {
   const { t } = useLanguage();
-  const [isPrimeDialogOpen, setIsPrimeDialogOpen] = useState(false);
-  
-  const handlePrimeSuccess = () => {
-    setIsPrimeDialogOpen(false);
-  };
   
   return (
-    <>
-    <PrimeMembershipDialog 
-      open={isPrimeDialogOpen} 
-      onOpenChange={setIsPrimeDialogOpen}
-      onSuccess={handlePrimeSuccess}
-    />
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image - Cinematic Mountains */}
       <div className="absolute inset-0 z-0">
@@ -84,18 +71,21 @@ const Hero = () => {
 
           {/* Main Headline - Cinematic */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-tight tracking-tight">
-            From the <span className="text-accent drop-shadow-[0_0_30px_rgba(195,91,50,1)]">Atlas Mountains</span>
+            From the <span className="text-accent drop-shadow-[0_0_30px_rgba(195,91,50,1)]">Atlas</span>
             <br />
             to Your <span className="text-primary-glow drop-shadow-[0_0_30px_rgba(23,94,84,1)]">Door</span>
           </h1>
 
-          {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-white/90 mb-12 font-medium max-w-3xl mx-auto">
-            Order food from Moroccan restaurants — fast, local, authentic.
+          {/* Tagline - French/English */}
+          <p className="text-2xl md:text-4xl text-white font-bold mb-4 drop-shadow-2xl">
+            Livrez le Maroc
+          </p>
+          <p className="text-xl md:text-2xl text-secondary mb-12 font-semibold">
+            10% de commission • 100% local
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+          {/* Single Clear CTA */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
             <Link to="/restaurants">
               <Button 
                 size="lg" 
@@ -107,24 +97,34 @@ const Hero = () => {
               </Button>
             </Link>
             
-            <Button 
-              size="lg"
-              onClick={() => setIsPrimeDialogOpen(true)}
-              className="bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary text-white px-10 py-8 text-xl font-bold rounded-2xl shadow-[0_0_40px_rgba(23,94,84,0.6)] hover:shadow-[0_0_60px_rgba(23,94,84,0.8)] transition-all hover:scale-105 border-2 border-white/20"
-            >
-              <Crown className="mr-2 w-7 h-7" />
-              Join Prime
-            </Button>
-            
             <Link to="/partner-restaurant">
               <Button 
                 size="lg"
                 className="bg-white/10 backdrop-blur-xl hover:bg-white/20 text-white border-2 border-white/40 px-10 py-8 text-xl font-bold rounded-2xl transition-all hover:scale-105"
               >
                 <Store className="mr-2 w-7 h-7" />
-                Join as Partner
+                Join as Merchant
               </Button>
             </Link>
+          </div>
+
+          {/* Stats - Moroccan Themed */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="backdrop-blur-xl bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl p-8 border-2 border-primary/40 shadow-[0_0_30px_rgba(23,94,84,0.3)] hover:shadow-[0_0_50px_rgba(23,94,84,0.5)] transition-all hover:scale-105">
+              <div className="text-6xl font-black text-white mb-3 drop-shadow-lg">10%</div>
+              <div className="text-secondary text-lg font-bold">Commission</div>
+              <div className="text-white/70 text-sm mt-1">Lowest in Morocco</div>
+            </div>
+            <div className="backdrop-blur-xl bg-gradient-to-br from-accent/20 to-accent/10 rounded-3xl p-8 border-2 border-accent/40 shadow-[0_0_30px_rgba(195,91,50,0.3)] hover:shadow-[0_0_50px_rgba(195,91,50,0.5)] transition-all hover:scale-105">
+              <div className="text-6xl font-black text-white mb-3 drop-shadow-lg">24/7</div>
+              <div className="text-secondary text-lg font-bold">Support</div>
+              <div className="text-white/70 text-sm mt-1">Always here for you</div>
+            </div>
+            <div className="backdrop-blur-xl bg-gradient-to-br from-secondary/30 to-secondary/10 rounded-3xl p-8 border-2 border-secondary/50 shadow-[0_0_30px_rgba(233,216,166,0.3)] hover:shadow-[0_0_50px_rgba(233,216,166,0.5)] transition-all hover:scale-105">
+              <div className="text-6xl font-black text-white mb-3 drop-shadow-lg">100%</div>
+              <div className="text-secondary text-lg font-bold">Moroccan</div>
+              <div className="text-white/70 text-sm mt-1">Built in Morocco</div>
+            </div>
           </div>
         </div>
       </div>
@@ -136,7 +136,6 @@ const Hero = () => {
         </div>
       </div>
     </section>
-    </>
   );
 };
 
