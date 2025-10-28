@@ -15,13 +15,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Store, Bike } from "lucide-react";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 import { useLanguage } from "@/contexts/LanguageContext";
-
 const Index = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
-
-  return (
-    <div className="min-h-screen">
+  const {
+    t
+  } = useLanguage();
+  return <div className="min-h-screen">
       <Hero />
       
       {/* Quick Order Section */}
@@ -34,11 +33,7 @@ const Index = () => {
           <div className="flex gap-6 justify-center flex-wrap max-w-6xl mx-auto">
             <Card className="w-full max-w-md hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer" onClick={() => navigate("/restaurants")}>
                 <CardContent className="p-6">
-                  <img 
-                    src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" 
-                    alt="Browse Restaurants" 
-                    className="w-full h-48 object-cover rounded-lg mb-4 transition-transform"
-                  />
+                  <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" alt="Browse Restaurants" className="w-full h-48 object-cover rounded-lg mb-4 transition-transform" />
                   <h3 className="text-2xl font-bold mb-2">{t('order.browseTitle')}</h3>
                   <p className="text-muted-foreground mb-4">{t('order.browseDesc')}</p>
                   <Button className="w-full" size="lg">
@@ -50,11 +45,7 @@ const Index = () => {
               <Card className="w-full max-w-md hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer border-primary/20" onClick={() => navigate("/restaurant")}>
                 <CardContent className="p-6">
                   <div className="relative">
-                    <img 
-                      src="/images/bonsai-sushi-bar.jpg" 
-                      alt="Bonsai Sushi Bar - Fresh Sushi" 
-                      className="w-full h-48 object-cover rounded-lg mb-4 transition-transform"
-                    />
+                    <img src="/images/bonsai-sushi-bar.jpg" alt="Bonsai Sushi Bar - Fresh Sushi" className="w-full h-48 object-cover rounded-lg mb-4 transition-transform" />
                     <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold animate-pulse">
                       Order Now! 🍣
                     </div>
@@ -112,11 +103,9 @@ const Index = () => {
       <TestimonialsSection />
       <CityPresenceMap />
       <AppPreview />
-      <SupportLocalShowcase />
+      
       <Footer />
       <AtlaasAIChat />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
