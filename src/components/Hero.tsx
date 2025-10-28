@@ -76,16 +76,13 @@ const Hero = () => {
             to Your <span className="text-primary-glow drop-shadow-[0_0_30px_rgba(23,94,84,1)]">Door</span>
           </h1>
 
-          {/* Tagline - French/English */}
-          <p className="text-2xl md:text-4xl text-white font-bold mb-4 drop-shadow-2xl">
-            Livrez le Maroc
-          </p>
-          <p className="text-xl md:text-2xl text-secondary mb-12 font-semibold">
-            10% de commission • 100% local
+          {/* Subheadline */}
+          <p className="text-xl md:text-2xl text-white/90 mb-12 font-medium max-w-3xl mx-auto">
+            Order food from Moroccan restaurants — fast, local, authentic.
           </p>
 
-          {/* Single Clear CTA */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Link to="/restaurants">
               <Button 
                 size="lg" 
@@ -103,28 +100,9 @@ const Hero = () => {
                 className="bg-white/10 backdrop-blur-xl hover:bg-white/20 text-white border-2 border-white/40 px-10 py-8 text-xl font-bold rounded-2xl transition-all hover:scale-105"
               >
                 <Store className="mr-2 w-7 h-7" />
-                Join as Merchant
+                Join as Partner
               </Button>
             </Link>
-          </div>
-
-          {/* Stats - Moroccan Themed */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="backdrop-blur-xl bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl p-8 border-2 border-primary/40 shadow-[0_0_30px_rgba(23,94,84,0.3)] hover:shadow-[0_0_50px_rgba(23,94,84,0.5)] transition-all hover:scale-105">
-              <div className="text-6xl font-black text-white mb-3 drop-shadow-lg">10%</div>
-              <div className="text-secondary text-lg font-bold">Commission</div>
-              <div className="text-white/70 text-sm mt-1">Lowest in Morocco</div>
-            </div>
-            <div className="backdrop-blur-xl bg-gradient-to-br from-accent/20 to-accent/10 rounded-3xl p-8 border-2 border-accent/40 shadow-[0_0_30px_rgba(195,91,50,0.3)] hover:shadow-[0_0_50px_rgba(195,91,50,0.5)] transition-all hover:scale-105">
-              <div className="text-6xl font-black text-white mb-3 drop-shadow-lg">24/7</div>
-              <div className="text-secondary text-lg font-bold">Support</div>
-              <div className="text-white/70 text-sm mt-1">Always here for you</div>
-            </div>
-            <div className="backdrop-blur-xl bg-gradient-to-br from-secondary/30 to-secondary/10 rounded-3xl p-8 border-2 border-secondary/50 shadow-[0_0_30px_rgba(233,216,166,0.3)] hover:shadow-[0_0_50px_rgba(233,216,166,0.5)] transition-all hover:scale-105">
-              <div className="text-6xl font-black text-white mb-3 drop-shadow-lg">100%</div>
-              <div className="text-secondary text-lg font-bold">Moroccan</div>
-              <div className="text-white/70 text-sm mt-1">Built in Morocco</div>
-            </div>
           </div>
         </div>
       </div>

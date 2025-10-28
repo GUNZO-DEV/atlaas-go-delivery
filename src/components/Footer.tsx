@@ -204,24 +204,17 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-border pt-8">
-          <div className="text-center mb-6">
-            <p className="text-primary-glow font-bold text-lg italic mb-2">
-              "Delivering Morocco. 10% commission. 100% local."
-            </p>
-            <p className="text-muted-foreground text-sm flex items-center justify-center gap-2">
-              <span>🇲🇦</span>
-              Made with pride in Morocco
-              <span>🇲🇦</span>
-            </p>
-          </div>
-          
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>© 2025 ATLAAS GO. All rights reserved.</p>
-            <div className="flex items-center gap-4">
-              <span className="text-xs opacity-60">v1.0.0</span>
-              <span className="text-xs opacity-60">•</span>
-              <span className="text-xs opacity-60">Built at Al Akhawayn University</span>
+            <div className="flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-primary" />
+              <span className="font-bold text-foreground">ATLAAS GO</span>
             </div>
+            
+            <p className="text-center">
+              Built in Morocco 🇲🇦, For Morocco
+            </p>
+            
+            <p>© 2025 All rights reserved.</p>
           </div>
         </div>
       </div>
