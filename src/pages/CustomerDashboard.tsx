@@ -395,7 +395,7 @@ export default function CustomerDashboard() {
                           <OrderChat orderId={order.id} userType="customer" compact />
                         </div>
                       )}
-                      <div className="pt-4 border-t space-y-3">
+                        <div className="pt-4 border-t space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-muted-foreground flex items-center gap-1">
                             {(() => {
@@ -418,27 +418,28 @@ export default function CustomerDashboard() {
                             {order.total_amount + order.delivery_fee} MAD
                           </span>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 min-w-[140px]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setChatOrderId(order.id);
+                            }}
+                          >
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Order Chat
+                          </Button>
                           {["confirmed", "preparing", "ready_for_pickup", "picking_it_up", "picked_up"].includes(order.status) && (
-                            <>
-                              <Button
-                                className="flex-1"
-                                onClick={() => navigate(`/track/${order.id}`)}
-                              >
-                                <MapPin className="h-4 w-4 mr-2" />
-                                Track Order
-                              </Button>
-                              {order.rider_id && (
-                                <Button
-                                  variant="outline"
-                                  className="flex-1"
-                                  onClick={() => setChatOrderId(order.id)}
-                                >
-                                  <MessageCircle className="h-4 w-4 mr-2" />
-                                  Chat with Rider
-                                </Button>
-                              )}
-                            </>
+                            <Button
+                              size="sm"
+                              className="flex-1 min-w-[140px]"
+                              onClick={() => navigate(`/track/${order.id}`)}
+                            >
+                              <MapPin className="h-4 w-4 mr-2" />
+                              Track Order
+                            </Button>
                           )}
                           {order.status === "delivered" && (
                             <>
