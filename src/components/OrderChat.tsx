@@ -262,7 +262,12 @@ export default function OrderChat({ orderId, userType, floating = false, compact
                     placeholder="Type a message..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
                     disabled={sending}
                   />
                   <Button onClick={sendMessage} disabled={sending || !newMessage.trim()}>
@@ -318,7 +323,12 @@ export default function OrderChat({ orderId, userType, floating = false, compact
               placeholder="Type a message..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
               disabled={sending}
             />
             <Button onClick={sendMessage} disabled={sending || !newMessage.trim()}>
