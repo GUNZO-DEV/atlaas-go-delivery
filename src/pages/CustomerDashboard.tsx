@@ -15,6 +15,7 @@ import WalletCard from "@/components/WalletCard";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
 import { PrimeCard } from "@/components/PrimeCard";
+import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 
 interface Order {
   id: string;
@@ -688,6 +689,8 @@ export default function CustomerDashboard() {
           onReviewSubmitted={fetchOrders}
         />
       )}
+      
+      <AtlaasAIChat />
     </div>
   );
 }
