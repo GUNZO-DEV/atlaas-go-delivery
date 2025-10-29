@@ -128,31 +128,57 @@ export default function OrderChat({ orderId, userType, floating = false, compact
       return;
     }
 
+    const messageText = validation.data.message;
+    setNewMessage(""); // Clear input immediately
     setSending(true);
+    
+    // Create optimistic message
+    const optimisticMessage: Message = {
+      id: `temp-${Date.now()}`,
+      sender_id: user.id,
+      sender_type: userType,
+      message: messageText,
+      created_at: new Date().toISOString(),
+    };
+    
+    // Add optimistically to UI
+    setMessages(prev => [...prev, optimisticMessage]);
+    scrollToBottom();
+    
     try {
-      console.log('[Chat] Sending message:', { orderId, userType, message: validation.data.message });
+      console.log('[Chat] Sending message:', { orderId, userType, message: messageText });
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("chat_messages")
         .insert({
           order_id: orderId,
           sender_id: user.id,
           sender_type: userType,
-          message: validation.data.message,
-        });
+          message: messageText,
+        })
+        .select()
+        .single();
 
       if (error) {
         console.error('[Chat] Error sending message:', error);
+        // Remove optimistic message on error
+        setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
         throw error;
       }
 
       console.log('[Chat] Message sent successfully');
-      setNewMessage("");
       
-      toast({
-        title: "Message sent",
-        description: "Your message was delivered successfully",
-      });
+      // Replace optimistic message with real one
+      setMessages(prev => prev.map(m => 
+        m.id === optimisticMessage.id ? {
+          id: data.id,
+          sender_id: data.sender_id,
+          sender_type: data.sender_type as 'customer' | 'merchant' | 'rider',
+          message: data.message,
+          created_at: data.created_at,
+        } : m
+      ));
+      
     } catch (error: any) {
       console.error('[Chat] Failed to send message:', error);
       toast({
@@ -160,6 +186,7 @@ export default function OrderChat({ orderId, userType, floating = false, compact
         description: error.message || "Failed to send message",
         variant: "destructive",
       });
+      setNewMessage(messageText); // Restore message on error
     } finally {
       setSending(false);
     }
