@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Package, Clock, CheckCircle, Star, RotateCcw, Wallet, CreditCard, Banknote, Smartphone, Settings } from "lucide-react";
+import { Loader2, MapPin, Package, Clock, CheckCircle, Star, RotateCcw, Wallet, CreditCard, Banknote, Smartphone, Settings, MessageCircle } from "lucide-react";
 import ReviewDialog from "@/components/ReviewDialog";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
@@ -15,7 +15,6 @@ import WalletCard from "@/components/WalletCard";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
 import { PrimeCard } from "@/components/PrimeCard";
-import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 
 interface Order {
   id: string;
@@ -59,6 +58,7 @@ export default function CustomerDashboard() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [trackingData, setTrackingData] = useState<any>(null);
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
+  const [chatOrderId, setChatOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -420,13 +420,25 @@ export default function CustomerDashboard() {
                         </div>
                         <div className="flex gap-2">
                           {["confirmed", "preparing", "ready_for_pickup", "picking_it_up", "picked_up"].includes(order.status) && (
-                            <Button
-                              className="w-full"
-                              onClick={() => navigate(`/track/${order.id}`)}
-                            >
-                              <MapPin className="h-4 w-4 mr-2" />
-                              Track Order
-                            </Button>
+                            <>
+                              <Button
+                                className="flex-1"
+                                onClick={() => navigate(`/track/${order.id}`)}
+                              >
+                                <MapPin className="h-4 w-4 mr-2" />
+                                Track Order
+                              </Button>
+                              {order.rider_id && (
+                                <Button
+                                  variant="outline"
+                                  className="flex-1"
+                                  onClick={() => setChatOrderId(order.id)}
+                                >
+                                  <MessageCircle className="h-4 w-4 mr-2" />
+                                  Chat with Rider
+                                </Button>
+                              )}
+                            </>
                           )}
                           {order.status === "delivered" && (
                             <>
@@ -690,7 +702,13 @@ export default function CustomerDashboard() {
         />
       )}
       
-      <AtlaasAIChat />
+      {chatOrderId && (
+        <OrderChat 
+          orderId={chatOrderId} 
+          userType="customer" 
+          floating 
+        />
+      )}
     </div>
   );
 }
