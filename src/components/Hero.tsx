@@ -75,25 +75,12 @@ const Hero = () => {
             to Your <span className="text-primary-glow drop-shadow-[0_0_30px_rgba(23,94,84,1)]">Door</span>
           </h1>
 
-          {/* Tagline - Dynamic & Creative */}
-          <div className="mb-12">
-            <p className="text-3xl md:text-5xl text-white font-black mb-3 drop-shadow-2xl">
-              <span className="bg-gradient-to-r from-accent via-primary-glow to-secondary bg-clip-text text-transparent animate-pulse">
-                Fast. Fair. 100% Moroccan.
-              </span>
-            </p>
-            <p className="text-xl md:text-2xl text-white/90 font-semibold flex items-center justify-center gap-3 flex-wrap">
-              <span className="inline-flex items-center gap-2 bg-accent/20 backdrop-blur-sm px-4 py-2 rounded-full border border-accent/40">
-                <span className="text-accent font-bold">✨</span> 10% Commission
-              </span>
-              <span className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm px-4 py-2 rounded-full border border-primary/40">
-                <span className="text-primary-glow font-bold">⚡</span> Real-Time Tracking
-              </span>
-              <span className="inline-flex items-center gap-2 bg-secondary/20 backdrop-blur-sm px-4 py-2 rounded-full border border-secondary/50">
-                <span className="text-secondary font-bold">🇲🇦</span> 100% Local
-              </span>
-            </p>
-          </div>
+          {/* Tagline - Simple & Bold */}
+          <p className="text-3xl md:text-5xl text-white font-black mb-12 drop-shadow-2xl">
+            <span className="bg-gradient-to-r from-accent via-primary-glow to-secondary bg-clip-text text-transparent">
+              Fast. Fair. 100% Moroccan.
+            </span>
+          </p>
 
           {/* Single Clear CTA */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
