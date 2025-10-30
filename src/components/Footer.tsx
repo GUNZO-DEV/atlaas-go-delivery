@@ -77,9 +77,16 @@ const Footer = () => {
                 </button>
               </li>
               <li className="mt-6 pt-4 border-t border-primary/20">
-                <p className="text-muted-foreground/80 text-sm italic">
-                  {t('footer.developed')}
-                </p>
+                <div className="bg-gradient-to-r from-primary/10 via-primary-glow/10 to-primary/10 p-4 rounded-lg border border-primary/20 hover:border-primary-glow/40 transition-all group">
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-2">
+                    <span className="text-primary-glow font-semibold">✨ {t('footer.developed')}</span>
+                  </p>
+                  <p className="text-muted-foreground/70 text-xs italic flex items-center gap-1">
+                    <span className="group-hover:animate-pulse">🇲🇦</span>
+                    {t('footer.developedBy')}
+                    <span className="group-hover:animate-pulse">🇲🇦</span>
+                  </p>
+                </div>
               </li>
             </ul>
           </div>
