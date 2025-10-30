@@ -76,6 +76,11 @@ const Footer = () => {
                   {t('footer.careers')}
                 </button>
               </li>
+              <li className="mt-6 pt-4 border-t border-primary/20">
+                <p className="text-muted-foreground/80 text-sm italic">
+                  {t('footer.developed')}
+                </p>
+              </li>
             </ul>
           </div>
 

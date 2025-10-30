@@ -119,6 +119,7 @@ export const translations: Translations = {
   'footer.about': { en: 'About Us', fr: 'À Propos' },
   'footer.howItWorks': { en: 'How It Works', fr: 'Comment Ça Marche' },
   'footer.careers': { en: 'Careers', fr: 'Carrières' },
+  'footer.developed': { en: 'Developed at Al Akhawayn University by MT', fr: 'Développé à l\'Université Al Akhawayn par MT' },
   'footer.support': { en: 'Support', fr: 'Support' },
   'footer.helpCenter': { en: 'Help Center', fr: 'Centre d\'Aide' },
   'footer.safety': { en: 'Safety', fr: 'Sécurité' },
