@@ -31,9 +31,18 @@ const Footer = () => {
             
             {/* University Credit */}
             <div className="mt-4 pt-4 border-t border-primary/20">
-              <p className="text-primary-glow text-xs font-medium">
+              <p className="text-primary-glow text-xs font-medium mb-1">
                 {t('footer.developed')}
               </p>
+              <a 
+                href="https://www.aui.ma" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-muted-foreground/60 hover:text-primary-glow text-xs transition-colors inline-flex items-center gap-1 group"
+              >
+                <span>🎓</span>
+                <span className="underline decoration-primary/30 group-hover:decoration-primary-glow">Visit AUI</span>
+              </a>
             </div>
           </div>
 
