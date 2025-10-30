@@ -31,12 +31,8 @@ const Footer = () => {
             
             {/* University Credit */}
             <div className="mt-4 pt-4 border-t border-primary/20">
-              <p className="text-muted-foreground/70 text-xs flex items-center gap-1.5">
-                <span>🇲🇦</span>
-                <span className="text-primary-glow font-medium">{t('footer.developed')}</span>
-              </p>
-              <p className="text-muted-foreground/60 text-xs italic mt-1">
-                {t('footer.developedBy')}
+              <p className="text-primary-glow text-xs font-medium">
+                {t('footer.developed')}
               </p>
             </div>
           </div>
