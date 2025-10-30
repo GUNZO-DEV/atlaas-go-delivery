@@ -22,25 +22,23 @@ const Footer = () => {
                 ATLAAS <span className="text-primary-glow">GO</span>
               </h3>
             </div>
-            
-            {/* University Credit */}
-            <div className="mb-6 bg-gradient-to-r from-primary/10 via-primary-glow/10 to-primary/10 p-3 rounded-lg border border-primary/20 hover:border-primary-glow/40 transition-all group">
-              <p className="text-muted-foreground text-xs leading-relaxed mb-1 flex items-center gap-1">
-                <span className="group-hover:animate-pulse">🇲🇦</span>
-                <span className="text-primary-glow font-semibold">✨ {t('footer.developed')}</span>
-                <span className="group-hover:animate-pulse">🇲🇦</span>
-              </p>
-              <p className="text-muted-foreground/70 text-xs italic">
-                {t('footer.developedBy')}
-              </p>
-            </div>
-            
             <p className="text-muted-foreground mb-4 italic font-medium">
               "{t('hero.tagline')}"
             </p>
-            <p className="text-muted-foreground/80 text-sm leading-relaxed">
+            <p className="text-muted-foreground/80 text-sm leading-relaxed mb-4">
               {t('hero.description')}
             </p>
+            
+            {/* University Credit */}
+            <div className="mt-4 pt-4 border-t border-primary/20">
+              <p className="text-muted-foreground/70 text-xs flex items-center gap-1.5">
+                <span>🇲🇦</span>
+                <span className="text-primary-glow font-medium">{t('footer.developed')}</span>
+              </p>
+              <p className="text-muted-foreground/60 text-xs italic mt-1">
+                {t('footer.developedBy')}
+              </p>
+            </div>
           </div>
 
           {/* Quick Links */}
