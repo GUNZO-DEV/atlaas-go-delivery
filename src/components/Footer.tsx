@@ -22,6 +22,19 @@ const Footer = () => {
                 ATLAAS <span className="text-primary-glow">GO</span>
               </h3>
             </div>
+            
+            {/* University Credit */}
+            <div className="mb-6 bg-gradient-to-r from-primary/10 via-primary-glow/10 to-primary/10 p-3 rounded-lg border border-primary/20 hover:border-primary-glow/40 transition-all group">
+              <p className="text-muted-foreground text-xs leading-relaxed mb-1 flex items-center gap-1">
+                <span className="group-hover:animate-pulse">🇲🇦</span>
+                <span className="text-primary-glow font-semibold">✨ {t('footer.developed')}</span>
+                <span className="group-hover:animate-pulse">🇲🇦</span>
+              </p>
+              <p className="text-muted-foreground/70 text-xs italic">
+                {t('footer.developedBy')}
+              </p>
+            </div>
+            
             <p className="text-muted-foreground mb-4 italic font-medium">
               "{t('hero.tagline')}"
             </p>
@@ -75,18 +88,6 @@ const Footer = () => {
                 >
                   {t('footer.careers')}
                 </button>
-              </li>
-              <li className="mt-6 pt-4 border-t border-primary/20">
-                <div className="bg-gradient-to-r from-primary/10 via-primary-glow/10 to-primary/10 p-4 rounded-lg border border-primary/20 hover:border-primary-glow/40 transition-all group">
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-2">
-                    <span className="text-primary-glow font-semibold">✨ {t('footer.developed')}</span>
-                  </p>
-                  <p className="text-muted-foreground/70 text-xs italic flex items-center gap-1">
-                    <span className="group-hover:animate-pulse">🇲🇦</span>
-                    {t('footer.developedBy')}
-                    <span className="group-hover:animate-pulse">🇲🇦</span>
-                  </p>
-                </div>
               </li>
             </ul>
           </div>
