@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.5d4560ef14234cbba8db4afaadb35bb4',
+  appId: 'app.lovable.atlaasgo',
   appName: 'atlaas-go-delivery',
   webDir: 'dist',
   server: {
