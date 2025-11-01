@@ -8,6 +8,11 @@ const config: CapacitorConfig = {
     url: 'https://5d4560ef-1423-4cbb-a8db-4afaadb35bb4.lovableproject.com?forceHideBadge=true',
     cleartext: true
   },
+  android: {
+    buildOptions: {
+      javaVersion: '17'
+    }
+  },
   plugins: {
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert']
