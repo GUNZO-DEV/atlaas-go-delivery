@@ -821,6 +821,7 @@ export type Database = {
           is_active: boolean | null
           max_discount_amount: number | null
           min_order_amount: number | null
+          restaurant_id: string | null
           usage_count: number | null
           usage_limit: number | null
           valid_from: string | null
@@ -836,6 +837,7 @@ export type Database = {
           is_active?: boolean | null
           max_discount_amount?: number | null
           min_order_amount?: number | null
+          restaurant_id?: string | null
           usage_count?: number | null
           usage_limit?: number | null
           valid_from?: string | null
@@ -851,12 +853,21 @@ export type Database = {
           is_active?: boolean | null
           max_discount_amount?: number | null
           min_order_amount?: number | null
+          restaurant_id?: string | null
           usage_count?: number | null
           usage_limit?: number | null
           valid_from?: string | null
           valid_until?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "promotions_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_subscriptions: {
         Row: {
