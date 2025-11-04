@@ -25,13 +25,6 @@ const Hero = () => {
         <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      {/* Animated Scooter - Cinematic Element */}
-      <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden">
-        <div className="animate-scooter-ride">
-          <Bike className="w-16 h-16 text-accent drop-shadow-[0_0_20px_rgba(195,91,50,0.8)]" />
-        </div>
-      </div>
-
       {/* Logo - Top Left */}
       <div className="absolute top-6 left-6 z-20">
         <AtlaasGoLogo className="w-32 h-auto drop-shadow-2xl" />
