@@ -6,8 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Search, Heart, ArrowLeft, SlidersHorizontal } from "lucide-react";
+import { Loader2, Heart, ArrowLeft, SlidersHorizontal } from "lucide-react";
 import StarRating from "@/components/StarRating";
+import SmartSearch from "@/components/SmartSearch";
+import FavoriteButton from "@/components/FavoriteButton";
 import {
   Select,
   SelectContent,
@@ -32,26 +34,17 @@ export default function Restaurants() {
   const { toast } = useToast();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"rating" | "name">("rating");
 
   useEffect(() => {
-    checkAuth();
     fetchRestaurants();
-    fetchFavorites();
   }, []);
 
   useEffect(() => {
     filterAndSortRestaurants();
   }, [restaurants, searchQuery, sortBy]);
-
-  const checkAuth = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
-  };
 
   const fetchRestaurants = async () => {
     try {
@@ -71,23 +64,6 @@ export default function Restaurants() {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchFavorites = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from("user_favorites")
-        .select("restaurant_id")
-        .eq("user_id", user.id);
-
-      if (error) throw error;
-      setFavorites(new Set(data?.map(f => f.restaurant_id) || []));
-    } catch (error: any) {
-      console.error("Error fetching favorites:", error);
     }
   };
 
@@ -114,63 +90,6 @@ export default function Restaurants() {
     setFilteredRestaurants(filtered);
   };
 
-  const toggleFavorite = async (restaurantId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    if (!user) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to save favorites",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
-
-    try {
-      if (favorites.has(restaurantId)) {
-        const { error } = await supabase
-          .from("user_favorites")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("restaurant_id", restaurantId);
-
-        if (error) throw error;
-        
-        setFavorites(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(restaurantId);
-          return newSet;
-        });
-        
-        toast({
-          title: "Removed from favorites",
-        });
-      } else {
-        const { error } = await supabase
-          .from("user_favorites")
-          .insert({
-            user_id: user.id,
-            restaurant_id: restaurantId,
-          });
-
-        if (error) throw error;
-        
-        setFavorites(prev => new Set(prev).add(restaurantId));
-        
-        toast({
-          title: "Added to favorites",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -194,17 +113,18 @@ export default function Restaurants() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Search and Filters */}
+        {/* Smart Search */}
+        <div className="mb-8">
+          <SmartSearch />
+        </div>
+
+        {/* Basic Search and Filters */}
         <div className="mb-8 space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search restaurants, cuisine..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <Input
+            placeholder="Filter current page..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
           
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -244,19 +164,9 @@ export default function Restaurants() {
                     alt={restaurant.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`absolute top-2 right-2 bg-white/90 hover:bg-white ${
-                      favorites.has(restaurant.id) ? "text-red-500" : "text-gray-400"
-                    }`}
-                    onClick={(e) => toggleFavorite(restaurant.id, e)}
-                  >
-                    <Heart
-                      className="h-5 w-5"
-                      fill={favorites.has(restaurant.id) ? "currentColor" : "none"}
-                    />
-                  </Button>
+                  <div className="absolute top-2 right-2 bg-white/90 rounded-full">
+                    <FavoriteButton itemId={restaurant.id} itemType="restaurant" />
+                  </div>
                 </div>
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-lg mb-1">{restaurant.name}</h3>

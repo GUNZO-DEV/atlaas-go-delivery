@@ -30,6 +30,7 @@ import Privacy from "./pages/Privacy";
 import Safety from "./pages/Safety";
 import Careers from "./pages/Careers";
 import RealtimeDemo from "./pages/RealtimeDemo";
+import Favorites from "./pages/Favorites";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
           <Route path="/safety" element={<Safety />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/realtime-demo" element={<RealtimeDemo />} />
+          <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

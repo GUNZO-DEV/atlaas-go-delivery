@@ -138,6 +138,64 @@ export type Database = {
           },
         ]
       }
+      favorite_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          menu_item_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          menu_item_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          menu_item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_items_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorite_restaurants: {
+        Row: {
+          created_at: string | null
+          id: string
+          restaurant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          restaurant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          restaurant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_restaurants_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_order_participants: {
         Row: {
           group_order_id: string
@@ -571,6 +629,7 @@ export type Database = {
           estimated_delivery_time: number | null
           id: string
           notes: string | null
+          order_notes: string | null
           payment_method: string | null
           payment_status: string | null
           promo_code: string | null
@@ -593,6 +652,7 @@ export type Database = {
           estimated_delivery_time?: number | null
           id?: string
           notes?: string | null
+          order_notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
           promo_code?: string | null
@@ -615,6 +675,7 @@ export type Database = {
           estimated_delivery_time?: number | null
           id?: string
           notes?: string | null
+          order_notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
           promo_code?: string | null
@@ -1358,10 +1419,7 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: undefined
       }
-      assign_rider_role: {
-        Args: { user_id_param: string }
-        Returns: undefined
-      }
+      assign_rider_role: { Args: { user_id_param: string }; Returns: undefined }
       create_notification: {
         Args: {
           p_message: string

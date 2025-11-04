@@ -34,6 +34,8 @@ import {
 import AddressSelector from "@/components/AddressSelector";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
+import OrderNotesInput from "@/components/OrderNotesInput";
+import FavoriteButton from "@/components/FavoriteButton";
 
 interface MenuItem {
   id: string;
@@ -415,7 +417,7 @@ export default function RestaurantMenu() {
           delivery_address: deliveryAddress,
           delivery_latitude: deliveryLat,
           delivery_longitude: deliveryLng,
-          notes: notes || null,
+          order_notes: notes || null,
           status: "pending" as const,
           scheduled_for: scheduledDate?.toISOString() || null,
           promo_code: appliedPromo?.code || null,
@@ -719,15 +721,10 @@ export default function RestaurantMenu() {
                           )}
                         </div>
 
-                        <div>
-                          <Label htmlFor="notes">Notes (Optional)</Label>
-                          <Textarea
-                            id="notes"
-                            placeholder="Any special instructions?"
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                          />
-                        </div>
+                        <OrderNotesInput 
+                          value={notes}
+                          onChange={setNotes}
+                        />
                       </div>
 
                       <div className="space-y-2 pt-4 border-t">
@@ -854,6 +851,9 @@ export default function RestaurantMenu() {
                       alt={item.name}
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute top-2 right-2 bg-white/90 rounded-full">
+                      <FavoriteButton itemId={item.id} itemType="menu_item" size="sm" />
+                    </div>
                   </div>
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-lg mb-1">{item.name}</h3>
