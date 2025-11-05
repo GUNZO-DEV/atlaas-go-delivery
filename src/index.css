@@ -129,9 +129,19 @@ All colors MUST be HSL.
   }
 
   /* Smooth Scrolling */
-  html {
-    scroll-behavior: smooth;
-  }
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for category selector */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 }
 
 @layer components {

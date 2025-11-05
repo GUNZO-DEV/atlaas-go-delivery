@@ -10,6 +10,7 @@ import { Loader2, Heart, ArrowLeft, SlidersHorizontal } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import SmartSearch from "@/components/SmartSearch";
 import FavoriteButton from "@/components/FavoriteButton";
+import CategorySelector from "@/components/CategorySelector";
 import {
   Select,
   SelectContent,
@@ -37,6 +38,7 @@ export default function Restaurants() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"rating" | "name">("rating");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   useEffect(() => {
     fetchRestaurants();
@@ -44,7 +46,7 @@ export default function Restaurants() {
 
   useEffect(() => {
     filterAndSortRestaurants();
-  }, [restaurants, searchQuery, sortBy]);
+  }, [restaurants, searchQuery, sortBy, selectedCategory]);
 
   const fetchRestaurants = async () => {
     try {
@@ -69,6 +71,13 @@ export default function Restaurants() {
 
   const filterAndSortRestaurants = () => {
     let filtered = [...restaurants];
+
+    // Filter by category
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(
+        (r) => r.cuisine_type?.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
 
     // Filter by search query
     if (searchQuery) {
@@ -114,8 +123,16 @@ export default function Restaurants() {
 
       <main className="container mx-auto px-4 py-8">
         {/* Smart Search */}
-        <div className="mb-8">
+        <div className="mb-6">
           <SmartSearch />
+        </div>
+
+        {/* Category Selector */}
+        <div className="mb-8 -mx-4">
+          <CategorySelector
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
         </div>
 
         {/* Basic Search and Filters */}
@@ -146,8 +163,14 @@ export default function Restaurants() {
         {/* Restaurant Grid */}
         {filteredRestaurants.length === 0 ? (
           <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground">No restaurants found</p>
+            <CardContent className="py-16 text-center space-y-3">
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-xl font-semibold">No restaurants found</h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                {selectedCategory !== "all"
+                  ? `We couldn't find any ${selectedCategory} restaurants. Try selecting a different category.`
+                  : "Try adjusting your search filters or check back later for new restaurants."}
+              </p>
             </CardContent>
           </Card>
         ) : (
