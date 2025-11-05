@@ -36,6 +36,7 @@ import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
 import OrderNotesInput from "@/components/OrderNotesInput";
 import FavoriteButton from "@/components/FavoriteButton";
+import MenuCategorySelector from "@/components/MenuCategorySelector";
 
 interface MenuItem {
   id: string;
@@ -107,6 +108,7 @@ export default function RestaurantMenu() {
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [itemInstructions, setItemInstructions] = useState<Record<string, string>>({});
   const [addressSelectorOpen, setAddressSelectorOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   useEffect(() => {
     checkAuth();
@@ -517,7 +519,12 @@ export default function RestaurantMenu() {
     }
   };
 
-  const groupedItems = menuItems.reduce((acc, item) => {
+  // Filter menu items by selected category
+  const filteredMenuItems = selectedCategory === "all" 
+    ? menuItems 
+    : menuItems.filter(item => item.category === selectedCategory);
+
+  const groupedItems = filteredMenuItems.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [];
     }
@@ -802,6 +809,15 @@ export default function RestaurantMenu() {
 
       {/* Menu */}
       <main className="container mx-auto px-4 py-8">
+        {/* Category Selector */}
+        <div className="-mx-4 mb-8">
+          <MenuCategorySelector
+            menuItems={menuItems}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
+        </div>
+
         {/* Reviews Section */}
         {reviews.length > 0 && (
           <div className="mb-12">
