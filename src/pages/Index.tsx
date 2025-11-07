@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Hero from "@/components/Hero";
+import FeaturedRestaurants from "@/components/FeaturedRestaurants";
 import LiveTracking from "@/components/LiveTracking";
 import RealtimeDemoSection from "@/components/RealtimeDemoSection";
 import MerchantSection from "@/components/MerchantSection";
@@ -22,6 +23,7 @@ const Index = () => {
   } = useLanguage();
   return <div className="min-h-screen">
       <Hero />
+      <FeaturedRestaurants />
       
       {/* Quick Order Section */}
       <section className="py-16 bg-muted/50">
