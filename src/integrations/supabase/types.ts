@@ -781,6 +781,9 @@ export type Database = {
           loyalty_points: number | null
           phone: string | null
           prime_expires_at: string | null
+          referral_code: string | null
+          referral_count: number | null
+          referred_by: string | null
           updated_at: string
           wallet_balance: number | null
         }
@@ -793,6 +796,9 @@ export type Database = {
           loyalty_points?: number | null
           phone?: string | null
           prime_expires_at?: string | null
+          referral_code?: string | null
+          referral_count?: number | null
+          referred_by?: string | null
           updated_at?: string
           wallet_balance?: number | null
         }
@@ -805,10 +811,21 @@ export type Database = {
           loyalty_points?: number | null
           phone?: string | null
           prime_expires_at?: string | null
+          referral_code?: string | null
+          referral_count?: number | null
+          referred_by?: string | null
           updated_at?: string
           wallet_balance?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       promotions: {
         Row: {
@@ -895,6 +912,48 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string | null
+          discount_amount: number | null
+          discount_used: boolean | null
+          id: string
+          referred_id: string
+          referrer_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          discount_amount?: number | null
+          discount_used?: boolean | null
+          id?: string
+          referred_id: string
+          referrer_id: string
+        }
+        Update: {
+          created_at?: string | null
+          discount_amount?: number | null
+          discount_used?: boolean | null
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       restaurant_applications: {
         Row: {
@@ -1418,6 +1477,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_referral_code: {
+        Args: { ref_code: string; user_id: string }
+        Returns: boolean
+      }
       approve_restaurant_application: {
         Args: { admin_id: string; application_id: string }
         Returns: string
@@ -1441,6 +1504,7 @@ export type Database = {
         }
         Returns: string
       }
+      generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]

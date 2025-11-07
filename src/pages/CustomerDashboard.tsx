@@ -15,6 +15,7 @@ import WalletCard from "@/components/WalletCard";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
 import { PrimeCard } from "@/components/PrimeCard";
+import { ReferralDialog } from "@/components/ReferralDialog";
 
 interface Order {
   id: string;
@@ -313,6 +314,7 @@ export default function CustomerDashboard() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">My Orders</h1>
           <div className="flex items-center gap-2">
+            <ReferralDialog />
             <SupportTicketDialog />
             <NotificationBell />
             <Button variant="outline" size="icon" onClick={() => navigate("/customer/settings")}>

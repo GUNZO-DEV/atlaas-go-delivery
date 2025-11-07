@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,24 @@ import { signUpSchema, signInSchema } from "@/lib/validation";
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Pre-fill referral code from URL if present
+    const refCode = searchParams.get("ref");
+    if (refCode) {
+      setReferralCode(refCode);
+      toast({
+        title: "Referral Code Applied!",
+        description: "You'll get 10% off your first order!",
+      });
+    }
+  }, [searchParams]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +43,7 @@ const Auth = () => {
         fullName: fullName.trim(),
       });
 
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: validatedData.email,
         password: validatedData.password,
         options: {
@@ -41,6 +55,22 @@ const Auth = () => {
       });
 
       if (error) throw error;
+
+      // Apply referral code if provided
+      if (referralCode && data.user) {
+        const { data: result, error: refError } = await supabase
+          .rpc('apply_referral_code', {
+            user_id: data.user.id,
+            ref_code: referralCode.trim().toUpperCase()
+          });
+
+        if (!refError && result) {
+          toast({
+            title: "Referral Applied!",
+            description: "You'll get 10% off your first order!",
+          });
+        }
+      }
 
       toast({
         title: "Check your email!",
@@ -200,6 +230,23 @@ const Auth = () => {
                   <p className="text-xs text-muted-foreground">
                     Must be 8+ characters with uppercase, lowercase, and number
                   </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="referral-code">Referral Code (Optional)</Label>
+                  <Input
+                    id="referral-code"
+                    type="text"
+                    placeholder="Enter referral code"
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                    maxLength={8}
+                  />
+                  {referralCode && (
+                    <p className="text-xs text-green-600">
+                      🎉 Get 10% off your first order!
+                    </p>
+                  )}
                 </div>
 
                 <Button
