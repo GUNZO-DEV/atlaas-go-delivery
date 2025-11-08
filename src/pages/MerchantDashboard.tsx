@@ -12,6 +12,7 @@ import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
 import RestaurantApplicationForm from "@/components/RestaurantApplicationForm";
+import PromotionManager from "@/components/PromotionManager";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -939,9 +940,10 @@ export default function MerchantDashboard() {
         </div>
 
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="menu">Menu</TabsTrigger>
+            <TabsTrigger value="promotions">Promotions</TabsTrigger>
             <TabsTrigger value="receipts">Receipts</TabsTrigger>
           </TabsList>
 
@@ -1216,6 +1218,10 @@ export default function MerchantDashboard() {
                 ))}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="promotions" className="space-y-4">
+            <PromotionManager restaurantId={restaurant.id} />
           </TabsContent>
 
           <TabsContent value="receipts" className="space-y-4">

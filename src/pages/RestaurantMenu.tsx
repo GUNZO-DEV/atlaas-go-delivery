@@ -84,6 +84,7 @@ interface Promotion {
   discount_value: number;
   min_order_amount: number;
   max_discount_amount?: number;
+  usage_count?: number;
 }
 
 export default function RestaurantMenu() {
@@ -446,6 +447,16 @@ export default function RestaurantMenu() {
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
+
+      // Increment promotion usage count if promo was applied
+      if (appliedPromo) {
+        const { error: promoError } = await supabase
+          .from("promotions")
+          .update({ usage_count: (appliedPromo.usage_count || 0) + 1 })
+          .eq("id", appliedPromo.id);
+
+        if (promoError) console.error("Error updating promo usage:", promoError);
+      }
 
       // Process wallet payment
       if (paymentMethod === "wallet") {
