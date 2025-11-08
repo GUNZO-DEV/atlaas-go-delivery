@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import MerchantDashboard from "./pages/MerchantDashboard";
 import RiderDashboard from "./pages/RiderDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import TrackDelivery from "./pages/TrackDelivery";
 import TestSetup from "./pages/TestSetup";
 import RestaurantMenu from "./pages/RestaurantMenu";
@@ -52,6 +53,7 @@ const App = () => (
           <Route path="/customer" element={<ProtectedRoute requiredRole="customer"><CustomerDashboard /></ProtectedRoute>} />
           <Route path="/merchant" element={<ProtectedRoute requiredRole="merchant"><MerchantDashboard /></ProtectedRoute>} />
           <Route path="/rider" element={<ProtectedRoute requiredRole="rider"><RiderDashboard /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
           <Route path="/track/:orderId" element={<ProtectedRoute><TrackDelivery /></ProtectedRoute>} />
           <Route path="/test-setup" element={<TestSetup />} />
           <Route path="/restaurant/:restaurantId?" element={<RestaurantMenu />} />
