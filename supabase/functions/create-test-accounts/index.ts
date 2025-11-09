@@ -12,15 +12,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verify JWT authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -32,34 +23,47 @@ serve(async (req) => {
       }
     );
 
-    // Verify user and check for admin role
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+    // Create or get admin account (first-time setup)
+    let adminId: string;
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const adminExists = existingUsers?.users.find(u => u.email === 'admin@atlaas.com');
     
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    if (adminExists) {
+      adminId = adminExists.id;
+      console.log('Admin already exists:', adminId);
+      
+      await supabaseAdmin.auth.admin.updateUserById(adminId, {
+        password: 'admin123456'
       });
+    } else {
+      const { data: adminAuth, error: adminAuthError } = await supabaseAdmin.auth.admin.createUser({
+        email: 'admin@atlaas.com',
+        password: 'admin123456',
+        email_confirm: true,
+        user_metadata: { full_name: 'ATLAAS Admin' }
+      });
+
+      if (adminAuthError) {
+        console.error('Admin auth error:', adminAuthError);
+        throw adminAuthError;
+      }
+
+      adminId = adminAuth.user.id;
+      console.log('Created admin:', adminId);
     }
 
-    // Check if user has admin role
-    const { data: roles } = await supabaseAdmin
+    // Ensure admin role is assigned
+    const { error: adminRoleError } = await supabaseAdmin
       .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id);
-    
-    if (!roles?.some(r => r.role === 'admin')) {
-      return new Response(JSON.stringify({ error: 'Admin access required' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      .upsert({ user_id: adminId, role: 'admin' }, { onConflict: 'user_id,role' });
+
+    if (adminRoleError) {
+      console.error('Admin role error:', adminRoleError);
     }
 
     // Create or get merchant account
     let merchantId: string;
-    const { data: existingMerchant } = await supabaseAdmin.auth.admin.listUsers();
-    const merchantExists = existingMerchant?.users.find(u => u.email === 'merchant@test.com');
+    const merchantExists = existingUsers?.users.find(u => u.email === 'merchant@test.com');
     
     if (merchantExists) {
       merchantId = merchantExists.id;
@@ -97,7 +101,7 @@ serve(async (req) => {
 
     // Create or get rider account
     let riderId: string;
-    const riderExists = existingMerchant?.users.find(u => u.email === 'rider@test.com');
+    const riderExists = existingUsers?.users.find(u => u.email === 'rider@test.com');
     
     if (riderExists) {
       riderId = riderExists.id;
@@ -134,7 +138,7 @@ serve(async (req) => {
 
     // Create or get customer account
     let customerId: string;
-    const customerExists = existingMerchant?.users.find(u => u.email === 'customer@test.com');
+    const customerExists = existingUsers?.users.find(u => u.email === 'customer@test.com');
     
     if (customerExists) {
       customerId = customerExists.id;
@@ -310,6 +314,7 @@ serve(async (req) => {
         success: true,
         message: 'Test accounts created successfully',
         accounts: {
+          admin: { email: 'admin@atlaas.com', password: 'admin123456' },
           merchant: { email: 'merchant@test.com', password: 'merchant123' },
           rider: { email: 'rider@test.com', password: 'rider123' },
           customer: { email: 'customer@test.com', password: 'customer123' }

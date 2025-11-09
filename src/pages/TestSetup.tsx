@@ -53,6 +53,7 @@ export default function TestSetup() {
               <div className="space-y-2 text-sm">
                 <p className="font-semibold">This will create:</p>
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-4">
+                  <li>Admin account: admin@atlaas.com / admin123456</li>
                   <li>Merchant account: merchant@test.com / merchant123</li>
                   <li>Rider account: rider@test.com / rider123</li>
                   <li>Customer account: customer@test.com / customer123</li>
@@ -84,6 +85,10 @@ export default function TestSetup() {
               </div>
 
               <div className="space-y-3 p-4 bg-muted rounded-lg">
+                <div>
+                  <p className="font-semibold">Admin Login:</p>
+                  <p className="text-sm text-muted-foreground">admin@atlaas.com / admin123456</p>
+                </div>
                 <div>
                   <p className="font-semibold">Merchant Login:</p>
                   <p className="text-sm text-muted-foreground">merchant@test.com / merchant123</p>
