@@ -128,24 +128,49 @@ const FeaturedRestaurants = () => {
                     {restaurant.description}
                   </p>
 
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      <span className="line-clamp-1">{restaurant.address}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                  {restaurant.id === 'df84d31b-0214-4a78-bd37-775422949bcf' ? (
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Clock className="w-4 h-4 text-primary" />
-                        <span>25-35 min</span>
+                        <span className="text-xs font-medium">Mon-Thu, Sat-Sun: 2pm-11pm | Fri: 3pm-12am</span>
                       </div>
                       <Badge variant="outline" className="text-xs capitalize">
                         {restaurant.cuisine_type}
                       </Badge>
+                      <div className="pt-2 border-t space-y-1 text-xs">
+                        <div className="flex items-start gap-1.5">
+                          <span className="text-primary">✓</span>
+                          <span className="text-muted-foreground">Personalized cake designs</span>
+                        </div>
+                        <div className="flex items-start gap-1.5">
+                          <span className="text-primary">✓</span>
+                          <span className="text-muted-foreground">10+ years experience in Morocco</span>
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {restaurant.review_count} reviews
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {restaurant.review_count} reviews
+                  ) : (
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        <span className="line-clamp-1">{restaurant.address}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-primary" />
+                          <span>25-35 min</span>
+                        </div>
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {restaurant.cuisine_type}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {restaurant.review_count} reviews
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             );
