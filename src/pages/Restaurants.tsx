@@ -205,7 +205,19 @@ export default function Restaurants() {
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">{restaurant.address}</p>
+                  {restaurant.id === 'df84d31b-0214-4a78-bd37-775422949bcf' ? (
+                    <div className="space-y-2 text-xs pt-2 border-t">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <span className="font-medium">Hours: Mon-Thu, Sat-Sun 2pm-11pm | Fri 3pm-12am</span>
+                      </div>
+                      <div className="flex items-start gap-1.5">
+                        <span className="text-primary">✓</span>
+                        <span className="text-muted-foreground">Personalized cakes • 10+ years experience</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">{restaurant.address}</p>
+                  )}
                 </CardContent>
               </Card>
             ))}
