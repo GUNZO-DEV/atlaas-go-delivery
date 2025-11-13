@@ -827,18 +827,15 @@ export default function RestaurantMenu() {
               <p className="text-sm text-muted-foreground">
                 Chat with us directly to see today's menu and place your order
               </p>
-              <Button 
-                size="lg"
-                className="bg-green-600 hover:bg-green-700 text-white w-full md:w-auto"
-                onClick={() => {
-                  const message = encodeURIComponent('Hello Hani Sugar Art, I want to place an order.');
-                  const whatsappUrl = `https://wa.me/212648760698?text=${message}`;
-                  window.open(whatsappUrl, '_blank');
-                }}
+              <a
+                href="https://wa.me/212648760698?text=Hello%20Hani%20Sugar%20Art%2C%20I%20want%20to%20place%20an%20order."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-green-600 hover:bg-green-700 text-white h-11 px-8 w-full md:w-auto"
               >
                 <Phone className="h-5 w-5 mr-2" />
                 View Menu & Order via WhatsApp
-              </Button>
+              </a>
             </div>
           </div>
         </div>
