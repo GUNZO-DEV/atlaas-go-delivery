@@ -818,6 +818,32 @@ export default function RestaurantMenu() {
         </div>
       </div>
 
+      {/* WhatsApp Button - Hani Sugar Art Only */}
+      {restaurant.id === 'df84d31b-0214-4a78-bd37-775422949bcf' && (
+        <div className="container mx-auto px-4 py-6">
+          <div className="bg-green-50 dark:bg-green-950 border-2 border-green-500 rounded-lg p-6">
+            <div className="text-center space-y-3">
+              <h3 className="text-lg font-semibold">Order via WhatsApp</h3>
+              <p className="text-sm text-muted-foreground">
+                Chat with us directly to see today's menu and place your order
+              </p>
+              <Button 
+                size="lg"
+                className="bg-green-600 hover:bg-green-700 text-white w-full md:w-auto"
+                onClick={() => {
+                  const message = encodeURIComponent('Hello Hani Sugar Art, I want to place an order.');
+                  const whatsappUrl = `https://wa.me/212648760698?text=${message}`;
+                  window.open(whatsappUrl, '_blank');
+                }}
+              >
+                <Phone className="h-5 w-5 mr-2" />
+                View Menu & Order via WhatsApp
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Menu */}
       <main className="container mx-auto px-4 py-8">
         {/* Category Selector */}
