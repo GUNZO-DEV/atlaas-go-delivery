@@ -821,9 +821,10 @@ export default function RestaurantMenu() {
         </div>
       </div>
 
-      {/* WhatsApp Button - Hani Sugar Art Only */}
+      {/* WhatsApp Button & Info - Hani Sugar Art Only */}
       {restaurant.id === 'df84d31b-0214-4a78-bd37-775422949bcf' && (
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-6 space-y-6">
+          {/* WhatsApp CTA */}
           <div className="bg-green-50 dark:bg-green-950 border-2 border-green-500 rounded-lg p-6">
             <div className="text-center space-y-3">
               <h3 className="text-lg font-semibold">Order via WhatsApp</h3>
@@ -840,6 +841,57 @@ export default function RestaurantMenu() {
                 View Menu & Order via WhatsApp
               </a>
             </div>
+          </div>
+
+          {/* Business Info */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Opening Hours */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-primary" />
+                  Opening Hours
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Monday - Thursday</span>
+                    <span className="font-medium">2:00 PM - 11:00 PM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Friday</span>
+                    <span className="font-medium">3:00 PM - 12:00 AM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Saturday - Sunday</span>
+                    <span className="font-medium">2:00 PM - 11:00 PM</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Specialties */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  Why Choose Us
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary mt-1">✓</span>
+                    <span>Personalized cake designs tailored to your vision</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary mt-1">✓</span>
+                    <span>10+ years of experience in Morocco</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary mt-1">✓</span>
+                    <span>Premium quality ingredients and craftsmanship</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}
