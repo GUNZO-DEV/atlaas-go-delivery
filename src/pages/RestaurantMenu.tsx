@@ -582,6 +582,7 @@ export default function RestaurantMenu() {
               </Button>
             </div>
             <h1 className="text-xl font-bold">{restaurant.name}</h1>
+            {restaurant.id !== 'df84d31b-0214-4a78-bd37-775422949bcf' && (
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="relative">
@@ -672,19 +673,20 @@ export default function RestaurantMenu() {
                               {deliveryAddress || "Select delivery address on map"}
                             </span>
                           </Button>
-                          {deliveryLat && deliveryLng && (
-                            <div className="mt-2 h-[200px] rounded-lg overflow-hidden border">
-                              <LiveTrackingMap
-                                customerLat={deliveryLat}
-                                customerLng={deliveryLng}
-                                deliveryAddress={deliveryAddress}
-                              />
-                            </div>
-                          )}
+                          <AddressSelector
+                            open={addressSelectorOpen}
+                            onOpenChange={setAddressSelectorOpen}
+                            initialAddress={deliveryAddress}
+                            onSelectAddress={(address, lat, lng) => {
+                              setDeliveryAddress(address);
+                              setDeliveryLat(lat);
+                              setDeliveryLng(lng);
+                            }}
+                          />
                           {deliveryAddress && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Tap to change location
-                            </p>
+                            <div className="mt-4 h-40">
+                              <LiveTrackingMap customerLat={deliveryLat!} customerLng={deliveryLng!} deliveryAddress={deliveryAddress} />
+                            </div>
                           )}
                         </div>
 
@@ -786,6 +788,7 @@ export default function RestaurantMenu() {
                 </div>
               </SheetContent>
             </Sheet>
+            )}
           </div>
         </div>
       </header>
@@ -841,89 +844,91 @@ export default function RestaurantMenu() {
         </div>
       )}
 
-      {/* Menu */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Category Selector */}
-        <div className="-mx-4 mb-8">
-          <MenuCategorySelector
-            menuItems={menuItems}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-          />
-        </div>
+      {/* Menu - Hidden for Hani Sugar Art */}
+      {restaurant.id !== 'df84d31b-0214-4a78-bd37-775422949bcf' && (
+        <main className="container mx-auto px-4 py-8">
+          {/* Category Selector */}
+          <div className="-mx-4 mb-8">
+            <MenuCategorySelector
+              menuItems={menuItems}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
+          </div>
 
-        {/* Reviews Section */}
-        {reviews.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="reviews">
-                <AccordionTrigger>
-                  View {reviews.length} recent reviews
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-4">
-                    {reviews.map((review) => (
-                      <Card key={review.id}>
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <p className="font-semibold">{review.profiles.full_name}</p>
-                              <StarRating rating={review.restaurant_rating} size="sm" />
+          {/* Reviews Section */}
+          {reviews.length > 0 && (
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="reviews">
+                  <AccordionTrigger>
+                    View {reviews.length} recent reviews
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-4">
+                      {reviews.map((review) => (
+                        <Card key={review.id}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <p className="font-semibold">{review.profiles.full_name}</p>
+                                <StarRating rating={review.restaurant_rating} size="sm" />
+                              </div>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(review.created_at).toLocaleDateString()}
+                              </span>
                             </div>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(review.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                          {review.comment && (
-                            <p className="text-sm text-muted-foreground">{review.comment}</p>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        )}
-
-        {/* Menu Items */}
-        {Object.entries(groupedItems).map(([category, items]) => (
-          <div key={category} className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">{category}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {items.map((item) => (
-                <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="aspect-video relative">
-                    <img
-                      src={item.image_url}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-2 right-2 bg-white/90 rounded-full">
-                      <FavoriteButton itemId={item.id} itemType="menu_item" size="sm" />
+                            {review.comment && (
+                              <p className="text-sm text-muted-foreground">{review.comment}</p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg mb-1">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {item.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold">{item.price} MAD</span>
-                      <Button onClick={() => addToCart(item)}>
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
-          </div>
-        ))}
-      </main>
+          )}
+
+          {/* Menu Items */}
+          {Object.entries(groupedItems).map(([category, items]) => (
+            <div key={category} className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">{category}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {items.map((item) => (
+                  <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="aspect-video relative">
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-2 right-2 bg-white/90 rounded-full">
+                        <FavoriteButton itemId={item.id} itemType="menu_item" size="sm" />
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-lg mb-1">{item.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        {item.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-bold">{item.price} MAD</span>
+                        <Button onClick={() => addToCart(item)}>
+                          <Plus className="h-4 w-4 mr-1" />
+                          Add
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
+        </main>
+      )}
 
       {/* Address Selector Modal */}
       <AddressSelector
