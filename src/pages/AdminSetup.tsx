@@ -22,16 +22,29 @@ const AdminSetup = () => {
 
   const checkExistingAdmin = async () => {
     try {
-      // Check if any admin already exists
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("id")
-        .eq("role", "admin")
-        .limit(1);
+      // If logged in, check if current user is already admin
+      const { data: userRes } = await supabase.auth.getUser();
+      const currentUser = userRes?.user ?? null;
 
-      if (error) throw error;
+      if (currentUser) {
+        const { data: myRole } = await supabase
+          .from("user_roles")
+          .select("id")
+          .eq("user_id", currentUser.id)
+          .eq("role", "admin")
+          .single();
 
-      if (data && data.length > 0) {
+        if (myRole) {
+          navigate("/admin");
+          return;
+        }
+      }
+
+      // Otherwise, check if any admin exists (without exposing data)
+      const { data: hasAdmin, error: rpcError } = await supabase.rpc("admin_exists");
+      if (rpcError) throw rpcError;
+
+      if (hasAdmin) {
         toast.error("Admin account already exists. Please use /auth to login.");
         navigate("/auth");
         return;
