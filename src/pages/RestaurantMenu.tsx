@@ -844,7 +844,7 @@ export default function RestaurantMenu() {
           </div>
 
           {/* Business Info */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             {/* Opening Hours */}
             <Card>
               <CardContent className="p-6">
@@ -865,6 +865,20 @@ export default function RestaurantMenu() {
                     <span className="text-muted-foreground">Saturday - Sunday</span>
                     <span className="font-medium">2:00 PM - 11:00 PM</span>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Location */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Location
+                </h3>
+                <div className="text-sm">
+                  <p className="text-muted-foreground">Résidence bowling</p>
+                  <p className="text-muted-foreground">Bd massira, Ifrane</p>
                 </div>
               </CardContent>
             </Card>

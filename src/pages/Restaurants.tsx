@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Heart, ArrowLeft, SlidersHorizontal } from "lucide-react";
+import { Loader2, Heart, ArrowLeft, SlidersHorizontal, MapPin } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import SmartSearch from "@/components/SmartSearch";
 import FavoriteButton from "@/components/FavoriteButton";
@@ -209,6 +209,10 @@ export default function Restaurants() {
                     <div className="space-y-2 text-xs pt-2 border-t">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <span className="font-medium">Hours: Mon-Thu, Sat-Sun 2pm-11pm | Fri 3pm-12am</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="w-3 h-3" />
+                        <span>Résidence bowling, Bd massira, Ifrane</span>
                       </div>
                       <div className="flex items-start gap-1.5">
                         <span className="text-primary">✓</span>

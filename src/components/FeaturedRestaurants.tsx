@@ -134,6 +134,10 @@ const FeaturedRestaurants = () => {
                         <Clock className="w-4 h-4 text-primary" />
                         <span className="text-xs font-medium">Mon-Thu, Sat-Sun: 2pm-11pm | Fri: 3pm-12am</span>
                       </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        <span className="text-xs">Résidence bowling, Bd massira, Ifrane</span>
+                      </div>
                       <Badge variant="outline" className="text-xs capitalize">
                         {restaurant.cuisine_type}
                       </Badge>
