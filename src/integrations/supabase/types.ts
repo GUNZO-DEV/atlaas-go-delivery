@@ -1516,6 +1516,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_exists: { Args: never; Returns: boolean }
       apply_referral_code: {
         Args: { ref_code: string; user_id: string }
         Returns: boolean
