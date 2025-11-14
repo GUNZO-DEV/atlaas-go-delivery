@@ -61,65 +61,77 @@ const AdminSetup = () => {
     setLoading(true);
 
     try {
-      // Try to sign in first (user might already exist)
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Prefer existing authenticated user to avoid credential mismatches
+      const { data: userRes } = await supabase.auth.getUser();
+      let userId = userRes.user?.id as string | undefined;
 
-      let userId: string;
-
-      if (signInError?.message?.includes("Invalid login credentials")) {
-        // User doesn't exist, create new account
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+      if (!userId) {
+        // Try to sign in first (user might already exist)
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
-          options: {
-            data: {
-              full_name: fullName,
-            },
-            emailRedirectTo: `${window.location.origin}/admin`,
-          },
         });
 
-        if (signUpError) throw signUpError;
-        if (!authData.user) throw new Error("Failed to create user");
-
-        userId = authData.user.id;
-        
-        // Wait for profile trigger
-        await new Promise((resolve) => setTimeout(resolve, 800));
-      } else if (signInError) {
-        throw signInError;
-      } else {
-        // User exists and signed in successfully
-        userId = signInData.user.id;
-      }
-
-      // Check if user already has admin role
-      const { data: existingRole } = await supabase
-        .from("user_roles")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .single();
-
-      if (!existingRole) {
-        // Assign admin role
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({
-            user_id: userId,
-            role: "admin",
+        if (signInError?.message?.includes("Invalid login credentials")) {
+          // Attempt to sign up
+          const { data: authData, error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { full_name: fullName },
+              emailRedirectTo: `${window.location.origin}/admin`,
+            },
           });
 
-        if (roleError) throw roleError;
-        toast.success("Admin role assigned successfully!");
-      } else {
-        toast.success("You already have admin access!");
+          if (signUpError) {
+            if (signUpError.message?.toLowerCase().includes("already registered")) {
+              toast.error("Email already registered. Please log in.");
+              navigate("/auth");
+              return;
+            }
+            throw signUpError;
+          }
+          if (!authData.user) throw new Error("Failed to create user");
+
+          userId = authData.user.id;
+          // Ensure session is established
+          await supabase.auth.signInWithPassword({ email, password });
+          await new Promise((r) => setTimeout(r, 600));
+        } else if (signInError) {
+          throw signInError;
+        } else {
+          userId = signInData.user.id;
+        }
       }
 
-      // Redirect to admin dashboard
+      if (!userId) throw new Error("No user session. Please log in.");
+
+      // If any admin exists already and this user isn't admin, redirect to login
+      const { data: hasAdmin, error: rpcError } = await supabase.rpc("admin_exists");
+      if (rpcError) throw rpcError;
+
+      if (hasAdmin) {
+        const { data: myRole } = await supabase
+          .from("user_roles")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (!myRole) {
+          toast.error("An admin already exists. Please sign in.");
+          navigate("/auth");
+          return;
+        }
+      } else {
+        // No admin yet → assign admin role to this user (RLS policy allows first admin)
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role: "admin" });
+        if (roleError) throw roleError;
+      }
+
+      toast.success("Admin access granted!");
       navigate("/admin");
     } catch (error: any) {
       console.error("Error setting up admin:", error);
