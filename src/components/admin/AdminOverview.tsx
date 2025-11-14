@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Store, Bike, ShoppingCart, TrendingUp, Clock } from "lucide-react";
+import AdminDashboardCharts from "./AdminDashboardCharts";
 
 interface Stats {
   totalUsers: number;
@@ -129,8 +130,9 @@ const AdminOverview = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold">System Overview</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <h2 className="text-3xl font-bold">Dashboard Overview</h2>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -145,6 +147,8 @@ const AdminOverview = () => {
           </Card>
         ))}
       </div>
+
+      <AdminDashboardCharts />
     </div>
   );
 };
