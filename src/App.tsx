@@ -33,6 +33,7 @@ import Careers from "./pages/Careers";
 import RealtimeDemo from "./pages/RealtimeDemo";
 import Favorites from "./pages/Favorites";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminSetup from "./pages/AdminSetup";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/merchant-auth" element={<MerchantAuth />} />
+          <Route path="/admin/setup" element={<AdminSetup />} />
           <Route path="/rider-auth" element={<RiderAuth />} />
           <Route path="/install" element={<Install />} />
           <Route path="/partner-restaurant" element={<PartnerRestaurant />} />
