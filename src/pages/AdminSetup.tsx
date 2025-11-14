@@ -32,7 +32,7 @@ const AdminSetup = () => {
           .select("id")
           .eq("user_id", currentUser.id)
           .eq("role", "admin")
-          .single();
+          .maybeSingle();
 
         if (myRole) {
           navigate("/admin");
@@ -215,6 +215,11 @@ const AdminSetup = () => {
                 </>
               )}
             </Button>
+            <div className="mt-2 text-center">
+              <Button type="button" variant="outline" className="w-full" onClick={() => navigate('/auth')}>
+                Already have an account? Sign in
+              </Button>
+            </div>
           </form>
 
           <div className="mt-6 p-4 rounded-lg bg-muted">
