@@ -50,13 +50,13 @@ const Index = () => {
               <Card className="w-full max-w-md hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer border-primary/20" onClick={() => navigate("/restaurant")}>
                 <CardContent className="p-6">
                   <div className="relative">
-                    <img src="/images/bonsai-sushi-bar.jpg" alt="Bonsai Sushi Bar - Fresh Sushi" className="w-full h-48 object-cover rounded-lg mb-4 transition-transform" />
+                    <img src="https://images.unsplash.com/photo-1558636508-e0db3814bd1d?w=800" alt="Hani Sugar Art - Premium Desserts" className="w-full h-48 object-cover rounded-lg mb-4 transition-transform" />
                     <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                      Order Now! 🍣
+                      Order Now! 🍰
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-2 text-primary">Bonsai Sushi Bar</h3>
-                  <p className="text-muted-foreground mb-4">Fresh sushi & Japanese cuisine made to perfection. Limited availability - order now before it's too late!</p>
+                  <h3 className="text-2xl font-bold mb-2 text-primary">Hani Sugar Art</h3>
+                  <p className="text-muted-foreground mb-4">Exquisite cakes, pastries & custom desserts crafted with love. Order your sweet masterpiece today!</p>
                   <Button className="w-full" size="lg" variant="default">
                     Order Now - Don't Miss Out!
                   </Button>
