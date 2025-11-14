@@ -16,12 +16,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Store, Bike } from "lucide-react";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 import { useLanguage } from "@/contexts/LanguageContext";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
+
 const Index = () => {
   const navigate = useNavigate();
   const {
     t
   } = useLanguage();
   return <div className="min-h-screen">
+      <AnnouncementBanner />
       <Hero />
       <FeaturedRestaurants />
       
