@@ -48,48 +48,69 @@ const AdminSetup = () => {
     setLoading(true);
 
     try {
-      // Sign up the admin user
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+      // Try to sign in first (user might already exist)
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          data: {
-            full_name: fullName,
+      });
+
+      let userId: string;
+
+      if (signInError?.message?.includes("Invalid login credentials")) {
+        // User doesn't exist, create new account
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+            },
+            emailRedirectTo: `${window.location.origin}/admin`,
           },
-          emailRedirectTo: `${window.location.origin}/admin`,
-        },
-      });
-
-      if (signUpError) throw signUpError;
-      if (!authData.user) throw new Error("Failed to create user");
-
-      // Ensure we're authenticated before inserting role
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (signInError) throw signInError;
-
-      // Wait a bit for the trigger to create the profile
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      // Assign admin role (first admin policy allows this)
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .insert({
-          user_id: authData.user.id,
-          role: "admin",
         });
 
-      if (roleError) throw roleError;
+        if (signUpError) throw signUpError;
+        if (!authData.user) throw new Error("Failed to create user");
 
-      toast.success("Admin account created successfully!");
+        userId = authData.user.id;
+        
+        // Wait for profile trigger
+        await new Promise((resolve) => setTimeout(resolve, 800));
+      } else if (signInError) {
+        throw signInError;
+      } else {
+        // User exists and signed in successfully
+        userId = signInData.user.id;
+      }
+
+      // Check if user already has admin role
+      const { data: existingRole } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .single();
+
+      if (!existingRole) {
+        // Assign admin role
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({
+            user_id: userId,
+            role: "admin",
+          });
+
+        if (roleError) throw roleError;
+        toast.success("Admin role assigned successfully!");
+      } else {
+        toast.success("You already have admin access!");
+      }
 
       // Redirect to admin dashboard
       navigate("/admin");
     } catch (error: any) {
-      console.error("Error creating admin:", error);
-      toast.error(error.message || "Failed to create admin account");
+      console.error("Error setting up admin:", error);
+      toast.error(error.message || "Failed to set up admin account");
     } finally {
       setLoading(false);
     }
