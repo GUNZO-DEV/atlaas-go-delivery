@@ -794,27 +794,27 @@ export default function RestaurantMenu() {
       </header>
 
       {/* Restaurant Hero */}
-      <div className="relative h-48 md:h-64">
+      <div className="relative h-56 sm:h-64 md:h-72 lg:h-80">
         <img
           src={restaurant.image_url}
           alt={restaurant.name}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          <h1 className="text-3xl font-bold mb-2">{restaurant.name}</h1>
-          <div className="flex items-center gap-4 mb-2">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">{restaurant.name}</h1>
+          <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-2">
             <StarRating rating={restaurant.average_rating || 0} size="md" showNumber />
-            <span className="text-sm">({restaurant.review_count || 0} reviews)</span>
+            <span className="text-xs md:text-sm">({restaurant.review_count || 0} reviews)</span>
           </div>
-          <p className="text-sm mb-2">{restaurant.description}</p>
-          <div className="flex items-center gap-4 text-sm">
+          <p className="text-xs md:text-sm mb-2 line-clamp-2">{restaurant.description}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs md:text-sm">
             <span className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
-              {restaurant.address}
+              <MapPin className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="line-clamp-1">{restaurant.address}</span>
             </span>
             <span className="flex items-center gap-1">
-              <Phone className="h-4 w-4" />
+              <Phone className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               {restaurant.phone}
             </span>
           </div>
@@ -823,22 +823,22 @@ export default function RestaurantMenu() {
 
       {/* WhatsApp Button & Info - Hani Sugar Art Only */}
       {restaurant.id === 'df84d31b-0214-4a78-bd37-775422949bcf' && (
-        <div className="container mx-auto px-4 py-6 space-y-6">
+        <div className="container mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
           {/* WhatsApp CTA */}
-          <div className="bg-green-50 dark:bg-green-950 border-2 border-green-500 rounded-lg p-6">
-            <div className="text-center space-y-3">
-              <h3 className="text-lg font-semibold">Order via WhatsApp</h3>
-              <p className="text-sm text-muted-foreground">
+          <div className="bg-green-50 dark:bg-green-950 border-2 border-green-500 rounded-lg p-4 md:p-6">
+            <div className="text-center space-y-2 md:space-y-3">
+              <h3 className="text-base md:text-lg font-semibold">Order via WhatsApp</h3>
+              <p className="text-xs md:text-sm text-muted-foreground">
                 Chat with us directly to see today's menu and place your order
               </p>
               <a
                 href="https://wa.me/212648760698?text=Hello%20Hani%20Sugar%20Art%2C%20I%20want%20to%20place%20an%20order."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-green-600 hover:bg-green-700 text-white h-11 px-8 w-full md:w-auto animate-pulse hover:animate-none hover:scale-105 transition-transform shadow-lg hover:shadow-xl"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-green-600 hover:bg-green-700 text-white h-11 px-6 md:px-8 w-full md:w-auto animate-pulse hover:animate-none hover:scale-105 transition-transform shadow-lg hover:shadow-xl"
               >
-                <Phone className="h-5 w-5 mr-2" />
-                View Menu & Order via WhatsApp
+                <Phone className="h-4 w-4 md:h-5 md:w-5" />
+                <span className="text-xs md:text-sm">View Menu & Order via WhatsApp</span>
               </a>
             </div>
           </div>
