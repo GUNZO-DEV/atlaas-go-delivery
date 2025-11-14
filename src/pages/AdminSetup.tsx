@@ -63,10 +63,17 @@ const AdminSetup = () => {
       if (signUpError) throw signUpError;
       if (!authData.user) throw new Error("Failed to create user");
 
-      // Wait a bit for the trigger to create the profile
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Ensure we're authenticated before inserting role
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) throw signInError;
 
-      // Assign admin role
+      // Wait a bit for the trigger to create the profile
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // Assign admin role (first admin policy allows this)
       const { error: roleError } = await supabase
         .from("user_roles")
         .insert({
@@ -77,14 +84,6 @@ const AdminSetup = () => {
       if (roleError) throw roleError;
 
       toast.success("Admin account created successfully!");
-      
-      // Sign in the user
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) throw signInError;
 
       // Redirect to admin dashboard
       navigate("/admin");
