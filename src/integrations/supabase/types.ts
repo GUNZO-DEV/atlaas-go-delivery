@@ -732,6 +732,30 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_settings: {
+        Row: {
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       prime_memberships: {
         Row: {
           cancelled_at: string | null
@@ -1024,6 +1048,8 @@ export type Database = {
           phone: string
           review_count: number | null
           updated_at: string
+          whatsapp_enabled: boolean | null
+          whatsapp_number: string | null
         }
         Insert: {
           address: string
@@ -1042,6 +1068,8 @@ export type Database = {
           phone: string
           review_count?: number | null
           updated_at?: string
+          whatsapp_enabled?: boolean | null
+          whatsapp_number?: string | null
         }
         Update: {
           address?: string
@@ -1060,6 +1088,8 @@ export type Database = {
           phone?: string
           review_count?: number | null
           updated_at?: string
+          whatsapp_enabled?: boolean | null
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
@@ -1252,7 +1282,9 @@ export type Database = {
         Row: {
           city: string
           created_at: string
+          driver_license_url: string | null
           id: string
+          id_card_url: string | null
           is_available: boolean | null
           license_number: string
           phone: string
@@ -1265,12 +1297,15 @@ export type Database = {
           total_deliveries: number | null
           updated_at: string
           vehicle_plate_number: string
+          vehicle_registration_url: string | null
           vehicle_type: string
         }
         Insert: {
           city: string
           created_at?: string
+          driver_license_url?: string | null
           id?: string
+          id_card_url?: string | null
           is_available?: boolean | null
           license_number: string
           phone: string
@@ -1283,12 +1318,15 @@ export type Database = {
           total_deliveries?: number | null
           updated_at?: string
           vehicle_plate_number: string
+          vehicle_registration_url?: string | null
           vehicle_type: string
         }
         Update: {
           city?: string
           created_at?: string
+          driver_license_url?: string | null
           id?: string
+          id_card_url?: string | null
           is_available?: boolean | null
           license_number?: string
           phone?: string
@@ -1301,6 +1339,7 @@ export type Database = {
           total_deliveries?: number | null
           updated_at?: string
           vehicle_plate_number?: string
+          vehicle_registration_url?: string | null
           vehicle_type?: string
         }
         Relationships: []
