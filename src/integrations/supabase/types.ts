@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          target_id: string | null
+          target_type: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           created_at: string | null
@@ -1564,6 +1597,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      log_admin_action: {
+        Args: {
+          p_action: string
+          p_details?: Json
+          p_target_id?: string
+          p_target_type?: string
+        }
+        Returns: string
+      }
       redeem_reward: {
         Args: { p_reward_id: string; p_user_id: string }
         Returns: string
@@ -1599,7 +1641,7 @@ export type Database = {
         | "cancelled"
         | "picking_it_up"
       payment_method_type: "cash" | "card" | "cih_pay" | "wallet"
-      user_role: "customer" | "merchant" | "rider" | "admin"
+      user_role: "customer" | "merchant" | "rider" | "admin" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1746,7 +1788,7 @@ export const Constants = {
         "picking_it_up",
       ],
       payment_method_type: ["cash", "card", "cih_pay", "wallet"],
-      user_role: ["customer", "merchant", "rider", "admin"],
+      user_role: ["customer", "merchant", "rider", "admin", "super_admin"],
     },
   },
 } as const
