@@ -797,7 +797,11 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string | null
           avatar_url: string | null
+          block_reason: string | null
+          blocked_at: string | null
+          blocked_by: string | null
           created_at: string
           full_name: string | null
           id: string
@@ -812,7 +816,11 @@ export type Database = {
           wallet_balance: number | null
         }
         Insert: {
+          account_status?: string | null
           avatar_url?: string | null
+          block_reason?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
           created_at?: string
           full_name?: string | null
           id: string
@@ -827,7 +835,11 @@ export type Database = {
           wallet_balance?: number | null
         }
         Update: {
+          account_status?: string | null
           avatar_url?: string | null
+          block_reason?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
           created_at?: string
           full_name?: string | null
           id?: string

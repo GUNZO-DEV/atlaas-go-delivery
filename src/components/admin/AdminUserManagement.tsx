@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Users, Ban, CheckCircle } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { BlockUserDialog } from "./BlockUserDialog";
 
 interface User {
   id: string;
@@ -22,12 +24,16 @@ interface User {
   is_prime_member: boolean;
   loyalty_points: number;
   roles: string[];
+  account_status: string;
+  block_reason: string | null;
 }
 
 const AdminUserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [blockDialogOpen, setBlockDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -62,6 +68,8 @@ const AdminUserManagement = () => {
         is_prime_member: profile.is_prime_member,
         loyalty_points: profile.loyalty_points,
         roles: rolesMap[profile.id] || [],
+        account_status: profile.account_status || "active",
+        block_reason: profile.block_reason,
       })) || [];
 
       setUsers(usersWithDetails);
@@ -113,9 +121,11 @@ const AdminUserManagement = () => {
                 <TableHead>User ID</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Roles</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Prime</TableHead>
                 <TableHead>Points</TableHead>
                 <TableHead>Joined</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -134,6 +144,11 @@ const AdminUserManagement = () => {
                     </div>
                   </TableCell>
                   <TableCell>
+                    <Badge variant={user.account_status === "blocked" ? "destructive" : "default"}>
+                      {user.account_status === "blocked" ? "Blocked" : "Active"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     {user.is_prime_member ? (
                       <Badge>Prime</Badge>
                     ) : (
@@ -143,6 +158,28 @@ const AdminUserManagement = () => {
                   <TableCell>{user.loyalty_points}</TableCell>
                   <TableCell>
                     {new Date(user.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      size="sm"
+                      variant={user.account_status === "blocked" ? "default" : "destructive"}
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setBlockDialogOpen(true);
+                      }}
+                    >
+                      {user.account_status === "blocked" ? (
+                        <>
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Unblock
+                        </>
+                      ) : (
+                        <>
+                          <Ban className="h-3 w-3 mr-1" />
+                          Block
+                        </>
+                      )}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -155,6 +192,17 @@ const AdminUserManagement = () => {
         <div className="text-center py-8 text-muted-foreground">
           No users found matching your search
         </div>
+      )}
+
+      {selectedUser && (
+        <BlockUserDialog
+          open={blockDialogOpen}
+          onOpenChange={setBlockDialogOpen}
+          userId={selectedUser.id}
+          userName={selectedUser.full_name}
+          currentStatus={selectedUser.account_status}
+          onSuccess={fetchUsers}
+        />
       )}
     </div>
   );
