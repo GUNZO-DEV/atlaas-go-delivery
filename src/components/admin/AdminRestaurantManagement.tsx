@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CreateRestaurantDialog } from "./CreateRestaurantDialog";
-import { Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,8 +41,6 @@ const AdminRestaurantManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState("");
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchRestaurants();
@@ -145,15 +141,9 @@ const AdminRestaurantManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Store className="h-8 w-8" />
-          <h2 className="text-3xl font-bold">Restaurant Management</h2>
-        </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Restaurant
-        </Button>
+      <div className="flex items-center gap-2">
+        <Store className="h-8 w-8" />
+        <h2 className="text-3xl font-bold">Restaurant Management</h2>
       </div>
 
       <div className="relative">
@@ -259,12 +249,6 @@ const AdminRestaurantManagement = () => {
           )}
         </CardContent>
       </Card>
-
-      <CreateRestaurantDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onSuccess={fetchRestaurants}
-      />
     </div>
   );
 };
