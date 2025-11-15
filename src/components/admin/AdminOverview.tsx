@@ -13,7 +13,6 @@ interface Stats {
   pendingRiders: number;
   todayOrders: number;
   totalRevenue: number;
-  ongoingDeliveries: number;
 }
 
 const AdminOverview = () => {
@@ -26,7 +25,6 @@ const AdminOverview = () => {
     pendingRiders: 0,
     todayOrders: 0,
     totalRevenue: 0,
-    ongoingDeliveries: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -45,7 +43,6 @@ const AdminOverview = () => {
         { count: pendingRiders },
         { data: todayOrdersData },
         { data: revenueData },
-        { count: ongoingDeliveries },
       ] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
         supabase.from("restaurants").select("*", { count: "exact", head: true }),
@@ -55,7 +52,6 @@ const AdminOverview = () => {
         supabase.from("rider_profiles").select("*", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("orders").select("id").gte("created_at", new Date().toISOString().split('T')[0]),
         supabase.from("orders").select("total_amount").eq("status", "delivered"),
-        supabase.from("orders").select("*", { count: "exact", head: true }).in("status", ["preparing", "ready_for_pickup", "picked_up", "delivering"]),
       ]);
 
       const revenue = revenueData?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
@@ -69,7 +65,6 @@ const AdminOverview = () => {
         pendingRiders: pendingRiders || 0,
         todayOrders: todayOrdersData?.length || 0,
         totalRevenue: revenue,
-        ongoingDeliveries: ongoingDeliveries || 0,
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -130,12 +125,6 @@ const AdminOverview = () => {
       value: `${stats.totalRevenue.toFixed(2)} MAD`,
       icon: TrendingUp,
       color: "text-emerald-600",
-    },
-    {
-      title: "Ongoing Deliveries",
-      value: stats.ongoingDeliveries,
-      icon: Bike,
-      color: "text-teal-600",
     },
   ];
 
