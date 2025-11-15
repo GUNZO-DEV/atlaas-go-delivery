@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, UserPlus, XCircle, DollarSign } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,21 +13,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AssignRiderDialog } from "./AssignRiderDialog";
+import { CancelOrderDialog } from "./CancelOrderDialog";
+import { RefundOrderDialog } from "./RefundOrderDialog";
 
 interface Order {
   id: string;
   created_at: string;
   status: string;
   total_amount: number;
+  customer_id: string;
   customer_name: string;
   restaurant_name: string;
   delivery_address: string;
+  rider_id: string | null;
+  payment_status: string;
 }
 
 const AdminOrdersManagement = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [assignRiderOpen, setAssignRiderOpen] = useState(false);
+  const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
+  const [refundOrderOpen, setRefundOrderOpen] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -42,6 +53,9 @@ const AdminOrdersManagement = () => {
           status,
           total_amount,
           delivery_address,
+          customer_id,
+          rider_id,
+          payment_status,
           profiles!orders_customer_id_fkey(full_name),
           restaurants(name)
         `)
@@ -56,8 +70,11 @@ const AdminOrdersManagement = () => {
         status: order.status,
         total_amount: order.total_amount,
         delivery_address: order.delivery_address,
+        customer_id: order.customer_id,
         customer_name: order.profiles?.full_name || "Unknown",
         restaurant_name: order.restaurants?.name || "Unknown",
+        rider_id: order.rider_id,
+        payment_status: order.payment_status || "pending",
       })) || [];
 
       setOrders(formattedOrders);
@@ -116,6 +133,7 @@ const AdminOrdersManagement = () => {
                 <TableHead>Status</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -131,6 +149,46 @@ const AdminOrdersManagement = () => {
                   <TableCell>
                     {new Date(order.created_at).toLocaleDateString()}
                   </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      {!order.rider_id && order.status !== "cancelled" && order.status !== "delivered" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setAssignRiderOpen(true);
+                          }}
+                        >
+                          <UserPlus className="h-3 w-3" />
+                        </Button>
+                      )}
+                      {order.status !== "cancelled" && order.status !== "delivered" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setCancelOrderOpen(true);
+                          }}
+                        >
+                          <XCircle className="h-3 w-3" />
+                        </Button>
+                      )}
+                      {order.payment_status === "paid" && order.status !== "cancelled" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setRefundOrderOpen(true);
+                          }}
+                        >
+                          <DollarSign className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -142,6 +200,34 @@ const AdminOrdersManagement = () => {
         <div className="text-center py-8 text-muted-foreground">
           No orders found
         </div>
+      )}
+
+      {selectedOrder && (
+        <>
+          <AssignRiderDialog
+            open={assignRiderOpen}
+            onOpenChange={setAssignRiderOpen}
+            orderId={selectedOrder.id}
+            onSuccess={fetchOrders}
+          />
+          <CancelOrderDialog
+            open={cancelOrderOpen}
+            onOpenChange={setCancelOrderOpen}
+            orderId={selectedOrder.id}
+            customerId={selectedOrder.customer_id}
+            totalAmount={selectedOrder.total_amount}
+            paymentStatus={selectedOrder.payment_status}
+            onSuccess={fetchOrders}
+          />
+          <RefundOrderDialog
+            open={refundOrderOpen}
+            onOpenChange={setRefundOrderOpen}
+            orderId={selectedOrder.id}
+            customerId={selectedOrder.customer_id}
+            totalAmount={selectedOrder.total_amount}
+            onSuccess={fetchOrders}
+          />
+        </>
       )}
     </div>
   );
