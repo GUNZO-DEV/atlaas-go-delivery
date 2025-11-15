@@ -13,10 +13,12 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     loading: boolean;
     authenticated: boolean;
     authorized: boolean;
+    noAdminExists?: boolean;
   }>({
     loading: true,
     authenticated: false,
     authorized: false,
+    noAdminExists: false,
   });
 
   useEffect(() => {
@@ -46,12 +48,22 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
 
       if (error) throw error;
 
-      const hasRole = roles?.some(r => r.role === requiredRole);
+      const hasRole = roles?.some(r => r.role === requiredRole) || false;
+
+      // If admin role required and user doesn't have it, check if any admin exists
+      let noAdminExists = false;
+      if (requiredRole === 'admin' && !hasRole) {
+        const { data: hasAdmin, error: rpcError } = await supabase.rpc('admin_exists');
+        if (!rpcError) {
+          noAdminExists = !hasAdmin;
+        }
+      }
       
       setAuthState({
         loading: false,
         authenticated: true,
-        authorized: hasRole || false,
+        authorized: hasRole,
+        noAdminExists,
       });
     } catch (error) {
       console.error("Auth check error:", error);
@@ -72,7 +84,9 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   }
 
   if (requiredRole && !authState.authorized) {
-    // Redirect to their appropriate dashboard based on available roles
+    if (requiredRole === 'admin' && authState.noAdminExists) {
+      return <Navigate to="/admin/setup" replace />;
+    }
     return <Navigate to="/" replace />;
   }
 
