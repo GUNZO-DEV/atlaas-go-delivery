@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CreateMenuItemDialog } from "./CreateMenuItemDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ const AdminMenuManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>("all");
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -194,6 +196,12 @@ const AdminMenuManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      <CreateMenuItemDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={fetchData}
+      />
     </div>
   );
 };
