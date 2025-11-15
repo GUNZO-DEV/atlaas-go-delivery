@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tag, Calendar, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tag, Calendar, TrendingUp, Plus } from "lucide-react";
+import { CreatePromotionDialog } from "./CreatePromotionDialog";
 
 interface Promotion {
   id: string;
@@ -24,6 +26,7 @@ interface Promotion {
 const AdminPromotions = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchPromotions();
@@ -54,7 +57,13 @@ const AdminPromotions = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold">Promotions Overview</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold">Promotions Overview</h2>
+        <Button onClick={() => setCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Promotion
+        </Button>
+      </div>
 
       <div className="grid gap-6">
         {promotions.map((promo) => (
@@ -121,6 +130,12 @@ const AdminPromotions = () => {
           </Card>
         )}
       </div>
+
+      <CreatePromotionDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={fetchPromotions}
+      />
     </div>
   );
 };
