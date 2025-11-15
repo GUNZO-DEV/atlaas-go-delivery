@@ -3,7 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Users, UserCog } from "lucide-react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -12,6 +14,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface User {
   id: string;
@@ -28,6 +40,8 @@ const AdminUserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showPromoteDialog, setShowPromoteDialog] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -69,6 +83,34 @@ const AdminUserManagement = () => {
       console.error("Error fetching users:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePromoteToAdmin = async (user: User) => {
+    setSelectedUser(user);
+    setShowPromoteDialog(true);
+  };
+
+  const confirmPromoteToAdmin = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const { error } = await supabase
+        .from("user_roles")
+        .insert({
+          user_id: selectedUser.id,
+          role: "admin",
+        });
+
+      if (error) throw error;
+
+      toast.success(`${selectedUser.full_name} has been promoted to admin`);
+      setShowPromoteDialog(false);
+      setSelectedUser(null);
+      fetchUsers(); // Refresh the list
+    } catch (error: any) {
+      console.error("Error promoting user:", error);
+      toast.error(error.message || "Failed to promote user to admin");
     }
   };
 
@@ -116,6 +158,7 @@ const AdminUserManagement = () => {
                 <TableHead>Prime</TableHead>
                 <TableHead>Points</TableHead>
                 <TableHead>Joined</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -144,6 +187,18 @@ const AdminUserManagement = () => {
                   <TableCell>
                     {new Date(user.created_at).toLocaleDateString()}
                   </TableCell>
+                  <TableCell>
+                    {!user.roles.includes("admin") && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePromoteToAdmin(user)}
+                      >
+                        <UserCog className="h-4 w-4 mr-2" />
+                        Make Admin
+                      </Button>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -156,6 +211,26 @@ const AdminUserManagement = () => {
           No users found matching your search
         </div>
       )}
+
+      <AlertDialog open={showPromoteDialog} onOpenChange={setShowPromoteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Promote to Admin</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to promote <strong>{selectedUser?.full_name}</strong> to admin?
+              This will give them full access to the admin dashboard and all management features.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedUser(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPromoteToAdmin}>
+              Promote to Admin
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
