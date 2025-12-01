@@ -35,8 +35,8 @@ const Index = () => {
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4 px-4">{t('order.title')}</h2>
             <p className="text-muted-foreground text-sm md:text-base px-4">{t('order.subtitle')}</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-6xl mx-auto">
-            <Card className="w-full max-w-md hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer" onClick={() => navigate("/restaurants")}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-w-7xl mx-auto">
+            <Card className="w-full hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer" onClick={() => navigate("/restaurants")}>
                 <CardContent className="p-6">
                   <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" alt="Browse Restaurants" className="w-full h-48 object-cover rounded-lg mb-4 transition-transform" />
                   <h3 className="text-2xl font-bold mb-2">{t('order.browseTitle')}</h3>
@@ -46,8 +46,28 @@ const Index = () => {
                   </Button>
                 </CardContent>
               </Card>
+
+              <Card className="w-full hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer border-green-500/30 bg-gradient-to-br from-background to-green-50/10" onClick={() => navigate("/auier-delivery")}>
+                <CardContent className="p-6">
+                  <div className="relative">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800" alt="AUIER Campus Delivery" className="w-full h-48 object-cover rounded-lg mb-4 transition-transform" />
+                    <div className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                      Students Only 🎓
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2 text-green-600">AUIER Delivery</h3>
+                  <p className="text-muted-foreground mb-2">Campus delivery from 20 dh - Fast & affordable</p>
+                  <div className="flex gap-2 text-xs text-muted-foreground mb-4">
+                    <span>• Restaurant to Dorm: 35 dh</span>
+                    <span>• Main Gate to Dorm: 20 dh</span>
+                  </div>
+                  <Button className="w-full bg-green-600 hover:bg-green-700" size="lg">
+                    Order for Campus
+                  </Button>
+                </CardContent>
+              </Card>
               
-              <Card className="w-full max-w-md hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer border-primary/20" onClick={() => navigate("/restaurant")}>
+              <Card className="w-full hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer border-primary/20" onClick={() => navigate("/restaurant")}>
                 <CardContent className="p-6">
                   <div className="relative">
                     <img src="https://images.unsplash.com/photo-1558636508-e0db3814bd1d?w=800" alt="Hani Sugar Art - Premium Desserts" className="w-full h-48 object-cover rounded-lg mb-4 transition-transform" />

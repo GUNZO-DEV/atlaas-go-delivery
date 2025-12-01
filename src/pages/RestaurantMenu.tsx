@@ -110,10 +110,21 @@ export default function RestaurantMenu() {
   const [itemInstructions, setItemInstructions] = useState<Record<string, string>>({});
   const [addressSelectorOpen, setAddressSelectorOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [auierDelivery, setAuierDelivery] = useState<{
+    isAuier: boolean;
+    deliveryType: string;
+    deliveryFee: number;
+  } | null>(null);
 
   useEffect(() => {
     checkAuth();
     fetchRestaurantAndMenu();
+    
+    // Check for AUIER delivery settings
+    const auierSettings = localStorage.getItem("auierDelivery");
+    if (auierSettings) {
+      setAuierDelivery(JSON.parse(auierSettings));
+    }
     
     // Handle reorder if coming from customer dashboard
     if (location.state?.reorderItems) {
@@ -335,7 +346,8 @@ export default function RestaurantMenu() {
 
   const getTotal = () => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const deliveryFee = 15;
+    // Use AUIER delivery fee if applicable, otherwise default to 15
+    const deliveryFee = auierDelivery?.deliveryFee || 15;
     let discount = 0;
     
     if (appliedPromo) {
@@ -753,7 +765,14 @@ export default function RestaurantMenu() {
                           <span>{getTotal().subtotal.toFixed(2)} MAD</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span>Delivery Fee</span>
+                          <span>
+                            Delivery Fee
+                            {auierDelivery && (
+                              <span className="ml-2 text-xs text-muted-foreground">
+                                ({auierDelivery.deliveryType === "restaurant" ? "Restaurant to Dorm" : "Main Gate to Dorm"})
+                              </span>
+                            )}
+                          </span>
                           <span>{getTotal().deliveryFee} MAD</span>
                         </div>
                         {appliedPromo && (

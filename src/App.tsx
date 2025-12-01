@@ -34,6 +34,7 @@ import RealtimeDemo from "./pages/RealtimeDemo";
 import Favorites from "./pages/Favorites";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminSetup from "./pages/AdminSetup";
+import AuierDelivery from "./pages/AuierDelivery";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
           <Route path="/install" element={<Install />} />
           <Route path="/partner-restaurant" element={<PartnerRestaurant />} />
           <Route path="/restaurants" element={<Restaurants />} />
+          <Route path="/auier-delivery" element={<AuierDelivery />} />
           <Route path="/customer" element={<ProtectedRoute requiredRole="customer"><CustomerDashboard /></ProtectedRoute>} />
           <Route path="/merchant" element={<ProtectedRoute requiredRole="merchant"><MerchantDashboard /></ProtectedRoute>} />
           <Route path="/rider" element={<ProtectedRoute requiredRole="rider"><RiderDashboard /></ProtectedRoute>} />
