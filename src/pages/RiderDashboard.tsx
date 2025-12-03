@@ -413,6 +413,21 @@ export default function RiderDashboard() {
 
   const completeAuierOrder = async (orderId: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get the order to retrieve the delivery fee
+      const { data: orderData, error: fetchError } = await supabase
+        .from("auier_orders" as any)
+        .select("delivery_fee")
+        .eq("id", orderId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const deliveryFee = (orderData as any)?.delivery_fee || 0;
+
+      // Update order status
       const { error } = await supabase
         .from("auier_orders" as any)
         .update({ status: "completed", completed_at: new Date().toISOString() })
@@ -420,9 +435,30 @@ export default function RiderDashboard() {
 
       if (error) throw error;
 
+      // Record rider earnings - base fee of 10 MAD + 50% of delivery fee
+      const baseFee = 10;
+      const distanceBonus = deliveryFee * 0.5;
+      const totalEarned = baseFee + distanceBonus;
+
+      const { error: earningsError } = await supabase
+        .from("rider_earnings")
+        .insert({
+          rider_id: user.id,
+          order_id: orderId,
+          base_fee: baseFee,
+          distance_bonus: distanceBonus,
+          tip_amount: 0,
+          total_earned: totalEarned,
+          paid_out: false
+        });
+
+      if (earningsError) {
+        console.error("Error recording earnings:", earningsError);
+      }
+
       toast({
         title: "Success",
-        description: "AUIER delivery completed!",
+        description: `AUIER delivery completed! You earned ${totalEarned.toFixed(2)} MAD`,
       });
       fetchAuierOrders();
     } catch (error: any) {
