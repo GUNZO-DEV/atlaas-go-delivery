@@ -344,13 +344,13 @@ export default function RiderDashboard() {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from("auier_orders")
+        .from("auier_orders" as any)
         .select("*")
         .or(`rider_id.eq.${user.id},status.eq.pending`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setAuierOrders((data as AuierOrder[]) || []);
+      setAuierOrders((data as unknown as AuierOrder[]) || []);
     } catch (error: any) {
       console.error("Error fetching AUIER orders:", error);
     }
@@ -391,7 +391,7 @@ export default function RiderDashboard() {
       if (!user) return;
 
       const { error } = await supabase
-        .from("auier_orders")
+        .from("auier_orders" as any)
         .update({ rider_id: user.id, status: "accepted" })
         .eq("id", orderId);
 
@@ -414,7 +414,7 @@ export default function RiderDashboard() {
   const completeAuierOrder = async (orderId: string) => {
     try {
       const { error } = await supabase
-        .from("auier_orders")
+        .from("auier_orders" as any)
         .update({ status: "completed", completed_at: new Date().toISOString() })
         .eq("id", orderId);
 
