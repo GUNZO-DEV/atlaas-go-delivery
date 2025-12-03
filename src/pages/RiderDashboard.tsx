@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Navigation, Package, DollarSign, Clock, CheckCircle, XCircle, AlertTriangle, Settings, MessageCircle } from "lucide-react";
+import { Loader2, MapPin, Navigation, Package, DollarSign, Clock, CheckCircle, XCircle, AlertTriangle, Settings, MessageCircle, GraduationCap, Phone, Building } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import OrderChat from "@/components/OrderChat";
 import SupportTicketDialog from "@/components/SupportTicketDialog";
@@ -36,12 +36,28 @@ interface Order {
   };
 }
 
+interface AuierOrder {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  room_number: string;
+  building_name: string;
+  restaurant_name: string;
+  order_details: string;
+  delivery_type: string;
+  delivery_fee: number;
+  status: string;
+  rider_id: string | null;
+  created_at: string;
+}
+
 export default function RiderDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [riderProfile, setRiderProfile] = useState<any>(null);
   const [profileStatus, setProfileStatus] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [auierOrders, setAuierOrders] = useState<AuierOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     todayDeliveries: 0,
@@ -52,7 +68,7 @@ export default function RiderDashboard() {
   });
   const [isAvailable, setIsAvailable] = useState(false);
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
-  const [tab, setTab] = useState<'available' | 'active' | 'completed'>('available');
+  const [tab, setTab] = useState<'available' | 'active' | 'completed' | 'auier'>('available');
   const hasRequestedLocationRef = useRef(false);
   
   // Get active order ID for location tracking
@@ -70,8 +86,10 @@ export default function RiderDashboard() {
     checkAuth();
     checkRiderProfile();
     fetchOrders();
+    fetchAuierOrders();
     fetchTotalEarnings();
     setupRealtimeSubscription();
+    setupAuierRealtimeSubscription();
     checkLocationPermission();
   }, []);
 
@@ -318,6 +336,102 @@ export default function RiderDashboard() {
         supabase.removeChannel(channel);
       };
     });
+  };
+
+  const fetchAuierOrders = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("auier_orders")
+        .select("*")
+        .or(`rider_id.eq.${user.id},status.eq.pending`)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setAuierOrders((data as AuierOrder[]) || []);
+    } catch (error: any) {
+      console.error("Error fetching AUIER orders:", error);
+    }
+  };
+
+  const setupAuierRealtimeSubscription = () => {
+    const channel = supabase
+      .channel("auier-orders")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "auier_orders",
+        },
+        (payload) => {
+          console.log('[Rider] AUIER Order updated:', payload);
+          fetchAuierOrders();
+          
+          if (payload.eventType === 'INSERT') {
+            toast({
+              title: "New AUIER Order!",
+              description: "A new campus delivery is available",
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const acceptAuierOrder = async (orderId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from("auier_orders")
+        .update({ rider_id: user.id, status: "accepted" })
+        .eq("id", orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "AUIER order accepted! Contact the customer.",
+      });
+      fetchAuierOrders();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const completeAuierOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from("auier_orders")
+        .update({ status: "completed", completed_at: new Date().toISOString() })
+        .eq("id", orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "AUIER delivery completed!",
+      });
+      fetchAuierOrders();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const acceptOrder = async (orderId: string) => {
@@ -783,8 +897,17 @@ export default function RiderDashboard() {
             </div>
 
             <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="available">Available</TabsTrigger>
+            <TabsTrigger value="auier" className="flex items-center gap-1">
+              <GraduationCap className="h-4 w-4" />
+              AUIER
+              {auierOrders.filter(o => o.status === 'pending' && !o.rider_id).length > 0 && (
+                <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {auierOrders.filter(o => o.status === 'pending' && !o.rider_id).length}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="active">Active</TabsTrigger>
             <TabsTrigger value="completed">Completed</TabsTrigger>
           </TabsList>
@@ -826,6 +949,119 @@ export default function RiderDashboard() {
                     </div>
                     <Button className="w-full" onClick={() => acceptOrder(order.id)}>
                       Accept Delivery
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+          </TabsContent>
+
+          <TabsContent value="auier" className="space-y-4">
+            {/* Pending AUIER Orders */}
+            {auierOrders.filter(o => o.status === 'pending' && !o.rider_id).length === 0 && 
+             auierOrders.filter(o => o.status === 'accepted' && o.rider_id).length === 0 && (
+              <Card>
+                <CardContent className="pt-6 text-center text-muted-foreground">
+                  <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No AUIER campus orders available right now</p>
+                </CardContent>
+              </Card>
+            )}
+            
+            {auierOrders
+              .filter((o) => o.status === "pending" && !o.rider_id)
+              .map((order) => (
+                <Card key={order.id} className="border-primary/50">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="h-5 w-5 text-primary" />
+                        <div>
+                          <CardTitle className="text-lg">AUIER Campus Order</CardTitle>
+                          <CardDescription>{order.restaurant_name}</CardDescription>
+                        </div>
+                      </div>
+                      <Badge className="bg-primary">{order.delivery_fee} DH</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="bg-muted/50 p-3 rounded-lg">
+                      <p className="text-sm font-medium mb-1">Order Details:</p>
+                      <p className="text-sm text-muted-foreground">{order.order_details}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">Building {order.building_name}, Room {order.room_number}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <a href={`tel:${order.customer_phone}`} className="text-sm text-primary hover:underline">
+                          {order.customer_phone}
+                        </a>
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm">
+                      <span className="font-medium">Customer: </span>
+                      <span className="text-muted-foreground">{order.customer_name}</span>
+                    </div>
+                    
+                    <div className="text-xs text-muted-foreground">
+                      {order.delivery_type === 'restaurant_to_dorm' ? 'Restaurant → Dorm' : 'Main Gate → Dorm'}
+                    </div>
+                    
+                    <Button className="w-full" onClick={() => acceptAuierOrder(order.id)}>
+                      Accept AUIER Order
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            
+            {/* My Active AUIER Orders */}
+            {auierOrders
+              .filter((o) => o.status === "accepted")
+              .map((order) => (
+                <Card key={order.id} className="border-blue-500/50">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="h-5 w-5 text-blue-500" />
+                        <div>
+                          <CardTitle className="text-lg">Active AUIER Delivery</CardTitle>
+                          <CardDescription>{order.restaurant_name}</CardDescription>
+                        </div>
+                      </div>
+                      <Badge className="bg-blue-500">In Progress</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="bg-muted/50 p-3 rounded-lg">
+                      <p className="text-sm font-medium mb-1">Order Details:</p>
+                      <p className="text-sm text-muted-foreground">{order.order_details}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">Building {order.building_name}, Room {order.room_number}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <a href={`tel:${order.customer_phone}`} className="text-sm text-primary hover:underline">
+                          {order.customer_phone}
+                        </a>
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm">
+                      <span className="font-medium">Customer: </span>
+                      <span className="text-muted-foreground">{order.customer_name}</span>
+                    </div>
+                    
+                    <Button className="w-full" onClick={() => completeAuierOrder(order.id)}>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Complete Delivery
                     </Button>
                   </CardContent>
                 </Card>
