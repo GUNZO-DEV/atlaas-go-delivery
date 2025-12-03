@@ -5,8 +5,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { GraduationCap, Store, MapPin, User, Phone, Building, Package, CheckCircle } from "lucide-react";
+import { GraduationCap, Store, MapPin, User, Phone, Building, Package, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AuierDelivery() {
   const [isAuier, setIsAuier] = useState<boolean | null>(null);
@@ -17,8 +18,10 @@ export default function AuierDelivery() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [roomNumber, setRoomNumber] = useState<string>("");
   const [building, setBuilding] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderSubmitted, setOrderSubmitted] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isAuier) {
       toast.error("This service is only available for AUIER students");
       return;
@@ -61,20 +64,68 @@ export default function AuierDelivery() {
 
     const deliveryFee = deliveryType === "restaurant" ? 35 : 20;
     
-    // Here you would typically send this data to your backend
-    toast.success("Order submitted successfully! We'll contact you soon.");
+    setIsSubmitting(true);
     
-    console.log({
-      restaurantName,
-      orderDetails,
-      deliveryType,
-      deliveryFee,
-      customerName,
-      phoneNumber,
-      roomNumber,
-      building
-    });
+    try {
+      const { error } = await supabase
+        .from('auier_orders')
+        .insert({
+          customer_name: customerName.trim(),
+          customer_phone: phoneNumber.trim(),
+          room_number: roomNumber.trim(),
+          building_name: building.trim(),
+          restaurant_name: restaurantName.trim(),
+          order_details: orderDetails.trim(),
+          delivery_type: deliveryType === "restaurant" ? "restaurant_to_dorm" : "maingate_to_dorm",
+          delivery_fee: deliveryFee,
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
+      setOrderSubmitted(true);
+      toast.success("Order submitted successfully! A rider will contact you soon.");
+    } catch (error: any) {
+      console.error('Order submission error:', error);
+      toast.error("Failed to submit order. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (orderSubmitted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center">
+        <Card className="max-w-md mx-4">
+          <CardContent className="pt-6 text-center space-y-4">
+            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+            <h2 className="text-2xl font-bold">Order Submitted!</h2>
+            <p className="text-muted-foreground">
+              Your order has been sent to our delivery team. A rider will contact you at {phoneNumber} shortly.
+            </p>
+            <div className="bg-muted p-4 rounded-lg text-left space-y-2">
+              <p><strong>Restaurant:</strong> {restaurantName}</p>
+              <p><strong>Delivery to:</strong> Room {roomNumber}, Building {building}</p>
+              <p><strong>Delivery Fee:</strong> {deliveryType === "restaurant" ? 35 : 20} DH</p>
+            </div>
+            <Button onClick={() => {
+              setOrderSubmitted(false);
+              setRestaurantName("");
+              setOrderDetails("");
+              setDeliveryType("");
+              setCustomerName("");
+              setPhoneNumber("");
+              setRoomNumber("");
+              setBuilding("");
+              setIsAuier(null);
+            }} variant="outline" className="w-full">
+              Place Another Order
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
@@ -294,9 +345,19 @@ export default function AuierDelivery() {
               onClick={handleSubmit}
               size="lg"
               className="w-full"
+              disabled={isSubmitting}
             >
-              Submit Order
-              <CheckCircle className="ml-2 h-5 w-5" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  Submit Order
+                  <CheckCircle className="ml-2 h-5 w-5" />
+                </>
+              )}
             </Button>
           )}
 

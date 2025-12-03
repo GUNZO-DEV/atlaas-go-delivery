@@ -47,6 +47,57 @@ export type Database = {
         }
         Relationships: []
       }
+      auier_orders: {
+        Row: {
+          building_name: string
+          completed_at: string | null
+          created_at: string
+          customer_name: string
+          customer_phone: string
+          delivery_fee: number
+          delivery_type: string
+          id: string
+          order_details: string
+          restaurant_name: string
+          rider_id: string | null
+          room_number: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          building_name: string
+          completed_at?: string | null
+          created_at?: string
+          customer_name: string
+          customer_phone: string
+          delivery_fee: number
+          delivery_type: string
+          id?: string
+          order_details: string
+          restaurant_name: string
+          rider_id?: string | null
+          room_number: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          building_name?: string
+          completed_at?: string | null
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          delivery_fee?: number
+          delivery_type?: string
+          id?: string
+          order_details?: string
+          restaurant_name?: string
+          rider_id?: string | null
+          room_number?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           created_at: string | null
