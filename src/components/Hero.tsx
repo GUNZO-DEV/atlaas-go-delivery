@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Package, Bike, Crown, Store } from "lucide-react";
+import { ArrowRight, Package, Store, Percent, Headphones, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
@@ -20,102 +20,124 @@ const Hero = () => {
           className="w-full h-full object-cover animate-ken-burns"
         />
         
-        {/* Moroccan gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/30 via-transparent to-accent/40" />
-        <div className="absolute inset-0 bg-black/30" />
+        {/* Enhanced gradient overlay - soft dark to transparent for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-accent/20" />
       </div>
 
-      {/* Logo - Top Left */}
-      <div className="absolute top-3 left-3 md:top-6 md:left-6 z-20">
-        <AtlaasGoLogo className="w-24 md:w-32 h-auto drop-shadow-2xl" />
-      </div>
+      {/* Top Navigation Bar with shadow */}
+      <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/50 to-transparent backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4 md:py-5 flex justify-between items-center">
+          {/* Logo - Increased size 25% */}
+          <AtlaasGoLogo className="w-32 md:w-44 h-auto drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]" />
 
-      {/* Auth Buttons & Language Toggle - Top Right */}
-      <div className="absolute top-3 right-3 md:top-6 md:right-6 z-20 flex gap-2 md:gap-3 items-center">
-        <DarkModeToggle />
-        <div className="backdrop-blur-xl bg-white/10 border-2 border-white/30 rounded-lg p-1 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
-          <LanguageToggle />
+          {/* Auth Buttons & Language Toggle */}
+          <div className="flex gap-2 md:gap-4 items-center">
+            <DarkModeToggle />
+            <div className="backdrop-blur-xl bg-white/15 border border-white/30 rounded-lg p-1.5 shadow-lg">
+              <LanguageToggle />
+            </div>
+            <Link to="/auth?mode=login" className="hidden sm:block">
+              <Button 
+                variant="outline" 
+                className="backdrop-blur-xl bg-white/10 hover:bg-white/25 border-2 border-white/40 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm md:text-base px-4 md:px-6 py-2.5"
+              >
+                {t('auth.login')}
+              </Button>
+            </Link>
+            <Link to="/auth?mode=signup" className="hidden sm:block">
+              <Button 
+                className="bg-white hover:bg-white/95 text-primary font-extrabold shadow-[0_4px_20px_rgba(255,255,255,0.4)] hover:shadow-[0_8px_30px_rgba(255,255,255,0.5)] transition-all duration-300 hover:scale-105 text-sm md:text-base px-4 md:px-6 py-2.5 border-2 border-white/50"
+              >
+                {t('auth.signup')}
+              </Button>
+            </Link>
+          </div>
         </div>
-        <Link to="/auth?mode=login" className="hidden sm:block">
-          <Button 
-            variant="outline" 
-            className="backdrop-blur-xl bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white font-semibold shadow-[0_4px_24px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_32px_rgba(0,0,0,0.4)] transition-all hover:scale-105 text-sm md:text-base px-3 md:px-4"
-          >
-            {t('auth.login')}
-          </Button>
-        </Link>
-        <Link to="/auth?mode=signup" className="hidden sm:block">
-          <Button 
-            className="backdrop-blur-xl bg-white hover:bg-white/90 text-primary font-bold shadow-[0_4px_24px_rgba(255,255,255,0.3)] hover:shadow-[0_4px_32px_rgba(255,255,255,0.4)] transition-all hover:scale-105 text-sm md:text-base px-3 md:px-4"
-          >
-            {t('auth.signup')}
-          </Button>
-        </Link>
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 md:px-6 text-center animate-fade-in-up pt-20 sm:pt-0">
+      <div className="relative z-10 container mx-auto px-4 md:px-6 text-center animate-fade-in-up pt-24 sm:pt-8">
         {/* Morocco Flag Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl border-2 border-white/30 rounded-full px-4 md:px-6 py-2 mb-6 md:mb-8">
-            <span className="text-2xl md:text-3xl">🇲🇦</span>
-            <span className="text-white font-bold text-base md:text-lg">100% Moroccan</span>
+        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl border border-white/30 rounded-full px-5 md:px-7 py-2.5 mb-6 md:mb-8 shadow-lg">
+          <span className="text-2xl md:text-3xl">🇲🇦</span>
+          <span className="text-white font-bold text-base md:text-lg tracking-wide">100% Moroccan</span>
+        </div>
+
+        {/* Main Headline - Enhanced with bolder Atlas and Door */}
+        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white mb-4 md:mb-6 leading-tight tracking-tight px-2">
+          <span className="font-medium">From the </span>
+          <span className="font-black text-accent drop-shadow-[0_0_40px_rgba(195,91,50,1)] [text-shadow:_0_4px_30px_rgb(195_91_50_/_60%)]">Atlas</span>
+          <br />
+          <span className="font-medium">to Your </span>
+          <span className="font-black text-primary-glow drop-shadow-[0_0_40px_rgba(23,94,84,1)] [text-shadow:_0_4px_30px_rgb(23_94_84_/_60%)]">Door</span>
+        </h1>
+
+        {/* Tagline - Simple & Bold */}
+        <p className="text-xl sm:text-2xl md:text-4xl lg:text-5xl text-white font-black mb-10 md:mb-14 drop-shadow-2xl px-2">
+          <span className="bg-gradient-to-r from-accent via-secondary to-primary-glow bg-clip-text text-transparent">
+            Fast. Fair. 100% Moroccan.
+          </span>
+        </p>
+
+        {/* Enhanced CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center mb-14 md:mb-20 px-4">
+          {/* Primary CTA - Order Now (Warm Orange) */}
+          <Link to="/restaurants" className="w-full sm:w-auto">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-accent via-[hsl(20,65%,52%)] to-accent hover:from-[hsl(20,70%,55%)] hover:to-accent text-white px-10 md:px-14 py-7 md:py-9 text-xl md:text-2xl font-extrabold rounded-2xl shadow-[0_8px_40px_rgba(195,91,50,0.7),_0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_50px_rgba(195,91,50,0.85),_0_6px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-110 border-2 border-white/30 w-full sm:w-auto group"
+            >
+              <Package className="mr-3 w-7 h-7 md:w-8 md:h-8 group-hover:animate-bounce" />
+              Order Now
+              <ArrowRight className="ml-3 w-7 h-7 md:w-8 md:h-8 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
+          
+          {/* Secondary CTA - Join as Merchant */}
+          <Link to="/partner-restaurant" className="w-full sm:w-auto">
+            <Button 
+              size="lg"
+              className="bg-white/15 backdrop-blur-xl hover:bg-white/25 text-white border-2 border-white/50 hover:border-white/70 px-10 md:px-12 py-7 md:py-9 text-xl md:text-2xl font-bold rounded-2xl shadow-[0_6px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+            >
+              <Store className="mr-3 w-7 h-7 md:w-8 md:h-8" />
+              Join as Merchant
+            </Button>
+          </Link>
+        </div>
+
+        {/* Enhanced Stats - Glassmorphism with Icons */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto px-4">
+          {/* 10% Commission */}
+          <div className="group backdrop-blur-xl bg-white/10 rounded-3xl p-6 md:p-8 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.3),_inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_12px_48px_rgba(23,94,84,0.4),_inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-500 hover:scale-105 hover:bg-white/15">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Percent className="w-6 h-6 md:w-8 md:h-8 text-primary-glow" />
+              <div className="text-4xl md:text-6xl font-black text-white drop-shadow-lg">10%</div>
+            </div>
+            <div className="text-secondary text-base md:text-lg font-bold">Commission</div>
+            <div className="text-white/70 text-xs md:text-sm mt-1">Lowest in Morocco</div>
           </div>
-
-          {/* Main Headline - Cinematic */}
-          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white mb-4 md:mb-6 leading-tight tracking-tight px-2">
-            From the <span className="text-accent drop-shadow-[0_0_30px_rgba(195,91,50,1)]">Atlas</span>
-            <br />
-            to Your <span className="text-primary-glow drop-shadow-[0_0_30px_rgba(23,94,84,1)]">Door</span>
-          </h1>
-
-          {/* Tagline - Simple & Bold */}
-          <p className="text-xl sm:text-2xl md:text-4xl lg:text-5xl text-white font-black mb-8 md:mb-12 drop-shadow-2xl px-2">
-            <span className="bg-gradient-to-r from-accent via-primary-glow to-secondary bg-clip-text text-transparent">
-              Fast. Fair. 100% Moroccan.
-            </span>
-          </p>
-
-          {/* Single Clear CTA */}
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center mb-12 md:mb-16 px-4">
-            <Link to="/restaurants" className="w-full sm:w-auto">
-              <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-accent to-accent/80 hover:from-accent hover:to-accent/90 text-white px-8 md:px-12 py-6 md:py-8 text-lg md:text-2xl font-bold rounded-xl md:rounded-2xl shadow-[0_0_40px_rgba(195,91,50,0.6)] hover:shadow-[0_0_60px_rgba(195,91,50,0.8)] transition-all hover:scale-110 border-2 border-white/20 w-full sm:w-auto"
-              >
-                <Package className="mr-2 md:mr-3 w-6 h-6 md:w-8 md:h-8" />
-                Order Now
-                <ArrowRight className="ml-3 w-8 h-8" />
-              </Button>
-            </Link>
-            
-            <Link to="/partner-restaurant" className="w-full sm:w-auto">
-              <Button 
-                size="lg"
-                className="bg-white/10 backdrop-blur-xl hover:bg-white/20 text-white border-2 border-white/40 px-8 md:px-10 py-6 md:py-8 text-lg md:text-xl font-bold rounded-xl md:rounded-2xl transition-all hover:scale-105 w-full sm:w-auto"
-              >
-                <Store className="mr-2 w-6 h-6 md:w-7 md:h-7" />
-                Join as Merchant
-              </Button>
-            </Link>
+          
+          {/* 24/7 Support */}
+          <div className="group backdrop-blur-xl bg-white/10 rounded-3xl p-6 md:p-8 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.3),_inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_12px_48px_rgba(195,91,50,0.4),_inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-500 hover:scale-105 hover:bg-white/15">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Headphones className="w-6 h-6 md:w-8 md:h-8 text-accent" />
+              <div className="text-4xl md:text-6xl font-black text-white drop-shadow-lg">24/7</div>
+            </div>
+            <div className="text-secondary text-base md:text-lg font-bold">Support</div>
+            <div className="text-white/70 text-xs md:text-sm mt-1">Always here for you</div>
           </div>
-
-          {/* Stats - Moroccan Themed */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto px-4">
-            <div className="backdrop-blur-xl bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl md:rounded-3xl p-6 md:p-8 border-2 border-primary/40 shadow-[0_0_30px_rgba(23,94,84,0.3)] hover:shadow-[0_0_50px_rgba(23,94,84,0.5)] transition-all hover:scale-105">
-              <div className="text-4xl md:text-6xl font-black text-white mb-2 md:mb-3 drop-shadow-lg">10%</div>
-              <div className="text-secondary text-base md:text-lg font-bold">Commission</div>
-              <div className="text-white/70 text-xs md:text-sm mt-1">Lowest in Morocco</div>
+          
+          {/* 100% Moroccan */}
+          <div className="group backdrop-blur-xl bg-white/10 rounded-3xl p-6 md:p-8 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.3),_inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_12px_48px_rgba(233,216,166,0.4),_inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-500 hover:scale-105 hover:bg-white/15">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <MapPin className="w-6 h-6 md:w-8 md:h-8 text-secondary" />
+              <div className="text-4xl md:text-6xl font-black text-white drop-shadow-lg">100%</div>
             </div>
-            <div className="backdrop-blur-xl bg-gradient-to-br from-accent/20 to-accent/10 rounded-2xl md:rounded-3xl p-6 md:p-8 border-2 border-accent/40 shadow-[0_0_30px_rgba(195,91,50,0.3)] hover:shadow-[0_0_50px_rgba(195,91,50,0.5)] transition-all hover:scale-105">
-              <div className="text-4xl md:text-6xl font-black text-white mb-2 md:mb-3 drop-shadow-lg">24/7</div>
-              <div className="text-secondary text-base md:text-lg font-bold">Support</div>
-              <div className="text-white/70 text-xs md:text-sm mt-1">Always here for you</div>
-            </div>
-            <div className="backdrop-blur-xl bg-gradient-to-br from-secondary/30 to-secondary/10 rounded-2xl md:rounded-3xl p-6 md:p-8 border-2 border-secondary/50 shadow-[0_0_30px_rgba(233,216,166,0.3)] hover:shadow-[0_0_50px_rgba(233,216,166,0.5)] transition-all hover:scale-105">
-              <div className="text-4xl md:text-6xl font-black text-white mb-2 md:mb-3 drop-shadow-lg">100%</div>
-              <div className="text-secondary text-base md:text-lg font-bold">Moroccan</div>
-              <div className="text-white/70 text-xs md:text-sm mt-1">Built in Morocco</div>
-            </div>
+            <div className="text-secondary text-base md:text-lg font-bold">Moroccan</div>
+            <div className="text-white/70 text-xs md:text-sm mt-1">Built in Morocco</div>
+          </div>
         </div>
       </div>
 
