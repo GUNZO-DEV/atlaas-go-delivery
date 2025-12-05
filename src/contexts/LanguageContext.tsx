@@ -21,8 +21,8 @@ export const translations: Translations = {
   'hero.moroccan': { en: 'Moroccan', fr: 'Marocain' },
   
   // Quick Order
-  'order.title': { en: 'Order Now from Atlas Tajine House', fr: 'Commander au Atlas Tajine House' },
-  'order.subtitle': { en: 'Authentic Moroccan cuisine delivered to your door', fr: 'Cuisine marocaine authentique livrée à votre porte' },
+  'order.title': { en: 'Nom Nom Nom, Boom! 😋💣🍴', fr: 'Nom Nom Nom, Boom! 😋💣🍴' },
+  'order.subtitle': { en: 'Delicious food delivered fast to your door', fr: 'Délicieux repas livrés rapidement à votre porte' },
   'order.browse': { en: 'Browse All Restaurants', fr: 'Parcourir les Restaurants' },
   'order.browseTitle': { en: 'Browse All Restaurants', fr: 'Parcourir Tous les Restaurants' },
   'order.browseDesc': { en: 'Search, filter, and discover Moroccan restaurants', fr: 'Recherchez, filtrez et découvrez les restaurants marocains' },
