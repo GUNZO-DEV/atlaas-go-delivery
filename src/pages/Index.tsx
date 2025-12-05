@@ -16,7 +16,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Store, Bike } from "lucide-react";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 import { useLanguage } from "@/contexts/LanguageContext";
-import AnnouncementBanner from "@/components/AnnouncementBanner";
 import AuierDeliveryIcon from "@/components/AuierDeliveryIcon";
 
 const Index = () => {
@@ -25,7 +24,6 @@ const Index = () => {
     t
   } = useLanguage();
   return <div className="min-h-screen">
-      <AnnouncementBanner />
       <Hero />
       <FeaturedRestaurants />
       
