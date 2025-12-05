@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { GraduationCap, Store, MapPin, User, Phone, Building, Package, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import AuierDeliveryIcon from "@/components/AuierDeliveryIcon";
 
 export default function AuierDelivery() {
   const [isAuier, setIsAuier] = useState<boolean | null>(null);
@@ -137,9 +138,7 @@ export default function AuierDelivery() {
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              AUIER Campus Delivery
-            </h1>
+            <AuierDeliveryIcon className="w-48 h-auto mx-auto" />
             <p className="text-muted-foreground text-lg">
               Fast and affordable delivery service for AUIER students
             </p>
