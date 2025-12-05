@@ -17,6 +17,7 @@ import { Store, Bike } from "lucide-react";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
+import AuierDeliveryIcon from "@/components/AuierDeliveryIcon";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -47,21 +48,21 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              <Card className="w-full hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer border-green-500/30 bg-gradient-to-br from-background to-green-50/10" onClick={() => navigate("/auier-delivery")}>
+              <Card className="w-full hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer border-amber-500/30 bg-gradient-to-br from-background to-amber-50/10" onClick={() => navigate("/auier-delivery")}>
                 <CardContent className="p-6">
-                  <div className="relative">
-                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800" alt="AUIER Campus Delivery" className="w-full h-48 object-cover rounded-lg mb-4 transition-transform" />
-                    <div className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  <div className="relative flex items-center justify-center h-48 bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-950/20 dark:to-amber-900/10 rounded-lg mb-4">
+                    <AuierDeliveryIcon className="w-40 h-auto" />
+                    <div className="absolute top-2 right-2 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-bold">
                       Students Only 🎓
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-2 text-green-600">AUIER Delivery</h3>
+                  <h3 className="text-2xl font-bold mb-2 text-amber-600">AUIER Delivery</h3>
                   <p className="text-muted-foreground mb-2">Campus delivery from 20 dh - Fast & affordable</p>
                   <div className="flex gap-2 text-xs text-muted-foreground mb-4">
                     <span>• Restaurant to Dorm: 35 dh</span>
                     <span>• Main Gate to Dorm: 20 dh</span>
                   </div>
-                  <Button className="w-full bg-green-600 hover:bg-green-700" size="lg">
+                  <Button className="w-full bg-amber-500 hover:bg-amber-600" size="lg">
                     Order for Campus
                   </Button>
                 </CardContent>
