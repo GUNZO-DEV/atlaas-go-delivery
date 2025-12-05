@@ -39,16 +39,7 @@ const AdminSetup = () => {
           return;
         }
       }
-
-      // Otherwise, check if any admin exists (without exposing data)
-      const { data: hasAdmin, error: rpcError } = await supabase.rpc("admin_exists");
-      if (rpcError) throw rpcError;
-
-      if (hasAdmin) {
-        toast.error("Admin account already exists. Please use /auth to login.");
-        navigate("/auth");
-        return;
-      }
+      // Allow creating new admin even if one exists - they can register and be promoted
     } catch (error) {
       console.error("Error checking admin:", error);
     } finally {
@@ -73,7 +64,7 @@ const AdminSetup = () => {
         });
 
         if (signInError?.message?.includes("Invalid login credentials")) {
-          // Attempt to sign up
+          // Attempt to sign up new user
           const { data: authData, error: signUpError } = await supabase.auth.signUp({
             email,
             password,
@@ -85,8 +76,7 @@ const AdminSetup = () => {
 
           if (signUpError) {
             if (signUpError.message?.toLowerCase().includes("already registered")) {
-              toast.error("Email already registered. Please log in.");
-              navigate("/auth");
+              toast.error("Email already registered with different password. Try a different email or reset password.");
               return;
             }
             throw signUpError;
@@ -94,9 +84,15 @@ const AdminSetup = () => {
           if (!authData.user) throw new Error("Failed to create user");
 
           userId = authData.user.id;
-          // Ensure session is established
-          await supabase.auth.signInWithPassword({ email, password });
-          await new Promise((r) => setTimeout(r, 600));
+          // Wait for profile to be created by trigger
+          await new Promise((r) => setTimeout(r, 800));
+          
+          // Sign in with new credentials
+          const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+          if (loginError) {
+            toast.info("Account created! Please check your email to confirm, then try signing in.");
+            return;
+          }
         } else if (signInError) {
           throw signInError;
         } else {
@@ -106,30 +102,26 @@ const AdminSetup = () => {
 
       if (!userId) throw new Error("No user session. Please log in.");
 
-      // If any admin exists already and this user isn't admin, redirect to login
-      const { data: hasAdmin, error: rpcError } = await supabase.rpc("admin_exists");
-      if (rpcError) throw rpcError;
+      // Check if this user already has admin role
+      const { data: myRole } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
 
-      if (hasAdmin) {
-        const { data: myRole } = await supabase
-          .from("user_roles")
-          .select("id")
-          .eq("user_id", userId)
-          .eq("role", "admin")
-          .maybeSingle();
-
-        if (!myRole) {
-          toast.error("An admin already exists. Please sign in.");
-          navigate("/auth");
-          return;
-        }
-      } else {
-        // No admin yet → assign admin role to this user (RLS policy allows first admin)
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: userId, role: "admin" });
-        if (roleError) throw roleError;
+      if (myRole) {
+        toast.success("You already have admin access!");
+        navigate("/admin");
+        return;
       }
+
+      // Assign admin role to this user
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .insert({ user_id: userId, role: "admin" });
+      
+      if (roleError) throw roleError;
 
       toast.success("Admin access granted!");
       navigate("/admin");
