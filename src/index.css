@@ -361,4 +361,32 @@ html {
   .animate-fade-in-up {
     animation: fadeInUp 1s ease-out forwards;
   }
+
+  /* Glassmorphism card effect */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  /* Premium button glow effect */
+  .btn-glow-orange {
+    box-shadow: 0 8px 40px rgba(195, 91, 50, 0.6), 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-glow-orange:hover {
+    box-shadow: 0 12px 50px rgba(195, 91, 50, 0.8), 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Text shadow for hero text */
+  .hero-text-shadow {
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  }
 }
