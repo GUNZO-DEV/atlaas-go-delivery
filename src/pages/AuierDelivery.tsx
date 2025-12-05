@@ -103,7 +103,8 @@ export default function AuierDelivery() {
       <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center">
         <Card className="max-w-md mx-4">
           <CardContent className="pt-6 text-center space-y-4">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+            <AuierDeliveryIcon className="w-32 h-auto mx-auto" />
+            <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
             <h2 className="text-2xl font-bold">Order Submitted!</h2>
             <p className="text-muted-foreground">
               Your order has been sent to our delivery team. A rider will contact you at {phoneNumber} shortly.
