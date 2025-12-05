@@ -48,6 +48,100 @@ export default function Restaurants() {
     filterAndSortRestaurants();
   }, [restaurants, searchQuery, sortBy, selectedCategory]);
 
+  // Hardcoded Ifrane restaurants for display
+  const ifraneRestaurants: Restaurant[] = [
+    {
+      id: "ifrane-1",
+      name: "Café Restaurant LA PAIX",
+      description: "Traditional Moroccan café with a peaceful atmosphere. Serving authentic local dishes and refreshing beverages.",
+      image_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
+      cuisine_type: "Moroccan",
+      average_rating: 4.5,
+      review_count: 120,
+      address: "Ifrane City Center"
+    },
+    {
+      id: "ifrane-2",
+      name: "Restaurant For You Ifrane",
+      description: "Modern dining experience with international and Moroccan fusion cuisine. Perfect for family gatherings.",
+      image_url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800",
+      cuisine_type: "International",
+      average_rating: 4.3,
+      review_count: 85,
+      address: "Avenue Mohammed V, Ifrane"
+    },
+    {
+      id: "ifrane-3",
+      name: "Foodies Ifrane",
+      description: "Casual dining spot popular among students. Great burgers, sandwiches and quick bites.",
+      image_url: "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800",
+      cuisine_type: "Fast Food",
+      average_rating: 4.4,
+      review_count: 200,
+      address: "Near AUI Campus, Ifrane"
+    },
+    {
+      id: "ifrane-4",
+      name: "Forest Restaurant",
+      description: "Scenic restaurant surrounded by cedar forests. Specializing in grilled meats and traditional tagines.",
+      image_url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
+      cuisine_type: "Moroccan",
+      average_rating: 4.6,
+      review_count: 150,
+      address: "Cedar Forest Road, Ifrane"
+    },
+    {
+      id: "ifrane-5",
+      name: "Restaurant Diafa 2 Awlad ALHaj",
+      description: "Authentic Moroccan hospitality with generous portions. Famous for couscous and traditional dishes.",
+      image_url: "https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=800",
+      cuisine_type: "Moroccan",
+      average_rating: 4.7,
+      review_count: 180,
+      address: "Downtown Ifrane"
+    },
+    {
+      id: "ifrane-6",
+      name: "Restaurant Platane",
+      description: "Charming restaurant under the plane trees. Mediterranean and Moroccan specialties in a relaxed setting.",
+      image_url: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800",
+      cuisine_type: "Mediterranean",
+      average_rating: 4.4,
+      review_count: 95,
+      address: "Place du Marché, Ifrane"
+    },
+    {
+      id: "ifrane-7",
+      name: "Bonsai Sushi Bar",
+      description: "Fresh sushi and Japanese cuisine in the heart of Ifrane. Modern ambiance with authentic flavors.",
+      image_url: "/images/bonsai-sushi-bar.jpg",
+      cuisine_type: "Japanese",
+      average_rating: 4.5,
+      review_count: 110,
+      address: "Ifrane City Center"
+    },
+    {
+      id: "ifrane-8",
+      name: "Lyn Restaurant",
+      description: "Contemporary dining with a creative menu. Perfect blend of local ingredients and modern techniques.",
+      image_url: "https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?w=800",
+      cuisine_type: "Contemporary",
+      average_rating: 4.3,
+      review_count: 75,
+      address: "Avenue Hassan II, Ifrane"
+    },
+    {
+      id: "ifrane-9",
+      name: "Green Coffee",
+      description: "Cozy coffee shop with excellent espresso, pastries and light meals. Student favorite hangout spot.",
+      image_url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800",
+      cuisine_type: "Café",
+      average_rating: 4.6,
+      review_count: 220,
+      address: "Near University, Ifrane"
+    }
+  ];
+
   const fetchRestaurants = async () => {
     try {
       const { data, error } = await supabase
@@ -57,7 +151,8 @@ export default function Restaurants() {
         .order("average_rating", { ascending: false });
 
       if (error) throw error;
-      setRestaurants(data || []);
+      // Merge database restaurants with hardcoded Ifrane restaurants
+      setRestaurants([...(data || []), ...ifraneRestaurants]);
     } catch (error: any) {
       toast({
         title: "Error",
