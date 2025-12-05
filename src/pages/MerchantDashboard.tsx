@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { escapeHtml } from "@/utils/htmlEscape";
 
 interface Restaurant {
   id: string;
@@ -483,11 +484,21 @@ export default function MerchantDashboard() {
       return;
     }
 
+    // Escape all user-controlled data to prevent XSS
+    const safeRestaurantName = escapeHtml(restaurant?.name);
+    const safeRestaurantAddress = escapeHtml(restaurant?.address);
+    const safeRestaurantPhone = escapeHtml(restaurant?.phone);
+    const safeCustomerName = escapeHtml(order.customer?.full_name || "Unknown");
+    const safeCustomerPhone = escapeHtml(order.customer?.phone || "N/A");
+    const safeDeliveryAddress = escapeHtml(order.delivery_address);
+    const safeNotes = escapeHtml(order.notes);
+    const safeStatus = escapeHtml(order.status);
+
     const receiptHTML = `
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Receipt - Order #${order.id.slice(0, 8)}</title>
+          <title>Receipt - Order #${escapeHtml(order.id.slice(0, 8))}</title>
           <style>
             @media print {
               @page { margin: 0.5cm; }
@@ -569,31 +580,31 @@ export default function MerchantDashboard() {
         </head>
         <body>
           <div class="header">
-            <div class="restaurant-name">${restaurant.name}</div>
-            <div>${restaurant.address}</div>
-            <div>${restaurant.phone}</div>
+            <div class="restaurant-name">${safeRestaurantName}</div>
+            <div>${safeRestaurantAddress}</div>
+            <div>${safeRestaurantPhone}</div>
           </div>
 
           <div class="order-info">
             <div class="info-row">
               <span>Order #:</span>
-              <span>${order.id.slice(0, 8).toUpperCase()}</span>
+              <span>${escapeHtml(order.id.slice(0, 8).toUpperCase())}</span>
             </div>
             <div class="info-row">
               <span>Date:</span>
-              <span>${new Date(order.created_at).toLocaleString()}</span>
+              <span>${escapeHtml(new Date(order.created_at).toLocaleString())}</span>
             </div>
             <div class="info-row">
               <span>Customer:</span>
-              <span>${order.customer?.full_name || "Unknown"}</span>
+              <span>${safeCustomerName}</span>
             </div>
             <div class="info-row">
               <span>Phone:</span>
-              <span>${order.customer?.phone || "N/A"}</span>
+              <span>${safeCustomerPhone}</span>
             </div>
             <div class="info-row">
               <span>Status:</span>
-              <span>${order.status.toUpperCase()}</span>
+              <span>${safeStatus.toUpperCase()}</span>
             </div>
           </div>
 
@@ -605,9 +616,9 @@ export default function MerchantDashboard() {
             </div>
             ${order.order_items.map((item) => `
               <div class="item-row">
-                <span class="item-name">${item.menu_item?.name}</span>
-                <span class="item-qty">${item.quantity}</span>
-                <span class="item-price">${item.price.toFixed(2)} MAD</span>
+                <span class="item-name">${escapeHtml(item.menu_item?.name)}</span>
+                <span class="item-qty">${Number(item.quantity)}</span>
+                <span class="item-price">${Number(item.price).toFixed(2)} MAD</span>
               </div>
             `).join('')}
           </div>
@@ -615,15 +626,15 @@ export default function MerchantDashboard() {
           <div class="totals">
             <div class="total-row">
               <span>Subtotal:</span>
-              <span>${order.total_amount.toFixed(2)} MAD</span>
+              <span>${Number(order.total_amount).toFixed(2)} MAD</span>
             </div>
             <div class="total-row">
               <span>Delivery Fee:</span>
-              <span>${order.delivery_fee.toFixed(2)} MAD</span>
+              <span>${Number(order.delivery_fee).toFixed(2)} MAD</span>
             </div>
             <div class="total-row">
               <span>Commission:</span>
-              <span>-${(order.commission_amount || 0).toFixed(2)} MAD</span>
+              <span>-${Number(order.commission_amount || 0).toFixed(2)} MAD</span>
             </div>
             <div class="total-row grand-total">
               <span>TOTAL:</span>
@@ -634,8 +645,8 @@ export default function MerchantDashboard() {
           <div class="footer">
             <div>Thank you for your business!</div>
             <div style="margin-top: 5px;">Delivery Address:</div>
-            <div>${order.delivery_address}</div>
-            ${order.notes ? `<div style="margin-top: 5px;">Notes: ${order.notes}</div>` : ''}
+            <div>${safeDeliveryAddress}</div>
+            ${safeNotes ? `<div style="margin-top: 5px;">Notes: ${safeNotes}</div>` : ''}
           </div>
 
           <script>

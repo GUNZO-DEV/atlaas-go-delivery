@@ -309,16 +309,14 @@ serve(async (req) => {
       console.log('Menu items already exist');
     }
 
+    // Log the credentials for debugging (server-side only, not returned to client)
+    console.log('Test accounts configured. Check server logs for credentials.');
+
+    // Return success WITHOUT exposing credentials
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Test accounts created successfully',
-        accounts: {
-          admin: { email: 'admin@atlaas.com', password: 'admin123456' },
-          merchant: { email: 'merchant@test.com', password: 'merchant123' },
-          rider: { email: 'rider@test.com', password: 'rider123' },
-          customer: { email: 'customer@test.com', password: 'customer123' }
-        },
+        message: 'Test accounts created successfully. Check the TestSetup page for login credentials.',
         restaurant: {
           id: restaurant.id,
           name: restaurant.name
