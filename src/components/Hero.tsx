@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Package, Store, Percent, Headphones, MapPin } from "lucide-react";
+import { ArrowRight, Package, Store, Percent, Headphones, MapPin, GraduationCap } from "lucide-react";
 import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
@@ -12,6 +12,17 @@ const Hero = () => {
   
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* AUIER Announcement Banner */}
+      <div className="absolute top-0 left-0 right-0 z-30 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 animate-pulse">
+        <Link to="/auier-delivery" className="block">
+          <div className="container mx-auto px-4 py-2 flex items-center justify-center gap-2 text-white font-bold text-sm md:text-base hover:opacity-90 transition-opacity">
+            <GraduationCap className="w-5 h-5 animate-bounce" />
+            <span>🎓 AUIER Students! Campus Delivery Available - Order Now!</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </Link>
+      </div>
+
       {/* Background Image - Cinematic Mountains */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -27,10 +38,19 @@ const Hero = () => {
       </div>
 
       {/* Top Navigation Bar with shadow */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/50 to-transparent backdrop-blur-sm">
+      <div className="absolute top-10 left-0 right-0 z-20 bg-gradient-to-b from-black/50 to-transparent backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 md:py-5 flex justify-between items-center">
           {/* Logo - Increased size 25% */}
-          <AtlaasGoLogo className="w-32 md:w-44 h-auto drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]" />
+          <div className="flex items-center gap-3">
+            <AtlaasGoLogo className="w-32 md:w-44 h-auto drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]" />
+            {/* AUIER Badge next to logo */}
+            <Link to="/auier-delivery" className="hidden md:flex">
+              <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg hover:scale-105 transition-transform">
+                <GraduationCap className="w-4 h-4" />
+                <span>AUIER</span>
+              </div>
+            </Link>
+          </div>
 
           {/* Auth Buttons & Language Toggle */}
           <div className="flex gap-2 md:gap-4 items-center">
