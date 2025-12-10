@@ -83,29 +83,12 @@ const WalletCard = () => {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Use secure server-side function for wallet operations
+      const { error } = await supabase.rpc('secure_wallet_topup', {
+        p_amount: amount
+      });
 
-      // Update balance
-      const newBalance = balance + amount;
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ wallet_balance: newBalance })
-        .eq("id", user.id);
-
-      if (updateError) throw updateError;
-
-      // Record transaction
-      const { error: txError } = await supabase
-        .from("wallet_transactions")
-        .insert({
-          user_id: user.id,
-          amount: amount,
-          transaction_type: "credit",
-          description: "Wallet top-up",
-        });
-
-      if (txError) throw txError;
+      if (error) throw error;
 
       toast({
         title: "Top-up successful!",
@@ -208,7 +191,7 @@ const WalletCard = () => {
                       className="flex items-center justify-between py-2 border-b border-white/10 last:border-0"
                     >
                       <div className="flex items-center gap-2">
-                        {tx.transaction_type === "credit" ? (
+                        {tx.amount > 0 || tx.transaction_type === "top_up" || tx.transaction_type === "credit" ? (
                           <ArrowUpRight className="h-4 w-4 text-green-300" />
                         ) : (
                           <ArrowDownRight className="h-4 w-4 text-red-300" />
@@ -223,15 +206,15 @@ const WalletCard = () => {
                         </div>
                       </div>
                       <Badge
-                        variant={tx.transaction_type === "credit" ? "default" : "secondary"}
+                        variant={tx.amount > 0 ? "default" : "secondary"}
                         className={
-                          tx.transaction_type === "credit"
+                          tx.amount > 0
                             ? "bg-green-500 text-white hover:bg-green-600"
                             : "bg-red-500 text-white hover:bg-red-600"
                         }
                       >
-                        {tx.transaction_type === "credit" ? "+" : ""}
-                        {tx.amount.toFixed(2)} MAD
+                        {tx.amount > 0 ? "+" : ""}
+                        {Math.abs(tx.amount).toFixed(2)} MAD
                       </Badge>
                     </div>
                   ))}
