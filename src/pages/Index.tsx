@@ -1,17 +1,137 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Hero from "@/components/Hero";
 import FeaturedRestaurants from "@/components/FeaturedRestaurants";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Store, Bike, Smartphone, MapPin, Clock, Shield, Bell, CreditCard, QrCode } from "lucide-react";
+import { Store, Bike, Smartphone, MapPin, Clock, Shield, Bell, CreditCard, QrCode, Star, Package, Heart, Search } from "lucide-react";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AuierDeliveryIcon from "@/components/AuierDeliveryIcon";
 
+// Phone screen content components
+const HomeScreen = () => (
+  <div className="p-3 h-full">
+    <div className="flex items-center justify-between mb-3">
+      <div>
+        <p className="text-[10px] text-muted-foreground">Deliver to</p>
+        <p className="text-xs font-semibold">Ifrane, Morocco 📍</p>
+      </div>
+      <div className="w-7 h-7 bg-primary/10 rounded-full flex items-center justify-center">
+        <Bell className="w-3.5 h-3.5 text-primary" />
+      </div>
+    </div>
+    <div className="bg-muted/50 rounded-lg px-3 py-2 flex items-center gap-2 mb-3">
+      <Search className="w-3.5 h-3.5 text-muted-foreground" />
+      <span className="text-[10px] text-muted-foreground">Search restaurants...</span>
+    </div>
+    <p className="text-xs font-semibold mb-2">Popular Near You</p>
+    <div className="space-y-2">
+      {["Hani Sugar Art", "Café La Paix", "Bonsai Sushi"].map((name, i) => (
+        <div key={i} className="flex items-center gap-2 bg-muted/30 rounded-lg p-2">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg" />
+          <div className="flex-1">
+            <p className="text-[10px] font-semibold">{name}</p>
+            <div className="flex items-center gap-1">
+              <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-500" />
+              <span className="text-[8px] text-muted-foreground">4.{8-i} • 20-30 min</span>
+            </div>
+          </div>
+          <Heart className="w-3.5 h-3.5 text-muted-foreground" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const TrackingScreen = () => (
+  <div className="p-3 h-full">
+    <p className="text-xs font-semibold mb-2">Order Tracking</p>
+    <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl h-24 mb-3 flex items-center justify-center relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-4 left-4 w-2 h-2 bg-primary rounded-full" />
+        <div className="absolute top-8 right-6 w-2 h-2 bg-accent rounded-full animate-pulse" />
+        <div className="absolute bottom-4 left-1/2 w-2 h-2 bg-primary rounded-full" />
+        <svg className="absolute inset-0 w-full h-full">
+          <path d="M20 20 Q60 40 80 30 T120 50" stroke="hsl(var(--primary))" strokeWidth="1" fill="none" strokeDasharray="4" />
+        </svg>
+      </div>
+      <MapPin className="w-6 h-6 text-accent animate-bounce" />
+    </div>
+    <div className="bg-muted/30 rounded-lg p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+          <Package className="w-4 h-4 text-white" />
+        </div>
+        <div className="flex-1">
+          <p className="text-[10px] font-semibold">On the way!</p>
+          <p className="text-[8px] text-muted-foreground">Arriving in 12 min</p>
+        </div>
+      </div>
+      <div className="flex gap-1">
+        {[1,2,3,4].map(i => (
+          <div key={i} className={`flex-1 h-1 rounded-full ${i <= 3 ? 'bg-primary' : 'bg-muted'}`} />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const OrderScreen = () => (
+  <div className="p-3 h-full">
+    <p className="text-xs font-semibold mb-2">Your Order</p>
+    <div className="space-y-2 mb-3">
+      {[
+        { name: "Chocolate Cake", price: "85 DH", qty: 1 },
+        { name: "Custom Pastry", price: "45 DH", qty: 2 },
+      ].map((item, i) => (
+        <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg p-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-accent/30 to-primary/20 rounded-lg" />
+            <div>
+              <p className="text-[10px] font-semibold">{item.name}</p>
+              <p className="text-[8px] text-muted-foreground">Qty: {item.qty}</p>
+            </div>
+          </div>
+          <p className="text-[10px] font-bold text-primary">{item.price}</p>
+        </div>
+      ))}
+    </div>
+    <div className="border-t border-border pt-2">
+      <div className="flex justify-between text-[10px] mb-1">
+        <span className="text-muted-foreground">Subtotal</span>
+        <span>175 DH</span>
+      </div>
+      <div className="flex justify-between text-[10px] mb-2">
+        <span className="text-muted-foreground">Delivery</span>
+        <span>15 DH</span>
+      </div>
+      <div className="flex justify-between text-xs font-bold">
+        <span>Total</span>
+        <span className="text-primary">190 DH</span>
+      </div>
+    </div>
+    <Button size="sm" className="w-full mt-3 h-7 text-[10px]">Place Order</Button>
+  </div>
+);
+
 const Index = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const [activeScreen, setActiveScreen] = useState(0);
+  const screens = [
+    { component: <HomeScreen />, label: "Browse" },
+    { component: <TrackingScreen />, label: "Track" },
+    { component: <OrderScreen />, label: "Order" },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveScreen((prev) => (prev + 1) % screens.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
   
   return (
     <div className="min-h-screen">
@@ -95,25 +215,62 @@ const Index = () => {
       <section className="py-16 md:py-20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-10">
-            {/* Phone Mockup */}
+            {/* Phone Mockup with Real Screens */}
             <div className="flex-shrink-0 relative">
-              <div className="w-64 h-[500px] bg-gradient-to-b from-muted to-muted/50 rounded-[3rem] p-3 shadow-2xl border border-border">
-                <div className="w-full h-full bg-background rounded-[2.5rem] overflow-hidden relative">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-muted rounded-b-2xl" />
-                  <div className="p-4 pt-10">
-                    <div className="text-center mb-4">
-                      <div className="w-12 h-12 bg-primary rounded-xl mx-auto mb-2 flex items-center justify-center">
-                        <span className="text-white font-bold text-xl">A</span>
-                      </div>
-                      <p className="font-bold text-sm">ATLAAS GO</p>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="h-24 bg-muted/50 rounded-xl animate-pulse" />
-                      <div className="h-16 bg-muted/30 rounded-xl" />
-                      <div className="h-16 bg-muted/30 rounded-xl" />
+              <div className="w-56 h-[440px] bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-[2.5rem] p-2 shadow-2xl border border-zinc-700">
+                {/* Phone frame details */}
+                <div className="w-full h-full bg-background rounded-[2rem] overflow-hidden relative">
+                  {/* Notch */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-zinc-900 rounded-b-xl z-10 flex items-center justify-center">
+                    <div className="w-8 h-2 bg-zinc-800 rounded-full" />
+                  </div>
+                  {/* Status bar */}
+                  <div className="h-8 bg-background flex items-end justify-between px-4 pb-1 text-[8px] text-muted-foreground">
+                    <span>9:41</span>
+                    <div className="flex gap-1">
+                      <div className="w-3 h-1.5 bg-foreground rounded-sm" />
+                      <div className="w-3 h-1.5 bg-foreground rounded-sm" />
                     </div>
                   </div>
+                  {/* Screen content with transition */}
+                  <div className="h-[340px] overflow-hidden">
+                    <div 
+                      className="transition-transform duration-500 ease-in-out"
+                      style={{ transform: `translateX(-${activeScreen * 100}%)`, display: 'flex', width: '300%' }}
+                    >
+                      {screens.map((screen, i) => (
+                        <div key={i} className="w-full flex-shrink-0" style={{ width: '224px' }}>
+                          {screen.component}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Bottom nav */}
+                  <div className="absolute bottom-0 left-0 right-0 h-12 bg-background border-t border-border flex items-center justify-around px-4">
+                    {screens.map((screen, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveScreen(i)}
+                        className={`flex flex-col items-center gap-0.5 transition-colors ${activeScreen === i ? 'text-primary' : 'text-muted-foreground'}`}
+                      >
+                        {i === 0 && <Search className="w-4 h-4" />}
+                        {i === 1 && <MapPin className="w-4 h-4" />}
+                        {i === 2 && <Package className="w-4 h-4" />}
+                        <span className="text-[8px]">{screen.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
+              </div>
+              {/* Screen indicator dots */}
+              <div className="flex gap-2 justify-center mt-4">
+                {screens.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveScreen(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${activeScreen === i ? 'bg-primary w-6' : 'bg-muted-foreground/30'}`}
+                  />
+                ))}
               </div>
             </div>
             
