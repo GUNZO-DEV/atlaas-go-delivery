@@ -1669,6 +1669,11 @@ export type Database = {
         Args: { admin_id: string; reason: string; rider_profile_id: string }
         Returns: undefined
       }
+      secure_wallet_payment: {
+        Args: { p_amount: number; p_order_id?: string }
+        Returns: undefined
+      }
+      secure_wallet_topup: { Args: { p_amount: number }; Returns: undefined }
       update_application_status: {
         Args: { p_application_id: string; p_notes?: string; p_status: string }
         Returns: undefined
