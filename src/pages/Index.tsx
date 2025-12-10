@@ -9,7 +9,7 @@ import CustomerSection from "@/components/CustomerSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import CityPresenceMap from "@/components/CityPresenceMap";
 import AppPreview from "@/components/AppPreview";
-import SupportLocalShowcase from "@/components/SupportLocalShowcase";
+import SocialProofStrip from "@/components/SocialProofStrip";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -84,6 +84,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <SocialProofStrip />
 
       <LiveTracking />
       <RealtimeDemoSection />
