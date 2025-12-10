@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, GraduationCap, User } from "lucide-react";
+import { Home, Bell, GraduationCap, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,7 +67,7 @@ const MobileBottomNav = () => {
 
   const navItems = [
     { icon: Home, label: "Home", path: "/", badge: 0 },
-    { icon: ShoppingBag, label: "Orders", path: "/customer", badge: unreadOrders },
+    { icon: Bell, label: "Inbox", path: "/notifications", badge: unreadOrders },
     { icon: GraduationCap, label: "AUIER", path: "/auier-delivery", featured: true, badge: 0 },
     { icon: User, label: "Profile", path: "/auth", badge: 0 },
   ];
