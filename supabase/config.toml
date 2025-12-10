@@ -4,10 +4,10 @@ project_id = "fuvwfwkipsfnvpjefemt"
 verify_jwt = true
 
 [functions.atlaas-ai-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-push-notification]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-receipt-email]
-verify_jwt = false
+verify_jwt = true
