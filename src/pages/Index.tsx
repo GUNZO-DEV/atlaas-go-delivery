@@ -4,7 +4,7 @@ import FeaturedRestaurants from "@/components/FeaturedRestaurants";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Store, Bike } from "lucide-react";
+import { Store, Bike, Smartphone, MapPin, Clock, Shield, Bell, CreditCard, QrCode } from "lucide-react";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AuierDeliveryIcon from "@/components/AuierDeliveryIcon";
@@ -51,8 +51,108 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Features Section */}
+      <section className="py-16 md:py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">Why Choose ATLAAS GO?</h2>
+            <p className="text-muted-foreground">A seamless delivery experience built for Morocco</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="text-center group">
+              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                <MapPin className="w-7 h-7 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-1">Live Tracking</h3>
+              <p className="text-muted-foreground text-sm">Real-time order tracking</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-accent/20 transition-colors">
+                <Clock className="w-7 h-7 text-accent" />
+              </div>
+              <h3 className="font-semibold mb-1">Fast Delivery</h3>
+              <p className="text-muted-foreground text-sm">30 min average</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-secondary/40 transition-colors">
+                <Shield className="w-7 h-7 text-secondary-foreground" />
+              </div>
+              <h3 className="font-semibold mb-1">Secure Payments</h3>
+              <p className="text-muted-foreground text-sm">Cash & card accepted</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                <Bell className="w-7 h-7 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-1">Notifications</h3>
+              <p className="text-muted-foreground text-sm">Stay updated always</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile App Section */}
+      <section className="py-16 md:py-20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-10">
+            {/* Phone Mockup */}
+            <div className="flex-shrink-0 relative">
+              <div className="w-64 h-[500px] bg-gradient-to-b from-muted to-muted/50 rounded-[3rem] p-3 shadow-2xl border border-border">
+                <div className="w-full h-full bg-background rounded-[2.5rem] overflow-hidden relative">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-muted rounded-b-2xl" />
+                  <div className="p-4 pt-10">
+                    <div className="text-center mb-4">
+                      <div className="w-12 h-12 bg-primary rounded-xl mx-auto mb-2 flex items-center justify-center">
+                        <span className="text-white font-bold text-xl">A</span>
+                      </div>
+                      <p className="font-bold text-sm">ATLAAS GO</p>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="h-24 bg-muted/50 rounded-xl animate-pulse" />
+                      <div className="h-16 bg-muted/30 rounded-xl" />
+                      <div className="h-16 bg-muted/30 rounded-xl" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Get the App</h2>
+              <p className="text-muted-foreground mb-6 text-lg">
+                Download ATLAAS GO for the best ordering experience. Track your delivery in real-time, save favorites, and order with one tap.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-3 mb-8 justify-center md:justify-start">
+                <Button size="lg" className="gap-2" onClick={() => navigate("/install")}>
+                  <Smartphone className="w-5 h-5" />
+                  Install App
+                </Button>
+                <Button size="lg" variant="outline" className="gap-2">
+                  <QrCode className="w-5 h-5" />
+                  Scan QR Code
+                </Button>
+              </div>
+              
+              <div className="flex flex-wrap gap-4 justify-center md:justify-start text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <CreditCard className="w-4 h-4" /> Easy payments
+                </span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4" /> Live tracking
+                </span>
+                <span className="flex items-center gap-1">
+                  <Bell className="w-4 h-4" /> Push notifications
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Partner Section */}
-      <section className="py-12 md:py-16 bg-background">
+      <section className="py-12 md:py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold mb-2">{t('partner.title')}</h2>
