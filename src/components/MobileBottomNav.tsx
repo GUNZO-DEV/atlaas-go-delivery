@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Bell, GraduationCap, User } from "lucide-react";
+import { Home, Bell, GraduationCap, User, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,8 +67,9 @@ const MobileBottomNav = () => {
 
   const navItems = [
     { icon: Home, label: "Home", path: "/", badge: 0 },
-    { icon: Bell, label: "Inbox", path: "/notifications", badge: unreadOrders },
+    { icon: ShoppingBag, label: "Orders", path: "/customer", badge: 0 },
     { icon: GraduationCap, label: "AUIER", path: "/auier-delivery", featured: true, badge: 0 },
+    { icon: Bell, label: "Inbox", path: "/notifications", badge: unreadOrders },
     { icon: User, label: "Profile", path: "/auth", badge: 0 },
   ];
 
@@ -85,7 +86,7 @@ const MobileBottomNav = () => {
             key={item.path}
             to={item.path}
             className={cn(
-              "relative flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200",
+              "relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200",
               item.featured 
                 ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg scale-110 -mt-4"
                 : isActive(item.path)
