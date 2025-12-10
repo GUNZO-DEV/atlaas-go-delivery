@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import { 
   Search, 
@@ -17,10 +18,23 @@ import {
   XCircle,
   MapPin,
   ChevronRight,
-  RefreshCw
+  ChevronDown,
+  RefreshCw,
+  ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
+
+interface OrderItem {
+  id: string;
+  quantity: number;
+  price: number;
+  special_instructions: string | null;
+  menu_item: {
+    name: string;
+    image_url: string | null;
+  } | null;
+}
 
 interface Order {
   id: string;
@@ -33,6 +47,7 @@ interface Order {
     name: string;
     image_url: string | null;
   } | null;
+  order_items: OrderItem[];
 }
 
 type FilterStatus = 'all' | 'active' | 'completed' | 'cancelled';
@@ -58,6 +73,20 @@ const Orders = () => {
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (orderId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedOrders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(orderId)) {
+        newSet.delete(orderId);
+      } else {
+        newSet.add(orderId);
+      }
+      return newSet;
+    });
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -84,7 +113,14 @@ const Orders = () => {
         delivery_fee,
         delivery_address,
         created_at,
-        restaurant:restaurants(name, image_url)
+        restaurant:restaurants(name, image_url),
+        order_items(
+          id,
+          quantity,
+          price,
+          special_instructions,
+          menu_item:menu_items(name, image_url)
+        )
       `)
       .eq('customer_id', userId)
       .order('created_at', { ascending: false });
@@ -92,7 +128,7 @@ const Orders = () => {
     if (error) {
       toast.error('Failed to load orders');
     } else {
-      setOrders(data || []);
+      setOrders((data as unknown as Order[]) || []);
     }
     setLoading(false);
   };
@@ -241,75 +277,171 @@ const Orders = () => {
               const statusInfo = getStatusInfo(order.status);
               const StatusIcon = statusInfo.icon;
               const isActive = activeStatuses.includes(order.status);
+              const isExpanded = expandedOrders.has(order.id);
+              const itemCount = order.order_items?.length || 0;
               
               return (
                 <Card 
                   key={order.id}
                   className={cn(
-                    "p-4 transition-all cursor-pointer hover:shadow-md",
+                    "transition-all overflow-hidden",
                     isActive && "border-primary/30"
                   )}
-                  onClick={() => navigate(`/track/${order.id}`)}
                 >
-                  <div className="flex gap-3">
-                    {/* Restaurant Image */}
-                    <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden shrink-0">
-                      {order.restaurant?.image_url ? (
-                        <img 
-                          src={order.restaurant.image_url} 
-                          alt={order.restaurant.name || 'Restaurant'}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-6 h-6 text-muted-foreground" />
+                  <Collapsible open={isExpanded}>
+                    {/* Main Order Header */}
+                    <div className="p-4">
+                      <div className="flex gap-3">
+                        {/* Restaurant Image */}
+                        <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden shrink-0">
+                          {order.restaurant?.image_url ? (
+                            <img 
+                              src={order.restaurant.image_url} 
+                              alt={order.restaurant.name || 'Restaurant'}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Order Details */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h3 className="font-semibold text-sm line-clamp-1">
+                                {order.restaurant?.name || 'Unknown Restaurant'}
+                              </h3>
+                              <Badge 
+                                variant="outline" 
+                                className={cn("mt-1 text-[10px] h-5", statusInfo.color)}
+                              >
+                                <StatusIcon className="w-3 h-3 mr-1" />
+                                {statusInfo.label}
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                            <MapPin className="w-3 h-3 shrink-0" />
+                            <span className="line-clamp-1">{order.delivery_address}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(order.created_at), { addSuffix: true })}
+                            </span>
+                            <span className="font-semibold text-sm">
+                              {(order.total_amount + order.delivery_fee).toFixed(2)} MAD
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                        <CollapsibleTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="flex-1 h-8 text-xs"
+                            onClick={(e) => toggleExpand(order.id, e)}
+                          >
+                            <ChevronDown className={cn(
+                              "w-4 h-4 mr-1 transition-transform",
+                              isExpanded && "rotate-180"
+                            )} />
+                            {isExpanded ? 'Hide' : 'View'} {itemCount} item{itemCount !== 1 ? 's' : ''}
+                          </Button>
+                        </CollapsibleTrigger>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 h-8 text-xs"
+                          onClick={() => navigate(`/track/${order.id}`)}
+                        >
+                          <ExternalLink className="w-4 h-4 mr-1" />
+                          {isActive ? 'Track Order' : 'View Details'}
+                        </Button>
+                      </div>
+
+                      {/* Active Order Indicator */}
+                      {isActive && (
+                        <div className="flex items-center gap-2 text-xs text-primary mt-3">
+                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                          <span className="font-medium">Order in progress</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Order Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h3 className="font-semibold text-sm line-clamp-1">
-                            {order.restaurant?.name || 'Unknown Restaurant'}
-                          </h3>
-                          <Badge 
-                            variant="outline" 
-                            className={cn("mt-1 text-[10px] h-5", statusInfo.color)}
-                          >
-                            <StatusIcon className="w-3 h-3 mr-1" />
-                            {statusInfo.label}
-                          </Badge>
+                    {/* Expandable Order Items */}
+                    <CollapsibleContent>
+                      <div className="px-4 pb-4">
+                        <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                          {order.order_items && order.order_items.length > 0 ? (
+                            order.order_items.map((item) => (
+                              <div key={item.id} className="flex items-center gap-3">
+                                {/* Item Image */}
+                                <div className="w-10 h-10 rounded-md bg-background overflow-hidden shrink-0">
+                                  {item.menu_item?.image_url ? (
+                                    <img 
+                                      src={item.menu_item.image_url} 
+                                      alt={item.menu_item.name || 'Item'}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <Package className="w-4 h-4 text-muted-foreground" />
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Item Details */}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium line-clamp-1">
+                                    {item.menu_item?.name || 'Unknown Item'}
+                                  </p>
+                                  {item.special_instructions && (
+                                    <p className="text-xs text-muted-foreground line-clamp-1">
+                                      Note: {item.special_instructions}
+                                    </p>
+                                  )}
+                                </div>
+
+                                {/* Quantity & Price */}
+                                <div className="text-right shrink-0">
+                                  <p className="text-sm font-medium">{item.price.toFixed(2)} MAD</p>
+                                  <p className="text-xs text-muted-foreground">x{item.quantity}</p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-muted-foreground text-center py-2">
+                              No items found
+                            </p>
+                          )}
+
+                          {/* Order Summary */}
+                          <div className="pt-2 mt-2 border-t border-border/50 space-y-1">
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>Subtotal</span>
+                              <span>{order.total_amount.toFixed(2)} MAD</span>
+                            </div>
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>Delivery Fee</span>
+                              <span>{order.delivery_fee.toFixed(2)} MAD</span>
+                            </div>
+                            <div className="flex justify-between text-sm font-semibold pt-1">
+                              <span>Total</span>
+                              <span>{(order.total_amount + order.delivery_fee).toFixed(2)} MAD</span>
+                            </div>
+                          </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
                       </div>
-
-                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                        <MapPin className="w-3 h-3 shrink-0" />
-                        <span className="line-clamp-1">{order.delivery_address}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(order.created_at), { addSuffix: true })}
-                        </span>
-                        <span className="font-semibold text-sm">
-                          {(order.total_amount + order.delivery_fee).toFixed(2)} MAD
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Active Order Indicator */}
-                  {isActive && (
-                    <div className="mt-3 pt-3 border-t border-border">
-                      <div className="flex items-center gap-2 text-xs text-primary">
-                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                        <span className="font-medium">Order in progress - Tap to track</span>
-                      </div>
-                    </div>
-                  )}
+                    </CollapsibleContent>
+                  </Collapsible>
                 </Card>
               );
             })}
