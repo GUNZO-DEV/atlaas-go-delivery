@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Package, Store, Percent, Headphones, MapPin, GraduationCap, Menu, X, User, Briefcase, HelpCircle } from "lucide-react";
+import { ArrowRight, Package, Store, Percent, Headphones, GraduationCap, Menu, User, Briefcase, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
@@ -167,12 +167,6 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 md:px-6 text-center animate-fade-in-up pt-24 sm:pt-8">
-        {/* Morocco Flag Badge */}
-        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl border border-white/30 rounded-full px-5 md:px-7 py-2.5 mb-6 md:mb-8 shadow-lg">
-          <span className="text-2xl md:text-3xl">🇲🇦</span>
-          <span className="text-white font-bold text-base md:text-lg tracking-wide">100% Moroccan</span>
-        </div>
-
         {/* Main Headline - Enhanced with bolder Atlas and Door */}
         <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white mb-4 md:mb-6 leading-tight tracking-tight px-2">
           <span className="font-medium">From the </span>
@@ -215,36 +209,24 @@ const Hero = () => {
           </Link>
         </div>
 
-        {/* Enhanced Stats - Glassmorphism with Icons */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto px-4">
+        {/* Simplified Stats - Just 2 key points */}
+        <div className="flex flex-col sm:flex-row gap-4 md:gap-8 justify-center items-center max-w-3xl mx-auto px-4">
           {/* 10% Commission */}
-          <div className="group backdrop-blur-xl bg-white/10 rounded-3xl p-6 md:p-8 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.3),_inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_12px_48px_rgba(23,94,84,0.4),_inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-500 hover:scale-105 hover:bg-white/15">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Percent className="w-6 h-6 md:w-8 md:h-8 text-primary-glow" />
-              <div className="text-4xl md:text-6xl font-black text-white drop-shadow-lg">10%</div>
+          <div className="group backdrop-blur-xl bg-white/10 rounded-2xl px-8 py-5 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:bg-white/15 flex items-center gap-4">
+            <Percent className="w-8 h-8 text-primary-glow" />
+            <div className="text-left">
+              <div className="text-2xl md:text-3xl font-black text-white">10% Commission</div>
+              <div className="text-white/70 text-sm">Lowest in Morocco</div>
             </div>
-            <div className="text-secondary text-base md:text-lg font-bold">Commission</div>
-            <div className="text-white/70 text-xs md:text-sm mt-1">Lowest in Morocco</div>
           </div>
           
           {/* 24/7 Support */}
-          <div className="group backdrop-blur-xl bg-white/10 rounded-3xl p-6 md:p-8 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.3),_inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_12px_48px_rgba(195,91,50,0.4),_inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-500 hover:scale-105 hover:bg-white/15">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Headphones className="w-6 h-6 md:w-8 md:h-8 text-accent" />
-              <div className="text-4xl md:text-6xl font-black text-white drop-shadow-lg">24/7</div>
+          <div className="group backdrop-blur-xl bg-white/10 rounded-2xl px-8 py-5 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:bg-white/15 flex items-center gap-4">
+            <Headphones className="w-8 h-8 text-accent" />
+            <div className="text-left">
+              <div className="text-2xl md:text-3xl font-black text-white">24/7 Support</div>
+              <div className="text-white/70 text-sm">Always here for you</div>
             </div>
-            <div className="text-secondary text-base md:text-lg font-bold">Support</div>
-            <div className="text-white/70 text-xs md:text-sm mt-1">Always here for you</div>
-          </div>
-          
-          {/* 100% Moroccan */}
-          <div className="group backdrop-blur-xl bg-white/10 rounded-3xl p-6 md:p-8 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.3),_inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_12px_48px_rgba(233,216,166,0.4),_inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-500 hover:scale-105 hover:bg-white/15">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <MapPin className="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-              <div className="text-4xl md:text-6xl font-black text-white drop-shadow-lg">100%</div>
-            </div>
-            <div className="text-secondary text-base md:text-lg font-bold">Moroccan</div>
-            <div className="text-white/70 text-xs md:text-sm mt-1">Built in Morocco</div>
           </div>
         </div>
       </div>
