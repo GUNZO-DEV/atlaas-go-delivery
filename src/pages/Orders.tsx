@@ -17,13 +17,15 @@ import {
   CheckCircle2, 
   XCircle,
   MapPin,
-  ChevronRight,
   ChevronDown,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Download,
+  Share2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { downloadReceipt, shareReceipt } from "@/utils/receiptGenerator";
 
 interface OrderItem {
   id: string;
@@ -438,6 +440,40 @@ const Orders = () => {
                               <span>{(order.total_amount + order.delivery_fee).toFixed(2)} MAD</span>
                             </div>
                           </div>
+
+                          {/* Receipt Actions for Delivered Orders */}
+                          {order.status === 'delivered' && (
+                            <div className="pt-3 mt-3 border-t border-border/50 flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 h-8 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  downloadReceipt(order);
+                                  toast.success('Receipt opened for printing');
+                                }}
+                              >
+                                <Download className="w-4 h-4 mr-1" />
+                                Download Receipt
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 h-8 text-xs"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  const shared = await shareReceipt(order);
+                                  if (shared) {
+                                    toast.success('Receipt shared successfully');
+                                  }
+                                }}
+                              >
+                                <Share2 className="w-4 h-4 mr-1" />
+                                Share
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CollapsibleContent>
