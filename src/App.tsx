@@ -35,6 +35,7 @@ import Favorites from "./pages/Favorites";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminSetup from "./pages/AdminSetup";
 import AuierDelivery from "./pages/AuierDelivery";
+import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
 
@@ -44,40 +45,43 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/merchant-auth" element={<MerchantAuth />} />
-          <Route path="/admin/setup" element={<AdminSetup />} />
-          <Route path="/rider-auth" element={<RiderAuth />} />
-          <Route path="/install" element={<Install />} />
-          <Route path="/partner-restaurant" element={<PartnerRestaurant />} />
-          <Route path="/restaurants" element={<Restaurants />} />
-          <Route path="/auier-delivery" element={<AuierDelivery />} />
-          <Route path="/customer" element={<ProtectedRoute requiredRole="customer"><CustomerDashboard /></ProtectedRoute>} />
-          <Route path="/merchant" element={<ProtectedRoute requiredRole="merchant"><MerchantDashboard /></ProtectedRoute>} />
-          <Route path="/rider" element={<ProtectedRoute requiredRole="rider"><RiderDashboard /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/track/:orderId" element={<ProtectedRoute><TrackDelivery /></ProtectedRoute>} />
-          <Route path="/test-setup" element={<TestSetup />} />
-          <Route path="/restaurant/:restaurantId?" element={<RestaurantMenu />} />
-          <Route path="/group-order/:mode?" element={<GroupOrder />} />
-          <Route path="/merchant/analytics" element={<ProtectedRoute requiredRole="merchant"><MerchantAnalytics /></ProtectedRoute>} />
-          <Route path="/rider/earnings" element={<ProtectedRoute requiredRole="rider"><RiderEarnings /></ProtectedRoute>} />
-          <Route path="/customer/settings" element={<ProtectedRoute requiredRole="customer"><CustomerSettings /></ProtectedRoute>} />
-          <Route path="/rider/settings" element={<ProtectedRoute requiredRole="rider"><RiderSettings /></ProtectedRoute>} />
-          <Route path="/merchant/settings" element={<ProtectedRoute requiredRole="merchant"><MerchantSettings /></ProtectedRoute>} />
-          <Route path="/about" element={<About />} />
-          <Route path="/help" element={<HelpCenter />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/safety" element={<Safety />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/realtime-demo" element={<RealtimeDemo />} />
-          <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="pb-16 sm:pb-0">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/merchant-auth" element={<MerchantAuth />} />
+            <Route path="/admin/setup" element={<AdminSetup />} />
+            <Route path="/rider-auth" element={<RiderAuth />} />
+            <Route path="/install" element={<Install />} />
+            <Route path="/partner-restaurant" element={<PartnerRestaurant />} />
+            <Route path="/restaurants" element={<Restaurants />} />
+            <Route path="/auier-delivery" element={<AuierDelivery />} />
+            <Route path="/customer" element={<ProtectedRoute requiredRole="customer"><CustomerDashboard /></ProtectedRoute>} />
+            <Route path="/merchant" element={<ProtectedRoute requiredRole="merchant"><MerchantDashboard /></ProtectedRoute>} />
+            <Route path="/rider" element={<ProtectedRoute requiredRole="rider"><RiderDashboard /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/track/:orderId" element={<ProtectedRoute><TrackDelivery /></ProtectedRoute>} />
+            <Route path="/test-setup" element={<TestSetup />} />
+            <Route path="/restaurant/:restaurantId?" element={<RestaurantMenu />} />
+            <Route path="/group-order/:mode?" element={<GroupOrder />} />
+            <Route path="/merchant/analytics" element={<ProtectedRoute requiredRole="merchant"><MerchantAnalytics /></ProtectedRoute>} />
+            <Route path="/rider/earnings" element={<ProtectedRoute requiredRole="rider"><RiderEarnings /></ProtectedRoute>} />
+            <Route path="/customer/settings" element={<ProtectedRoute requiredRole="customer"><CustomerSettings /></ProtectedRoute>} />
+            <Route path="/rider/settings" element={<ProtectedRoute requiredRole="rider"><RiderSettings /></ProtectedRoute>} />
+            <Route path="/merchant/settings" element={<ProtectedRoute requiredRole="merchant"><MerchantSettings /></ProtectedRoute>} />
+            <Route path="/about" element={<About />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/safety" element={<Safety />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/realtime-demo" element={<RealtimeDemo />} />
+            <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+        <MobileBottomNav />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
