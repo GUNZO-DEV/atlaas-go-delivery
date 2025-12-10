@@ -1,8 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Hero from "@/components/Hero";
 import FeaturedRestaurants from "@/components/FeaturedRestaurants";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import AppPreview from "@/components/AppPreview";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,7 +18,7 @@ const Index = () => {
       <Hero />
       <FeaturedRestaurants />
       
-      {/* Quick Order Section - Simplified */}
+      {/* Quick Order Section */}
       <section className="py-12 md:py-16 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
@@ -82,8 +80,6 @@ const Index = () => {
         </div>
       </section>
 
-      <TestimonialsSection />
-      <AppPreview />
       <Footer />
       <AtlaasAIChat />
     </div>
