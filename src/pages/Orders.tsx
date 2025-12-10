@@ -21,7 +21,9 @@ import {
   RefreshCw,
   ExternalLink,
   Download,
-  Share2
+  Share2,
+  Mail,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
@@ -76,6 +78,8 @@ const Orders = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [sendingEmailForOrder, setSendingEmailForOrder] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   const toggleExpand = (orderId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -90,6 +94,29 @@ const Orders = () => {
     });
   };
 
+  const sendEmailReceipt = async (orderId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userEmail) {
+      toast.error('Unable to send email - no email address found');
+      return;
+    }
+    
+    setSendingEmailForOrder(orderId);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-receipt-email', {
+        body: { orderId, userEmail }
+      });
+      
+      if (error) throw error;
+      toast.success('Receipt sent to your email!');
+    } catch (error: any) {
+      console.error('Error sending email:', error);
+      toast.error('Failed to send email receipt');
+    } finally {
+      setSendingEmailForOrder(null);
+    }
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -98,6 +125,7 @@ const Orders = () => {
         return;
       }
       setUserId(user.id);
+      setUserEmail(user.email || null);
     };
     checkAuth();
   }, [navigate]);
@@ -443,11 +471,11 @@ const Orders = () => {
 
                           {/* Receipt Actions for Delivered Orders */}
                           {order.status === 'delivered' && (
-                            <div className="pt-3 mt-3 border-t border-border/50 flex gap-2">
+                            <div className="pt-3 mt-3 border-t border-border/50 flex flex-wrap gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="flex-1 h-8 text-xs"
+                                className="flex-1 h-8 text-xs min-w-[100px]"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   downloadReceipt(order);
@@ -455,12 +483,12 @@ const Orders = () => {
                                 }}
                               >
                                 <Download className="w-4 h-4 mr-1" />
-                                Download Receipt
+                                Download
                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="flex-1 h-8 text-xs"
+                                className="flex-1 h-8 text-xs min-w-[100px]"
                                 onClick={async (e) => {
                                   e.stopPropagation();
                                   const shared = await shareReceipt(order);
@@ -471,6 +499,20 @@ const Orders = () => {
                               >
                                 <Share2 className="w-4 h-4 mr-1" />
                                 Share
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 h-8 text-xs min-w-[100px]"
+                                onClick={(e) => sendEmailReceipt(order.id, e)}
+                                disabled={sendingEmailForOrder === order.id}
+                              >
+                                {sendingEmailForOrder === order.id ? (
+                                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                ) : (
+                                  <Mail className="w-4 h-4 mr-1" />
+                                )}
+                                Email
                               </Button>
                             </div>
                           )}
