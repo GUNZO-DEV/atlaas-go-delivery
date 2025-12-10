@@ -133,6 +133,27 @@ export type Database = {
           },
         ]
       }
+      city_waitlist: {
+        Row: {
+          city: string
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       delivery_metrics: {
         Row: {
           actual_minutes: number | null

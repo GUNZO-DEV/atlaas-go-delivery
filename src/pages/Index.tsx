@@ -5,10 +5,15 @@ import FeaturedRestaurants from "@/components/FeaturedRestaurants";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Store, Bike, Smartphone, MapPin, Clock, Shield, Bell, CreditCard, QrCode, Star, Package, Heart, Search, Navigation, CheckCircle2, Utensils, MessageCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Store, Bike, Smartphone, MapPin, Clock, Shield, Bell, CreditCard, QrCode, Star, Package, Heart, Search, Navigation, CheckCircle2, Utensils, MessageCircle, Mail } from "lucide-react";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AuierDeliveryIcon from "@/components/AuierDeliveryIcon";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 // Enhanced Phone screen content components
 const HomeScreen = () => (
@@ -181,6 +186,10 @@ const Index = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [activeScreen, setActiveScreen] = useState(0);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("");
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const screens = [
     { component: <HomeScreen />, label: "Home", icon: Search },
@@ -188,6 +197,44 @@ const Index = () => {
     { component: <NotificationsScreen />, label: "Alerts", icon: Bell },
     { component: <ChatScreen />, label: "Chat", icon: MessageCircle },
   ];
+
+  const comingSoonCities = [
+    { name: "Fes", desc: "Morocco's cultural capital" },
+    { name: "Meknes", desc: "The Imperial city" },
+  ];
+
+  const handleJoinWaitlist = (city: string) => {
+    setSelectedCity(city);
+    setWaitlistOpen(true);
+  };
+
+  const handleSubmitWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waitlistEmail || !selectedCity) return;
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('city_waitlist')
+        .insert({ email: waitlistEmail, city: selectedCity });
+      
+      if (error) {
+        if (error.code === '23505') {
+          toast.info("You're already on the waitlist for " + selectedCity + "!");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("You're on the waitlist for " + selectedCity + "! We'll notify you when we launch.");
+      }
+      setWaitlistOpen(false);
+      setWaitlistEmail("");
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -381,26 +428,68 @@ const Index = () => {
             </Card>
             
             {/* Coming Soon Cities */}
-            {[
-              { name: "Fes", desc: "Morocco's cultural capital" },
-              { name: "Meknes", desc: "The Imperial city" },
-            ].map((city, i) => (
-              <Card key={i} className="border-dashed border-2 bg-muted/20 hover:bg-muted/30 transition-all">
+            {comingSoonCities.map((city, i) => (
+              <Card key={i} className="border-dashed border-2 bg-muted/20 hover:bg-muted/30 transition-all group">
                 <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="w-8 h-8 text-muted-foreground" />
+                  <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-500/10 transition-colors">
+                    <MapPin className="w-8 h-8 text-muted-foreground group-hover:text-amber-500 transition-colors" />
                   </div>
                   <div className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-600 text-xs font-semibold px-3 py-1 rounded-full mb-3">
                     COMING SOON
                   </div>
                   <h3 className="text-xl font-bold mb-1 text-muted-foreground">{city.name}</h3>
-                  <p className="text-muted-foreground text-sm">{city.desc}</p>
+                  <p className="text-muted-foreground text-sm mb-4">{city.desc}</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2 border-amber-500/50 text-amber-600 hover:bg-amber-500/10 hover:text-amber-600"
+                    onClick={() => handleJoinWaitlist(city.name)}
+                  >
+                    <Mail className="w-4 h-4" />
+                    Join Waitlist
+                  </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Waitlist Dialog */}
+      <Dialog open={waitlistOpen} onOpenChange={setWaitlistOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-amber-500" />
+              Join {selectedCity} Waitlist
+            </DialogTitle>
+            <DialogDescription>
+              Be the first to know when ATLAAS GO launches in {selectedCity}. We'll send you an email notification.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmitWaitlist} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="waitlist-email">Email address</Label>
+              <Input
+                id="waitlist-email"
+                type="email"
+                placeholder="your@email.com"
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setWaitlistOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" className="flex-1 bg-amber-500 hover:bg-amber-600" disabled={isSubmitting}>
+                {isSubmitting ? "Joining..." : "Join Waitlist"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Partner Section */}
       <section className="py-12 md:py-16 bg-muted/30">
