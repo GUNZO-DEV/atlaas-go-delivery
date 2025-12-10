@@ -1,14 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Package, Store, Percent, Headphones, MapPin, GraduationCap } from "lucide-react";
+import { ArrowRight, Package, Store, Percent, Headphones, MapPin, GraduationCap, Menu, X, User, Briefcase, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import AtlaasGoLogo from "@/components/AtlaasGoLogo";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useState } from "react";
 
 const Hero = () => {
   const { t } = useLanguage();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -73,6 +76,91 @@ const Hero = () => {
                 {t('auth.signup')}
               </Button>
             </Link>
+            
+            {/* Mobile Menu */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="sm:hidden">
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px] bg-gradient-to-b from-primary to-primary/95 border-l-0">
+                <div className="flex flex-col gap-4 mt-8">
+                  {/* AUIER Delivery - Featured */}
+                  <Link 
+                    to="/auier-delivery" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white p-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-transform"
+                  >
+                    <GraduationCap className="w-6 h-6" />
+                    <div>
+                      <div className="text-base">AUIER Delivery</div>
+                      <div className="text-xs opacity-90">Campus Delivery Service</div>
+                    </div>
+                  </Link>
+                  
+                  <div className="border-t border-white/20 my-2" />
+                  
+                  {/* Navigation Links */}
+                  <Link 
+                    to="/restaurants" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-white p-3 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <Package className="w-5 h-5" />
+                    <span className="font-medium">Order Food</span>
+                  </Link>
+                  
+                  <Link 
+                    to="/partner-restaurant" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-white p-3 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <Store className="w-5 h-5" />
+                    <span className="font-medium">Partner with Us</span>
+                  </Link>
+                  
+                  <Link 
+                    to="/careers" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-white p-3 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <Briefcase className="w-5 h-5" />
+                    <span className="font-medium">Careers</span>
+                  </Link>
+                  
+                  <Link 
+                    to="/help" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-white p-3 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <HelpCircle className="w-5 h-5" />
+                    <span className="font-medium">Help Center</span>
+                  </Link>
+                  
+                  <div className="border-t border-white/20 my-2" />
+                  
+                  {/* Auth Buttons */}
+                  <Link 
+                    to="/auth?mode=login" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-white p-3 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <User className="w-5 h-5" />
+                    <span className="font-medium">{t('auth.login')}</span>
+                  </Link>
+                  
+                  <Link 
+                    to="/auth?mode=signup" 
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Button className="w-full bg-white text-primary font-bold hover:bg-white/90">
+                      {t('auth.signup')}
+                    </Button>
+                  </Link>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
