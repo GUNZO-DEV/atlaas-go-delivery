@@ -67,7 +67,7 @@ const MobileBottomNav = () => {
 
   const navItems = [
     { icon: Home, label: "Home", path: "/", badge: 0 },
-    { icon: ShoppingBag, label: "Orders", path: "/customer", badge: 0 },
+    { icon: ShoppingBag, label: "Orders", path: "/orders", badge: 0 },
     { icon: GraduationCap, label: "AUIER", path: "/auier-delivery", featured: true, badge: 0 },
     { icon: Bell, label: "Inbox", path: "/notifications", badge: unreadOrders },
     { icon: User, label: "Profile", path: "/auth", badge: 0 },

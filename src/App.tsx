@@ -36,6 +36,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminSetup from "./pages/AdminSetup";
 import AuierDelivery from "./pages/AuierDelivery";
 import Notifications from "./pages/Notifications";
+import Orders from "./pages/Orders";
 import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
@@ -79,6 +80,7 @@ const App = () => (
             <Route path="/realtime-demo" element={<RealtimeDemo />} />
             <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
             <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+            <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
