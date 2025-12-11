@@ -3,17 +3,10 @@ import Hero from "@/components/Hero";
 import FeaturedRestaurants from "@/components/FeaturedRestaurants";
 import AuierHighlightSection from "@/components/AuierHighlightSection";
 import SpecialOffersBanner from "@/components/SpecialOffersBanner";
-import HowItWorksSection from "@/components/HowItWorksSection";
 import PopularCategories from "@/components/PopularCategories";
 import SocialProofStrip from "@/components/SocialProofStrip";
-import LiveTrackingDemo from "@/components/LiveTrackingDemo";
 import PartnerCTA from "@/components/PartnerCTA";
-import MerchantSection from "@/components/MerchantSection";
-import DriverSection from "@/components/DriverSection";
-import CustomerSection from "@/components/CustomerSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
-import CityPresenceMap from "@/components/CityPresenceMap";
-import AppPreview from "@/components/AppPreview";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,16 +19,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      {/* 1. Hero - Strong first impression */}
+      {/* 1. Hero */}
       <Hero />
 
-      {/* 2. Special Offers Banner - Encourage conversion */}
+      {/* 2. Special Offers */}
       <SpecialOffersBanner />
       
-      {/* 3. AUIER Highlight - Campus delivery for students */}
+      {/* 3. AUIER Campus Delivery */}
       <AuierHighlightSection />
       
-      {/* 4. Quick Order Cards - Fast path to ordering */}
+      {/* 4. Quick Order Cards */}
       <section className="py-10 md:py-14 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 animate-fade-in">
@@ -43,7 +36,6 @@ const Index = () => {
             <p className="text-muted-foreground text-sm md:text-base">{t('order.subtitle')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
-            {/* Browse All Restaurants */}
             <Card className="w-full hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer" onClick={() => navigate("/restaurants")}>
               <CardContent className="p-5">
                 <img 
@@ -59,7 +51,6 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Hani Sugar Art */}
             <Card className="w-full hover:shadow-lg hover-scale transition-all duration-300 cursor-pointer border-primary/30 bg-gradient-to-br from-background to-primary/5" onClick={() => navigate("/restaurant")}>
               <CardContent className="p-5">
                 <div className="relative">
@@ -86,44 +77,24 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 5. Popular Categories - Quick filter */}
+      {/* 5. Popular Categories */}
       <PopularCategories />
 
-      {/* 6. How It Works - Build confidence */}
-      <HowItWorksSection />
-
-      {/* 7. Social Proof - Trust signals */}
+      {/* 6. Social Proof */}
       <SocialProofStrip />
 
-      {/* 8. Featured Restaurants - Discovery */}
+      {/* 7. Featured Restaurants */}
       <FeaturedRestaurants />
 
-      {/* 8. Live Tracking Demo - Show tech */}
-      <LiveTrackingDemo />
-      
-      {/* 9. Partner CTA - Compact partner section */}
-      <PartnerCTA />
-
-      {/* 10. Detailed Benefits (for partners scrolling deeper) */}
-      <MerchantSection />
-      <DriverSection />
-      
-      {/* 11. Customer Categories */}
-      <CustomerSection />
-      
-      {/* 12. Testimonials - Social proof */}
+      {/* 8. Testimonials */}
       <TestimonialsSection />
       
-      {/* 13. City Presence */}
-      <CityPresenceMap />
+      {/* 9. Partner CTA */}
+      <PartnerCTA />
       
-      {/* 14. App Preview */}
-      <AppPreview />
-      
-      {/* 15. Footer */}
+      {/* 10. Footer */}
       <Footer />
       
-      {/* AI Chat */}
       <AtlaasAIChat />
     </div>
   );
