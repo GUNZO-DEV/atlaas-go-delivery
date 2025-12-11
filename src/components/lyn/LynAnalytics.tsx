@@ -107,15 +107,15 @@ const LynAnalytics = ({ restaurant }: LynAnalyticsProps) => {
   }, {} as Record<string, number>);
 
   const bestSellers = Object.entries(itemSales)
-    .map(([name, quantity]) => ({ name, quantity }))
+    .map(([name, quantity]) => ({ name, quantity: quantity as number }))
     .sort((a, b) => b.quantity - a.quantity)
     .slice(0, 5);
 
   // Peak hours
   const peakHours = Object.entries(ordersByHour)
-    .sort((a, b) => b[1] - a[1])
+    .sort((a, b) => (b[1] as number) - (a[1] as number))
     .slice(0, 3)
-    .map(([hour, count]) => ({ hour: parseInt(hour), count }));
+    .map(([hour, count]) => ({ hour: parseInt(hour), count: count as number }));
 
   if (loading) {
     return (
@@ -308,17 +308,12 @@ const LynAnalytics = ({ restaurant }: LynAnalyticsProps) => {
                     />
                   </PieChart>
                 </ResponsiveContainer>
-                    <div className="space-y-2">
-                      {typeChartData.map((entry, index) => (
-                        <div key={entry.name} className="flex items-center gap-2">
-                          <div 
-                            className="w-3 h-3 rounded-full" 
-                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                          />
-                          <span className="text-sm">{entry.name}: {entry.value}</span>
-                        </div>
-                      ))}
-                    </div>
+                <div className="space-y-2 ml-4">
+                  {typeChartData.map((entry, index) => (
+                    <div key={entry.name} className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
                       />
                       <span className="text-sm">{entry.name}: {entry.value}</span>
                     </div>
@@ -382,11 +377,6 @@ const LynAnalytics = ({ restaurant }: LynAnalyticsProps) => {
                   className="text-2xl font-bold"
                   style={{ color: COLORS[index % COLORS.length] }}
                 >
-                  {method.value.toFixed(0)} DH
-                </p>
-              </div>
-            ))}
-          </div>
                   {method.value.toFixed(0)} DH
                 </p>
               </div>

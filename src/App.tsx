@@ -37,6 +37,7 @@ import AdminSetup from "./pages/AdminSetup";
 import AuierDelivery from "./pages/AuierDelivery";
 import Notifications from "./pages/Notifications";
 import Orders from "./pages/Orders";
+import LynRestaurantDashboard from "./pages/LynRestaurantDashboard";
 import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
@@ -81,6 +82,7 @@ const App = () => (
             <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
             <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+            <Route path="/lyn-dashboard" element={<ProtectedRoute requiredRole="merchant"><LynRestaurantDashboard /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
