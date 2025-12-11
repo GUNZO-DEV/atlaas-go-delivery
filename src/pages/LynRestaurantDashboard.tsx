@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutGrid, ChefHat, ShoppingCart, DollarSign, Package, UserCog, BarChart3,
-  LogOut, Calendar, Megaphone, AlertTriangle, ClipboardList, Crown, Bell
+  LogOut, Calendar, Megaphone, AlertTriangle, ClipboardList, Crown, History, PieChart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LynTableFloorPlan from "@/components/lyn/LynTableFloorPlan";
@@ -15,7 +15,6 @@ import LynOrdersManagement from "@/components/lyn/LynOrdersManagement";
 import LynFinancesManagement from "@/components/lyn/LynFinancesManagement";
 import LynInventoryManagement from "@/components/lyn/LynInventoryManagement";
 import LynStaffManagement from "@/components/lyn/LynStaffManagement";
-import LynAnalytics from "@/components/lyn/LynAnalytics";
 import LynDarkModeToggle from "@/components/lyn/LynDarkModeToggle";
 import LynReservationsManagement from "@/components/lyn/LynReservationsManagement";
 import LynAnnouncementsBoard from "@/components/lyn/LynAnnouncementsBoard";
@@ -24,6 +23,9 @@ import LynChecklistsManager from "@/components/lyn/LynChecklistsManager";
 import LynCustomerLoyalty from "@/components/lyn/LynCustomerLoyalty";
 import LynOperationalAlerts from "@/components/lyn/LynOperationalAlerts";
 import LynWeatherWidget from "@/components/lyn/LynWeatherWidget";
+import LynMenuEngineering from "@/components/lyn/LynMenuEngineering";
+import LynAuditLogs from "@/components/lyn/LynAuditLogs";
+import LynOfflineIndicator from "@/components/lyn/LynOfflineIndicator";
 
 const LynRestaurantDashboard = () => {
   const [restaurant, setRestaurant] = useState<any>(null);
@@ -73,12 +75,14 @@ const LynRestaurantDashboard = () => {
     { id: "orders", label: "Orders", icon: ShoppingCart },
     { id: "reservations", label: "Reservations", icon: Calendar },
     { id: "customers", label: "Loyalty", icon: Crown },
+    { id: "menu", label: "Menu Eng.", icon: PieChart },
     { id: "finances", label: "Finances", icon: DollarSign },
     { id: "inventory", label: "Inventory", icon: Package },
     { id: "staff", label: "Staff", icon: UserCog },
     { id: "checklists", label: "Checklists", icon: ClipboardList },
     { id: "announcements", label: "Comms", icon: Megaphone },
     { id: "incidents", label: "Incidents", icon: AlertTriangle },
+    { id: "audit", label: "Audit Logs", icon: History },
     { id: "overview", label: "Overview", icon: BarChart3 },
   ];
 
@@ -96,6 +100,7 @@ const LynRestaurantDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <LynOfflineIndicator />
             <LynDarkModeToggle />
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />Logout
@@ -126,12 +131,14 @@ const LynRestaurantDashboard = () => {
           <TabsContent value="orders"><LynOrdersManagement restaurant={restaurant} /></TabsContent>
           <TabsContent value="reservations"><LynReservationsManagement restaurant={restaurant} /></TabsContent>
           <TabsContent value="customers"><LynCustomerLoyalty restaurant={restaurant} /></TabsContent>
+          <TabsContent value="menu"><LynMenuEngineering restaurant={restaurant} /></TabsContent>
           <TabsContent value="finances"><LynFinancesManagement restaurant={restaurant} /></TabsContent>
           <TabsContent value="inventory"><LynInventoryManagement restaurant={restaurant} /></TabsContent>
           <TabsContent value="staff"><LynStaffManagement restaurant={restaurant} /></TabsContent>
           <TabsContent value="checklists"><LynChecklistsManager restaurant={restaurant} /></TabsContent>
           <TabsContent value="announcements"><LynAnnouncementsBoard restaurant={restaurant} /></TabsContent>
           <TabsContent value="incidents"><LynIncidentsLog restaurant={restaurant} /></TabsContent>
+          <TabsContent value="audit"><LynAuditLogs restaurant={restaurant} /></TabsContent>
           <TabsContent value="overview"><LynManagerDashboard restaurant={restaurant} /></TabsContent>
         </Tabs>
       </main>
