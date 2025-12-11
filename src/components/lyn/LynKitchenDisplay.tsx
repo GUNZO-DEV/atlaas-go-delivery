@@ -106,39 +106,39 @@ const LynKitchenDisplay = ({ restaurant }: LynKitchenDisplayProps) => {
   return (
     <div className="space-y-4">
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 md:gap-4">
         <Card className="bg-yellow-500/10 border-yellow-500/20">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 bg-yellow-500/20 rounded-full">
-              <Bell className="h-6 w-6 text-yellow-600" />
+          <CardContent className="p-2 md:p-4 flex items-center gap-2 md:gap-3">
+            <div className="p-2 md:p-3 bg-yellow-500/20 rounded-full shrink-0">
+              <Bell className="h-4 w-4 md:h-6 md:w-6 text-yellow-600" />
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">New Orders</p>
-              <p className="text-3xl font-bold">{pendingOrders.length}</p>
+            <div className="min-w-0">
+              <p className="text-[10px] md:text-sm text-muted-foreground truncate">New</p>
+              <p className="text-xl md:text-3xl font-bold">{pendingOrders.length}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-orange-500/10 border-orange-500/20">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 bg-orange-500/20 rounded-full">
-              <ChefHat className="h-6 w-6 text-orange-600" />
+          <CardContent className="p-2 md:p-4 flex items-center gap-2 md:gap-3">
+            <div className="p-2 md:p-3 bg-orange-500/20 rounded-full shrink-0">
+              <ChefHat className="h-4 w-4 md:h-6 md:w-6 text-orange-600" />
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Preparing</p>
-              <p className="text-3xl font-bold">{preparingOrders.length}</p>
+            <div className="min-w-0">
+              <p className="text-[10px] md:text-sm text-muted-foreground truncate">Prep</p>
+              <p className="text-xl md:text-3xl font-bold">{preparingOrders.length}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-primary/10 border-primary/20">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 bg-primary/20 rounded-full">
-              <Timer className="h-6 w-6 text-primary" />
+          <CardContent className="p-2 md:p-4 flex items-center gap-2 md:gap-3">
+            <div className="p-2 md:p-3 bg-primary/20 rounded-full shrink-0">
+              <Timer className="h-4 w-4 md:h-6 md:w-6 text-primary" />
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Avg Wait</p>
-              <p className="text-3xl font-bold">
+            <div className="min-w-0">
+              <p className="text-[10px] md:text-sm text-muted-foreground truncate">Wait</p>
+              <p className="text-xl md:text-3xl font-bold">
                 {orders.length > 0 
                   ? Math.round(orders.reduce((sum, o) => sum + getWaitTime(o.created_at), 0) / orders.length)
                   : 0}m
@@ -157,7 +157,7 @@ const LynKitchenDisplay = ({ restaurant }: LynKitchenDisplayProps) => {
       </div>
 
       {/* Orders Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         {orders.length === 0 ? (
           <Card className="col-span-full">
             <CardContent className="p-12 text-center text-muted-foreground">

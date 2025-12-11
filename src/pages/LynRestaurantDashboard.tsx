@@ -6,9 +6,12 @@ import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutGrid, ChefHat, ShoppingCart, DollarSign, Package, UserCog, BarChart3,
-  LogOut, Calendar, Megaphone, AlertTriangle, ClipboardList, Crown, History, PieChart
+  LogOut, Calendar, Megaphone, AlertTriangle, ClipboardList, Crown, History, PieChart,
+  Menu, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import LynTableFloorPlan from "@/components/lyn/LynTableFloorPlan";
 import LynKitchenDisplay from "@/components/lyn/LynKitchenDisplay";
 import LynManagerDashboard from "@/components/lyn/LynManagerDashboard";
@@ -32,9 +35,11 @@ const LynRestaurantDashboard = () => {
   const [restaurant, setRestaurant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("tables");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { fetchWithCache, isOnline, cacheData, getCachedData } = useOfflineSync();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     checkAuthAndLoadRestaurant();
@@ -146,46 +151,60 @@ cacheData('lyn_restaurant', restaurantData);
     { id: "overview", label: "Overview", icon: BarChart3 },
   ];
 
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setMobileNavOpen(false);
+  };
+
+  const ActiveTabIcon = tabs.find(t => t.id === activeTab)?.icon || LayoutGrid;
+  const activeTabLabel = tabs.find(t => t.id === activeTab)?.label || "Tables";
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">L</span>
+        <div className="container mx-auto px-3 md:px-4 py-2 md:py-3 flex items-center justify-between">
+          {/* Left: Logo + Name */}
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-lg flex items-center justify-center shrink-0">
+              <span className="text-primary-foreground font-bold text-sm md:text-lg">L</span>
             </div>
-            <div>
-              <h1 className="font-bold text-lg text-foreground">{restaurant.name}</h1>
-              <p className="text-xs text-muted-foreground">Enterprise Management</p>
+            <div className="min-w-0">
+              <h1 className="font-bold text-sm md:text-lg text-foreground truncate max-w-[120px] md:max-w-none">{restaurant.name}</h1>
+              <p className="text-[10px] md:text-xs text-muted-foreground hidden md:block">Enterprise Management</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          
+          {/* Right: Actions */}
+          <div className="flex items-center gap-1 md:gap-2">
             <LynOfflineIndicator />
             <LynDarkModeToggle />
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />Logout
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 px-2 md:px-3">
+              <LogOut className="h-4 w-4" />
+              <span className="hidden md:inline ml-2">Logout</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 md:px-4 py-4 md:py-6">
         {/* Alerts & Weather Row */}
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
           <LynOperationalAlerts restaurant={restaurant} />
           <LynWeatherWidget restaurant={restaurant} />
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="w-full justify-start overflow-x-auto bg-muted/50 p-1 h-auto flex-nowrap">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
+          {/* Desktop Tabs */}
+          <TabsList className="hidden md:flex w-full justify-start overflow-x-auto bg-muted/50 p-1 h-auto flex-nowrap">
             {tabs.map((tab) => (
               <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 px-3 py-2 data-[state=active]:bg-background whitespace-nowrap">
                 <tab.icon className="h-4 w-4" />
-                <span className="hidden sm:inline text-xs">{tab.label}</span>
+                <span className="text-xs">{tab.label}</span>
               </TabsTrigger>
             ))}
           </TabsList>
 
+          {/* Tab Content */}
           <TabsContent value="tables"><LynTableFloorPlan restaurant={restaurant} /></TabsContent>
           <TabsContent value="kitchen"><LynKitchenDisplay restaurant={restaurant} /></TabsContent>
           <TabsContent value="orders"><LynOrdersManagement restaurant={restaurant} /></TabsContent>
@@ -202,6 +221,60 @@ cacheData('lyn_restaurant', restaurantData);
           <TabsContent value="overview"><LynManagerDashboard restaurant={restaurant} /></TabsContent>
         </Tabs>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      {isMobile && (
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-lg">
+          <div className="flex items-center justify-around py-2 px-1">
+            {/* Quick access tabs */}
+            {tabs.slice(0, 4).map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-colors min-w-[60px] ${
+                  activeTab === tab.id 
+                    ? 'text-primary bg-primary/10' 
+                    : 'text-muted-foreground'
+                }`}
+              >
+                <tab.icon className="h-5 w-5" />
+                <span className="text-[10px] font-medium">{tab.label}</span>
+              </button>
+            ))}
+            
+            {/* More menu */}
+            <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+              <SheetTrigger asChild>
+                <button className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg text-muted-foreground min-w-[60px]">
+                  <Menu className="h-5 w-5" />
+                  <span className="text-[10px] font-medium">More</span>
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[70vh] rounded-t-xl">
+                <SheetHeader className="pb-4">
+                  <SheetTitle>Navigation</SheetTitle>
+                </SheetHeader>
+                <div className="grid grid-cols-3 gap-3">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => handleTabChange(tab.id)}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-colors ${
+                        activeTab === tab.id 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'bg-muted/50 text-foreground hover:bg-muted'
+                      }`}
+                    >
+                      <tab.icon className="h-6 w-6" />
+                      <span className="text-xs font-medium text-center">{tab.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </nav>
+      )}
     </div>
   );
 };
