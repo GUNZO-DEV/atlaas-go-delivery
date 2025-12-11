@@ -76,9 +76,12 @@ const LynRestaurantDashboard = () => {
       }
       
       // Cache the restaurant data for offline use
-      cacheData('lyn_restaurant', restaurantData);
+cacheData('lyn_restaurant', restaurantData);
       cacheData('lyn_user_id', user.id);
       setRestaurant(restaurantData);
+      
+      // Pre-cache menu items for offline order creation
+      preCacheMenuItems(restaurantData.id);
     } catch (error: any) {
       // If offline and we have cached data, use it
       const cachedRestaurant = getCachedData<any>('lyn_restaurant');
@@ -93,6 +96,25 @@ const LynRestaurantDashboard = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Pre-cache menu items for offline use
+  const preCacheMenuItems = async (restaurantId: string) => {
+    try {
+      const { data } = await supabase
+        .from("menu_items")
+        .select("id, name, price, category")
+        .eq("restaurant_id", restaurantId)
+        .eq("is_available", true)
+        .order("category")
+        .order("name");
+      
+      if (data) {
+        cacheData(`menu_items_${restaurantId}`, data);
+      }
+    } catch (error) {
+      console.error("Failed to pre-cache menu items:", error);
     }
   };
 
