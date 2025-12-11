@@ -60,14 +60,24 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
 
   const fetchMenuItems = async () => {
     const cacheKey = `menu_items_${restaurant.id}`;
+    const cachedItems = getCachedData<MenuItem[]>(cacheKey);
     
-    // Try to get cached data first if offline
-    if (!isOnline) {
-      const cachedItems = getCachedData<MenuItem[]>(cacheKey);
+    // If offline, use cached data immediately
+    if (!navigator.onLine) {
       if (cachedItems) {
         setMenuItems(cachedItems);
-        return;
+      } else {
+        toast({
+          title: "Offline Mode",
+          description: "No cached menu available. Add custom items instead.",
+        });
       }
+      return;
+    }
+
+    // Show cached items while fetching
+    if (cachedItems) {
+      setMenuItems(cachedItems);
     }
 
     try {
@@ -85,13 +95,12 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
         cacheData(cacheKey, data);
       }
     } catch (error) {
-      // If fetch fails, try cached data
-      const cachedItems = getCachedData<MenuItem[]>(cacheKey);
-      if (cachedItems) {
-        setMenuItems(cachedItems);
+      // Already showing cached data if available
+      if (!cachedItems) {
         toast({
-          title: "Using Cached Menu",
-          description: "Showing saved menu items from last sync.",
+          title: "Error Loading Menu",
+          description: "Use custom items to create orders.",
+          variant: "destructive"
         });
       }
     }
@@ -183,7 +192,7 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
         updated_at: new Date().toISOString()
       };
 
-      if (isOnline) {
+      if (navigator.onLine) {
         // Online: Insert directly
         const { error } = await supabase
           .from("lyn_restaurant_orders")
@@ -194,6 +203,12 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
       } else {
         // Offline: Queue for sync
         queueAction('insert', 'lyn_restaurant_orders', orderData);
+        
+        // Also update local cache with the new order
+        const cacheKey = `lyn_orders_${restaurant.id}`;
+        const cachedOrders = getCachedData<any[]>(cacheKey) || [];
+        cacheData(cacheKey, [orderData, ...cachedOrders]);
+        
         toast({ 
           title: "Order Saved Offline", 
           description: "Order will sync when you're back online",
