@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Minus, Trash2, UtensilsCrossed, Package, Truck, Search } from "lucide-react";
+import { Plus, Minus, Trash2, UtensilsCrossed, Package, Truck, Search, WifiOff } from "lucide-react";
 
 interface LynNewOrderDialogProps {
   open: boolean;
@@ -48,8 +49,9 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { isOnline, queueAction, cacheData, getCachedData } = useOfflineSync();
 
-  // Fetch menu items
+  // Fetch menu items (with offline support)
   useEffect(() => {
     if (open && restaurant?.id) {
       fetchMenuItems();
@@ -57,16 +59,41 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
   }, [open, restaurant?.id]);
 
   const fetchMenuItems = async () => {
-    const { data, error } = await supabase
-      .from("menu_items")
-      .select("id, name, price, category")
-      .eq("restaurant_id", restaurant.id)
-      .eq("is_available", true)
-      .order("category")
-      .order("name");
+    const cacheKey = `menu_items_${restaurant.id}`;
+    
+    // Try to get cached data first if offline
+    if (!isOnline) {
+      const cachedItems = getCachedData<MenuItem[]>(cacheKey);
+      if (cachedItems) {
+        setMenuItems(cachedItems);
+        return;
+      }
+    }
 
-    if (data) {
-      setMenuItems(data);
+    try {
+      const { data, error } = await supabase
+        .from("menu_items")
+        .select("id, name, price, category")
+        .eq("restaurant_id", restaurant.id)
+        .eq("is_available", true)
+        .order("category")
+        .order("name");
+
+      if (data) {
+        setMenuItems(data);
+        // Cache for offline use
+        cacheData(cacheKey, data);
+      }
+    } catch (error) {
+      // If fetch fails, try cached data
+      const cachedItems = getCachedData<MenuItem[]>(cacheKey);
+      if (cachedItems) {
+        setMenuItems(cachedItems);
+        toast({
+          title: "Using Cached Menu",
+          description: "Showing saved menu items from last sync.",
+        });
+      }
     }
   };
 
@@ -138,6 +165,7 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
     setLoading(true);
     try {
       const orderData = {
+        id: crypto.randomUUID(), // Generate ID for offline tracking
         restaurant_id: restaurant.id,
         order_type: orderType,
         table_number: tableNumber || null,
@@ -150,16 +178,27 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
         payment_method: paymentMethod,
         payment_status: "pending",
         status: "pending",
-        notes: notes || null
+        notes: notes || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
-        .from("lyn_restaurant_orders")
-        .insert(orderData);
+      if (isOnline) {
+        // Online: Insert directly
+        const { error } = await supabase
+          .from("lyn_restaurant_orders")
+          .insert(orderData);
 
-      if (error) throw error;
-
-      toast({ title: "Order Created", description: "The order has been added successfully" });
+        if (error) throw error;
+        toast({ title: "Order Created", description: "The order has been added successfully" });
+      } else {
+        // Offline: Queue for sync
+        queueAction('insert', 'lyn_restaurant_orders', orderData);
+        toast({ 
+          title: "Order Saved Offline", 
+          description: "Order will sync when you're back online",
+        });
+      }
       
       // Reset form
       setOrderType("dine_in");
@@ -186,7 +225,15 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Create New Order</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            Create New Order
+            {!isOnline && (
+              <Badge variant="outline" className="gap-1 bg-yellow-500/10 text-yellow-600 border-yellow-500/30">
+                <WifiOff className="h-3 w-3" />
+                Offline
+              </Badge>
+            )}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
@@ -422,12 +469,14 @@ const LynNewOrderDialog = ({ open, onOpenChange, restaurant, onSuccess }: LynNew
 
               {/* Submit */}
               <Button 
-                className="w-full" 
+                className={`w-full ${!isOnline ? 'bg-yellow-600 hover:bg-yellow-700' : ''}`}
                 size="lg"
                 onClick={createOrder}
                 disabled={loading || items.length === 0}
               >
-                {loading ? "Creating..." : `Create Order - ${total.toFixed(0)} DH`}
+                {loading ? "Creating..." : 
+                  !isOnline ? `Save Offline - ${total.toFixed(0)} DH` : 
+                  `Create Order - ${total.toFixed(0)} DH`}
               </Button>
             </div>
           </div>
