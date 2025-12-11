@@ -7,7 +7,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CustomerDashboard from "./pages/CustomerDashboard";
-import MerchantDashboard from "./pages/MerchantDashboard";
+
 import RiderDashboard from "./pages/RiderDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import TrackDelivery from "./pages/TrackDelivery";
