@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   Plus, Package, AlertTriangle, Search, Edit, Trash2,
-  TrendingUp, Building2
+  TrendingUp, Building2, WifiOff
 } from "lucide-react";
 
 interface LynInventoryManagementProps {
@@ -24,6 +25,7 @@ const LynInventoryManagement = ({ restaurant }: LynInventoryManagementProps) => 
   const [items, setItems] = useState<any[]>([]);
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fromCache, setFromCache] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
@@ -46,6 +48,10 @@ const LynInventoryManagement = ({ restaurant }: LynInventoryManagementProps) => 
     address: ""
   });
   const { toast } = useToast();
+  const { isOnline, cacheData, getCachedData, queueAction } = useOfflineSync();
+
+  const itemsCacheKey = `lyn_inventory_${restaurant.id}`;
+  const suppliersCacheKey = `lyn_suppliers_${restaurant.id}`;
 
   useEffect(() => {
     loadData();
@@ -53,6 +59,20 @@ const LynInventoryManagement = ({ restaurant }: LynInventoryManagementProps) => 
 
   const loadData = async () => {
     setLoading(true);
+    
+    // If offline, use cached data
+    if (!isOnline) {
+      const cachedItems = getCachedData<any[]>(itemsCacheKey);
+      const cachedSuppliers = getCachedData<any[]>(suppliersCacheKey);
+      if (cachedItems) {
+        setItems(cachedItems);
+        setSuppliers(cachedSuppliers || []);
+        setFromCache(true);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const [itemsRes, suppliersRes] = await Promise.all([
         supabase
@@ -70,13 +90,27 @@ const LynInventoryManagement = ({ restaurant }: LynInventoryManagementProps) => 
 
       setItems(itemsRes.data || []);
       setSuppliers(suppliersRes.data || []);
+      setFromCache(false);
+      
+      // Cache for offline
+      cacheData(itemsCacheKey, itemsRes.data);
+      cacheData(suppliersCacheKey, suppliersRes.data);
     } catch (error: any) {
       console.error("Error loading data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load inventory data",
-        variant: "destructive"
-      });
+      
+      // Try cached data
+      const cachedItems = getCachedData<any[]>(itemsCacheKey);
+      if (cachedItems) {
+        setItems(cachedItems);
+        setSuppliers(getCachedData<any[]>(suppliersCacheKey) || []);
+        setFromCache(true);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load inventory data",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -94,6 +128,7 @@ const LynInventoryManagement = ({ restaurant }: LynInventoryManagementProps) => 
 
     try {
       const itemData = {
+        id: editingItem?.id || crypto.randomUUID(),
         restaurant_id: restaurant.id,
         name: newItem.name,
         category: newItem.category,
@@ -101,26 +136,44 @@ const LynInventoryManagement = ({ restaurant }: LynInventoryManagementProps) => 
         min_stock_level: parseInt(newItem.min_stock_level),
         unit: newItem.unit,
         cost_per_unit: newItem.cost_per_unit ? parseFloat(newItem.cost_per_unit) : null,
-        supplier_id: newItem.supplier_id || null
+        supplier_id: newItem.supplier_id || null,
+        updated_at: new Date().toISOString()
       };
 
-      if (editingItem) {
-        const { error } = await supabase
-          .from("lyn_inventory_items")
-          .update(itemData)
-          .eq("id", editingItem.id);
-        if (error) throw error;
-        toast({ title: "Item Updated" });
+      if (isOnline) {
+        if (editingItem) {
+          const { error } = await supabase
+            .from("lyn_inventory_items")
+            .update(itemData)
+            .eq("id", editingItem.id);
+          if (error) throw error;
+          toast({ title: "Item Updated" });
+        } else {
+          const { error } = await supabase
+            .from("lyn_inventory_items")
+            .insert({ ...itemData, created_at: new Date().toISOString() });
+          if (error) throw error;
+          toast({ title: "Item Added" });
+        }
       } else {
-        const { error } = await supabase
-          .from("lyn_inventory_items")
-          .insert(itemData);
-        if (error) throw error;
-        toast({ title: "Item Added" });
+        // Offline mode
+        if (editingItem) {
+          queueAction('update', 'lyn_inventory_items', itemData);
+          setItems(prev => prev.map(item => 
+            item.id === editingItem.id ? { ...item, ...itemData } : item
+          ));
+        } else {
+          queueAction('insert', 'lyn_inventory_items', { ...itemData, created_at: new Date().toISOString() });
+          setItems(prev => [...prev, { ...itemData, created_at: new Date().toISOString() }]);
+        }
+        toast({ 
+          title: "Saved Offline", 
+          description: "Changes will sync when back online" 
+        });
       }
 
       resetItemForm();
-      loadData();
+      if (isOnline) loadData();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -134,13 +187,20 @@ const LynInventoryManagement = ({ restaurant }: LynInventoryManagementProps) => 
     if (!confirm("Delete this item?")) return;
     
     try {
-      const { error } = await supabase
-        .from("lyn_inventory_items")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
-      toast({ title: "Item Deleted" });
-      loadData();
+      if (isOnline) {
+        const { error } = await supabase
+          .from("lyn_inventory_items")
+          .delete()
+          .eq("id", id);
+        if (error) throw error;
+        toast({ title: "Item Deleted" });
+      } else {
+        queueAction('delete', 'lyn_inventory_items', { id });
+        setItems(prev => prev.filter(item => item.id !== id));
+        toast({ title: "Deleted Offline", description: "Changes will sync when back online" });
+      }
+      
+      if (isOnline) loadData();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -161,18 +221,31 @@ const LynInventoryManagement = ({ restaurant }: LynInventoryManagementProps) => 
     }
 
     try {
-      const { error } = await supabase
-        .from("lyn_suppliers")
-        .insert({
-          restaurant_id: restaurant.id,
-          ...newSupplier
-        });
+      const supplierData = {
+        id: crypto.randomUUID(),
+        restaurant_id: restaurant.id,
+        ...newSupplier,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        is_active: true
+      };
 
-      if (error) throw error;
-      toast({ title: "Supplier Added" });
+      if (isOnline) {
+        const { error } = await supabase
+          .from("lyn_suppliers")
+          .insert(supplierData);
+
+        if (error) throw error;
+        toast({ title: "Supplier Added" });
+      } else {
+        queueAction('insert', 'lyn_suppliers', supplierData);
+        setSuppliers(prev => [...prev, supplierData]);
+        toast({ title: "Saved Offline", description: "Changes will sync when back online" });
+      }
+      
       setNewSupplier({ name: "", contact_name: "", phone: "", email: "", address: "" });
       setSupplierDialogOpen(false);
-      loadData();
+      if (isOnline) loadData();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -231,9 +304,17 @@ const LynInventoryManagement = ({ restaurant }: LynInventoryManagementProps) => 
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Inventory Management</h2>
-          <p className="text-muted-foreground">Track stock levels and manage suppliers</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Inventory Management</h2>
+            <p className="text-muted-foreground">Track stock levels and manage suppliers</p>
+          </div>
+          {fromCache && (
+            <Badge variant="outline" className="gap-1 bg-yellow-500/10 text-yellow-600 border-yellow-500/30">
+              <WifiOff className="h-3 w-3" />
+              Offline
+            </Badge>
+          )}
         </div>
         <div className="flex gap-2">
           <Dialog open={supplierDialogOpen} onOpenChange={setSupplierDialogOpen}>

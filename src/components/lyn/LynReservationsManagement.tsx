@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, Users, Phone, Plus, Check, X, AlertTriangle } from "lucide-react";
+import { Calendar, Clock, Users, Phone, Plus, Check, X, AlertTriangle, WifiOff } from "lucide-react";
 import { format, isToday, isTomorrow, parseISO, addDays } from "date-fns";
 
 interface LynReservationsManagementProps {
@@ -20,6 +21,7 @@ const LynReservationsManagement = ({ restaurant }: LynReservationsManagementProp
   const [reservations, setReservations] = useState<any[]>([]);
   const [tables, setTables] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fromCache, setFromCache] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [newReservation, setNewReservation] = useState({
@@ -32,21 +34,41 @@ const LynReservationsManagement = ({ restaurant }: LynReservationsManagementProp
     notes: ""
   });
   const { toast } = useToast();
+  const { isOnline, cacheData, getCachedData, queueAction } = useOfflineSync();
+
+  const reservationsCacheKey = `lyn_reservations_${restaurant.id}`;
+  const tablesCacheKey = `lyn_tables_${restaurant.id}`;
 
   useEffect(() => {
     loadData();
   }, [restaurant.id]);
 
   useEffect(() => {
+    if (!isOnline) return;
+    
     const channel = supabase
       .channel('reservations-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'lyn_reservations' }, () => loadData())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [restaurant.id]);
+  }, [restaurant.id, isOnline]);
 
   const loadData = async () => {
     setLoading(true);
+    
+    // If offline, use cached data
+    if (!isOnline) {
+      const cachedReservations = getCachedData<any[]>(reservationsCacheKey);
+      const cachedTables = getCachedData<any[]>(tablesCacheKey);
+      if (cachedReservations) {
+        setReservations(cachedReservations);
+        setTables(cachedTables || []);
+        setFromCache(true);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const [reservationsRes, tablesRes] = await Promise.all([
         supabase
@@ -65,8 +87,21 @@ const LynReservationsManagement = ({ restaurant }: LynReservationsManagementProp
 
       setReservations(reservationsRes.data || []);
       setTables(tablesRes.data || []);
+      setFromCache(false);
+      
+      // Cache for offline
+      cacheData(reservationsCacheKey, reservationsRes.data);
+      cacheData(tablesCacheKey, tablesRes.data);
     } catch (error: any) {
       console.error("Error:", error);
+      
+      // Try cached data
+      const cachedReservations = getCachedData<any[]>(reservationsCacheKey);
+      if (cachedReservations) {
+        setReservations(cachedReservations);
+        setTables(getCachedData<any[]>(tablesCacheKey) || []);
+        setFromCache(true);
+      }
     } finally {
       setLoading(false);
     }

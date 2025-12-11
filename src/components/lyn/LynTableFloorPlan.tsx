@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, RefreshCw, Users, DollarSign, Clock, ChefHat } from "lucide-react";
+import { Plus, RefreshCw, Users, DollarSign, Clock, ChefHat, WifiOff } from "lucide-react";
 import LynTableCard from "./LynTableCard";
 import LynTableOrderDialog from "./LynTableOrderDialog";
 
@@ -18,34 +19,70 @@ const LynTableFloorPlan = ({ restaurant }: LynTableFloorPlanProps) => {
   const [selectedTable, setSelectedTable] = useState<any>(null);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [fromCache, setFromCache] = useState(false);
+  const { isOnline, cacheData, getCachedData, queueAction } = useOfflineSync();
 
   const fetchData = async () => {
     setLoading(true);
     
-    // Fetch tables
-    const { data: tablesData } = await supabase
-      .from("lyn_tables")
-      .select("*")
-      .eq("restaurant_id", restaurant.id)
-      .order("table_number");
+    const tablesCacheKey = `lyn_tables_${restaurant.id}`;
+    const ordersCacheKey = `lyn_active_orders_${restaurant.id}`;
 
-    // Fetch active orders
-    const { data: ordersData } = await supabase
-      .from("lyn_restaurant_orders")
-      .select("*")
-      .eq("restaurant_id", restaurant.id)
-      .in("status", ["pending", "preparing", "ready"])
-      .not("table_id", "is", null);
+    // If offline, use cached data
+    if (!isOnline) {
+      const cachedTables = getCachedData<any[]>(tablesCacheKey);
+      const cachedOrders = getCachedData<any[]>(ordersCacheKey);
+      if (cachedTables) {
+        setTables(cachedTables);
+        setOrders(cachedOrders || []);
+        setFromCache(true);
+        setLoading(false);
+        return;
+      }
+    }
 
-    setTables(tablesData || []);
-    setOrders(ordersData || []);
-    setLoading(false);
+    try {
+      // Fetch tables
+      const { data: tablesData } = await supabase
+        .from("lyn_tables")
+        .select("*")
+        .eq("restaurant_id", restaurant.id)
+        .order("table_number");
+
+      // Fetch active orders
+      const { data: ordersData } = await supabase
+        .from("lyn_restaurant_orders")
+        .select("*")
+        .eq("restaurant_id", restaurant.id)
+        .in("status", ["pending", "preparing", "ready"])
+        .not("table_id", "is", null);
+
+      setTables(tablesData || []);
+      setOrders(ordersData || []);
+      setFromCache(false);
+      
+      // Cache for offline
+      cacheData(tablesCacheKey, tablesData);
+      cacheData(ordersCacheKey, ordersData);
+    } catch (error) {
+      // Try cached data on error
+      const cachedTables = getCachedData<any[]>(tablesCacheKey);
+      if (cachedTables) {
+        setTables(cachedTables);
+        setOrders(getCachedData<any[]>(ordersCacheKey) || []);
+        setFromCache(true);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchData();
 
-    // Subscribe to realtime updates
+    // Subscribe to realtime updates only when online
+    if (!isOnline) return;
+
     const tablesChannel = supabase
       .channel("lyn-tables-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "lyn_tables" }, () => {
@@ -59,7 +96,7 @@ const LynTableFloorPlan = ({ restaurant }: LynTableFloorPlanProps) => {
     return () => {
       supabase.removeChannel(tablesChannel);
     };
-  }, [restaurant.id]);
+  }, [restaurant.id, isOnline]);
 
   const getOrderForTable = (tableId: string) => {
     return orders.find(o => o.table_id === tableId);
@@ -153,7 +190,15 @@ const LynTableFloorPlan = ({ restaurant }: LynTableFloorPlanProps) => {
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Floor Plan</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-lg">Floor Plan</CardTitle>
+              {fromCache && (
+                <Badge variant="outline" className="gap-1 bg-yellow-500/10 text-yellow-600 border-yellow-500/30">
+                  <WifiOff className="h-3 w-3" />
+                  Cached
+                </Badge>
+              )}
+            </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
                 <RefreshCw className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`} />
