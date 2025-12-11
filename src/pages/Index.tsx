@@ -7,6 +7,7 @@ import PopularCategories from "@/components/PopularCategories";
 import SocialProofStrip from "@/components/SocialProofStrip";
 import PartnerCTA from "@/components/PartnerCTA";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import FloatingOrderButton from "@/components/FloatingOrderButton";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -95,6 +96,8 @@ const Index = () => {
       {/* 10. Footer */}
       <Footer />
       
+      {/* Floating elements */}
+      <FloatingOrderButton />
       <AtlaasAIChat />
     </div>
   );
