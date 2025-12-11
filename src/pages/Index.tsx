@@ -8,6 +8,7 @@ import SocialProofStrip from "@/components/SocialProofStrip";
 import PartnerCTA from "@/components/PartnerCTA";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FloatingOrderButton from "@/components/FloatingOrderButton";
+import StickyCategoryNav from "@/components/StickyCategoryNav";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -97,6 +98,7 @@ const Index = () => {
       <Footer />
       
       {/* Floating elements */}
+      <StickyCategoryNav />
       <FloatingOrderButton />
       <AtlaasAIChat />
     </div>
