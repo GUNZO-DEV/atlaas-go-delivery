@@ -173,6 +173,82 @@ serve(async (req) => {
       console.error('Customer role error:', customerRoleError);
     }
 
+    // Create or get Lyn Ifrane merchant account
+    let lynIfraneId: string;
+    const lynIfraneExists = existingUsers?.users.find(u => u.email === 'lynifrane@atlaas.com');
+    
+    if (lynIfraneExists) {
+      lynIfraneId = lynIfraneExists.id;
+      console.log('Lyn Ifrane already exists:', lynIfraneId);
+      
+      await supabaseAdmin.auth.admin.updateUserById(lynIfraneId, {
+        password: 'lynifrane123'
+      });
+    } else {
+      const { data: lynIfraneAuth, error: lynIfraneAuthError } = await supabaseAdmin.auth.admin.createUser({
+        email: 'lynifrane@atlaas.com',
+        password: 'lynifrane123',
+        email_confirm: true,
+        user_metadata: { full_name: 'Lyn Restaurant Ifrane' }
+      });
+
+      if (lynIfraneAuthError) {
+        console.error('Lyn Ifrane auth error:', lynIfraneAuthError);
+        throw lynIfraneAuthError;
+      }
+
+      lynIfraneId = lynIfraneAuth.user.id;
+      console.log('Created Lyn Ifrane:', lynIfraneId);
+    }
+
+    // Ensure merchant role is assigned to Lyn Ifrane
+    const { error: lynIfraneRoleError } = await supabaseAdmin
+      .from('user_roles')
+      .upsert({ user_id: lynIfraneId, role: 'merchant' }, { onConflict: 'user_id,role' });
+
+    if (lynIfraneRoleError) {
+      console.error('Lyn Ifrane role error:', lynIfraneRoleError);
+    }
+
+    // Create or get restaurant for Lyn Ifrane
+    let lynRestaurant: any;
+    const { data: existingLynRestaurant } = await supabaseAdmin
+      .from('restaurants')
+      .select('*')
+      .eq('merchant_id', lynIfraneId)
+      .maybeSingle();
+
+    if (existingLynRestaurant) {
+      lynRestaurant = existingLynRestaurant;
+      console.log('Lyn Restaurant already exists:', lynRestaurant.id);
+    } else {
+      const { data: newLynRestaurant, error: lynRestaurantError } = await supabaseAdmin
+        .from('restaurants')
+        .insert({
+          merchant_id: lynIfraneId,
+          name: 'Lyn Restaurant',
+          description: 'A cozy restaurant in Ifrane offering a mix of Moroccan and international cuisine.',
+          address: 'Avenue de la Marche Verte, Ifrane',
+          phone: '+212535566778',
+          cuisine_type: 'Moroccan & International',
+          latitude: 33.5333,
+          longitude: -5.1111,
+          image_url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800',
+          is_active: true,
+          commission_rate: 10.00
+        })
+        .select()
+        .single();
+
+      if (lynRestaurantError) {
+        console.error('Lyn Restaurant error:', lynRestaurantError);
+        throw lynRestaurantError;
+      }
+
+      lynRestaurant = newLynRestaurant;
+      console.log('Created Lyn Restaurant:', lynRestaurant.id);
+    }
+
     // Create or get restaurant for merchant
     let restaurant: any;
     const { data: existingRestaurant } = await supabaseAdmin
