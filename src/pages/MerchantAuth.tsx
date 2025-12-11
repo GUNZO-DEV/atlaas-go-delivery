@@ -31,7 +31,7 @@ const MerchantAuth = () => {
         .eq("user_id", user.id);
 
       if (roles?.some(r => r.role === 'merchant')) {
-        navigate("/merchant");
+        navigate("/lyn-dashboard");
       }
     }
   };
@@ -55,7 +55,7 @@ const MerchantAuth = () => {
           data: {
             full_name: validatedData.fullName,
           },
-          emailRedirectTo: `${window.location.origin}/merchant`,
+          emailRedirectTo: `${window.location.origin}/lyn-dashboard`,
         },
       });
 
@@ -120,7 +120,7 @@ const MerchantAuth = () => {
         description: "Successfully signed in.",
       });
 
-      navigate("/merchant");
+      navigate("/lyn-dashboard");
     } catch (error: any) {
       toast({
         title: "Validation Error",
