@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  LayoutDashboard, 
+  LayoutGrid, 
+  ChefHat,
   ShoppingCart, 
   Users, 
   DollarSign, 
@@ -14,7 +15,9 @@ import {
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import LynDashboardHome from "@/components/lyn/LynDashboardHome";
+import LynTableFloorPlan from "@/components/lyn/LynTableFloorPlan";
+import LynKitchenDisplay from "@/components/lyn/LynKitchenDisplay";
+import LynManagerDashboard from "@/components/lyn/LynManagerDashboard";
 import LynOrdersManagement from "@/components/lyn/LynOrdersManagement";
 import LynCustomersManagement from "@/components/lyn/LynCustomersManagement";
 import LynFinancesManagement from "@/components/lyn/LynFinancesManagement";
@@ -25,7 +28,7 @@ import LynAnalytics from "@/components/lyn/LynAnalytics";
 const LynRestaurantDashboard = () => {
   const [restaurant, setRestaurant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("tables");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -42,7 +45,6 @@ const LynRestaurantDashboard = () => {
         return;
       }
 
-      // Load Lyn Restaurant for this merchant
       const { data: restaurantData, error } = await supabase
         .from("restaurants")
         .select("*")
@@ -64,11 +66,7 @@ const LynRestaurantDashboard = () => {
       setRestaurant(restaurantData);
     } catch (error: any) {
       console.error("Error loading restaurant:", error);
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -87,17 +85,16 @@ const LynRestaurantDashboard = () => {
     );
   }
 
-  if (!restaurant) {
-    return null;
-  }
+  if (!restaurant) return null;
 
   const tabs = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "tables", label: "Tables", icon: LayoutGrid },
+    { id: "kitchen", label: "Kitchen", icon: ChefHat },
     { id: "orders", label: "Orders", icon: ShoppingCart },
-    { id: "customers", label: "Customers", icon: Users },
     { id: "finances", label: "Finances", icon: DollarSign },
     { id: "inventory", label: "Inventory", icon: Package },
     { id: "staff", label: "Staff", icon: UserCog },
+    { id: "overview", label: "Overview", icon: BarChart3 },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
   ];
 
@@ -140,16 +137,16 @@ const LynRestaurantDashboard = () => {
           </TabsList>
 
           {/* Tab Contents */}
-          <TabsContent value="dashboard" className="space-y-6">
-            <LynDashboardHome restaurant={restaurant} onNavigate={setActiveTab} />
+          <TabsContent value="tables" className="space-y-6">
+            <LynTableFloorPlan restaurant={restaurant} />
+          </TabsContent>
+
+          <TabsContent value="kitchen" className="space-y-6">
+            <LynKitchenDisplay restaurant={restaurant} />
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-6">
             <LynOrdersManagement restaurant={restaurant} />
-          </TabsContent>
-
-          <TabsContent value="customers" className="space-y-6">
-            <LynCustomersManagement restaurant={restaurant} />
           </TabsContent>
 
           <TabsContent value="finances" className="space-y-6">
@@ -162,6 +159,10 @@ const LynRestaurantDashboard = () => {
 
           <TabsContent value="staff" className="space-y-6">
             <LynStaffManagement restaurant={restaurant} />
+          </TabsContent>
+
+          <TabsContent value="overview" className="space-y-6">
+            <LynManagerDashboard restaurant={restaurant} />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">

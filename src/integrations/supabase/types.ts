@@ -805,16 +805,22 @@ export type Database = {
           customer_name: string | null
           customer_phone: string | null
           discount: number | null
+          guests_count: number | null
           id: string
           items: Json
+          kitchen_ready_at: string | null
+          kitchen_started_at: string | null
+          kitchen_status: string | null
           notes: string | null
           order_type: string
           payment_method: string | null
           payment_status: string | null
           receipt_number: string | null
           restaurant_id: string | null
+          served_at: string | null
           status: string | null
           subtotal: number
+          table_id: string | null
           table_number: string | null
           tax: number | null
           total: number
@@ -825,16 +831,22 @@ export type Database = {
           customer_name?: string | null
           customer_phone?: string | null
           discount?: number | null
+          guests_count?: number | null
           id?: string
           items?: Json
+          kitchen_ready_at?: string | null
+          kitchen_started_at?: string | null
+          kitchen_status?: string | null
           notes?: string | null
           order_type?: string
           payment_method?: string | null
           payment_status?: string | null
           receipt_number?: string | null
           restaurant_id?: string | null
+          served_at?: string | null
           status?: string | null
           subtotal?: number
+          table_id?: string | null
           table_number?: string | null
           tax?: number | null
           total?: number
@@ -845,16 +857,22 @@ export type Database = {
           customer_name?: string | null
           customer_phone?: string | null
           discount?: number | null
+          guests_count?: number | null
           id?: string
           items?: Json
+          kitchen_ready_at?: string | null
+          kitchen_started_at?: string | null
+          kitchen_status?: string | null
           notes?: string | null
           order_type?: string
           payment_method?: string | null
           payment_status?: string | null
           receipt_number?: string | null
           restaurant_id?: string | null
+          served_at?: string | null
           status?: string | null
           subtotal?: number
+          table_id?: string | null
           table_number?: string | null
           tax?: number | null
           total?: number
@@ -866,6 +884,13 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lyn_restaurant_orders_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "lyn_tables"
             referencedColumns: ["id"]
           },
         ]
@@ -1068,6 +1093,63 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "lyn_suppliers_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lyn_tables: {
+        Row: {
+          capacity: number
+          created_at: string
+          current_order_id: string | null
+          id: string
+          position_x: number | null
+          position_y: number | null
+          restaurant_id: string | null
+          shape: string | null
+          status: string | null
+          table_number: string
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          current_order_id?: string | null
+          id?: string
+          position_x?: number | null
+          position_y?: number | null
+          restaurant_id?: string | null
+          shape?: string | null
+          status?: string | null
+          table_number: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          current_order_id?: string | null
+          id?: string
+          position_x?: number | null
+          position_y?: number | null
+          restaurant_id?: string | null
+          shape?: string | null
+          status?: string | null
+          table_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_tables_current_order_id_fkey"
+            columns: ["current_order_id"]
+            isOneToOne: false
+            referencedRelation: "lyn_restaurant_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lyn_tables_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
