@@ -43,15 +43,29 @@ const LynOrdersManagement = ({ restaurant }: LynOrdersManagementProps) => {
   const loadOrders = async () => {
     setLoading(true);
     
-    // If offline, use cached data
-    if (!isOnline) {
-      const cached = getCachedData<any[]>(cacheKey);
+    // Always check cache first for immediate display
+    const cached = getCachedData<any[]>(cacheKey);
+    
+    // If offline, use cached data immediately
+    if (!navigator.onLine) {
       if (cached) {
         setOrders(cached);
         setFromCache(true);
-        setLoading(false);
-        return;
+      } else {
+        setOrders([]);
+        toast({
+          title: "Offline Mode",
+          description: "No cached orders available. Orders will load when back online.",
+        });
       }
+      setLoading(false);
+      return;
+    }
+
+    // Show cached data while fetching fresh data
+    if (cached) {
+      setOrders(cached);
+      setFromCache(true);
     }
 
     try {
@@ -71,16 +85,18 @@ const LynOrdersManagement = ({ restaurant }: LynOrdersManagementProps) => {
     } catch (error: any) {
       console.error("Error loading orders:", error);
       
-      // Try cached data
-      const cached = getCachedData<any[]>(cacheKey);
-      if (cached) {
-        setOrders(cached);
-        setFromCache(true);
-      } else {
+      // Already showing cached data, just notify
+      if (!cached) {
         toast({
           title: "Error",
           description: "Failed to load orders",
           variant: "destructive"
+        });
+      } else {
+        setFromCache(true);
+        toast({
+          title: "Using Cached Data",
+          description: "Showing saved orders from last sync.",
         });
       }
     } finally {
