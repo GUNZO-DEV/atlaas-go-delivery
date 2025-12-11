@@ -84,14 +84,37 @@ const LynTableOrderDialog = ({
   }, [open, restaurant?.id]);
 
   const fetchMenuItems = async () => {
-    const { data } = await supabase
-      .from("menu_items")
-      .select("id, name, price, category")
-      .eq("restaurant_id", restaurant.id)
-      .eq("is_available", true)
-      .order("category")
-      .order("name");
-    setMenuItems(data || []);
+    const cacheKey = `menu_items_${restaurant.id}`;
+    
+    // Try cache first if offline
+    if (!isOnline) {
+      const cached = getCachedData<MenuItem[]>(cacheKey);
+      if (cached) {
+        setMenuItems(cached);
+        return;
+      }
+    }
+
+    try {
+      const { data } = await supabase
+        .from("menu_items")
+        .select("id, name, price, category")
+        .eq("restaurant_id", restaurant.id)
+        .eq("is_available", true)
+        .order("category")
+        .order("name");
+      
+      if (data) {
+        setMenuItems(data);
+        // Cache for offline use (won't duplicate if already cached by dashboard)
+      }
+    } catch (error) {
+      // Fallback to cache on error
+      const cached = getCachedData<MenuItem[]>(cacheKey);
+      if (cached) {
+        setMenuItems(cached);
+      }
+    }
   };
 
   const categories = ["all", ...new Set(menuItems.map(item => item.category || "Other"))];
