@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
-  Plus, Users, Clock, CheckSquare, Calendar, Phone, Mail, Edit, Trash2
+  Plus, Users, Clock, CheckSquare, Calendar, Phone, Mail, Edit, Trash2, WifiOff
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -26,6 +27,7 @@ const LynStaffManagement = ({ restaurant }: LynStaffManagementProps) => {
   const [shifts, setShifts] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fromCache, setFromCache] = useState(false);
   const [staffDialogOpen, setStaffDialogOpen] = useState(false);
   const [shiftDialogOpen, setShiftDialogOpen] = useState(false);
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
@@ -51,6 +53,7 @@ const LynStaffManagement = ({ restaurant }: LynStaffManagementProps) => {
     due_date: ""
   });
   const { toast } = useToast();
+  const { isOnline, cacheData, getCachedData } = useOfflineSync();
 
   useEffect(() => {
     loadData();
@@ -58,37 +61,42 @@ const LynStaffManagement = ({ restaurant }: LynStaffManagementProps) => {
 
   const loadData = async () => {
     setLoading(true);
+    const cacheKey = `lyn_staff_all_${restaurant.id}`;
+    
+    if (!isOnline) {
+      const cached = getCachedData<{ staff: any[], shifts: any[], tasks: any[] }>(cacheKey);
+      if (cached) {
+        setStaff(cached.staff || []);
+        setShifts(cached.shifts || []);
+        setTasks(cached.tasks || []);
+        setFromCache(true);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const [staffRes, shiftsRes, tasksRes] = await Promise.all([
-        supabase
-          .from("lyn_staff")
-          .select("*")
-          .eq("restaurant_id", restaurant.id)
-          .order("name"),
-        supabase
-          .from("lyn_staff_shifts")
-          .select("*, lyn_staff(name)")
-          .eq("restaurant_id", restaurant.id)
-          .gte("shift_date", format(new Date(), "yyyy-MM-dd"))
-          .order("shift_date"),
-        supabase
-          .from("lyn_staff_tasks")
-          .select("*, lyn_staff(name)")
-          .eq("restaurant_id", restaurant.id)
-          .neq("status", "completed")
-          .order("created_at", { ascending: false })
+        supabase.from("lyn_staff").select("*").eq("restaurant_id", restaurant.id).order("name"),
+        supabase.from("lyn_staff_shifts").select("*, lyn_staff(name)").eq("restaurant_id", restaurant.id).gte("shift_date", format(new Date(), "yyyy-MM-dd")).order("shift_date"),
+        supabase.from("lyn_staff_tasks").select("*, lyn_staff(name)").eq("restaurant_id", restaurant.id).neq("status", "completed").order("created_at", { ascending: false })
       ]);
 
       setStaff(staffRes.data || []);
       setShifts(shiftsRes.data || []);
       setTasks(tasksRes.data || []);
+      setFromCache(false);
+      cacheData(cacheKey, { staff: staffRes.data, shifts: shiftsRes.data, tasks: tasksRes.data });
     } catch (error: any) {
-      console.error("Error loading data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load staff data",
-        variant: "destructive"
-      });
+      const cached = getCachedData<{ staff: any[], shifts: any[], tasks: any[] }>(cacheKey);
+      if (cached) {
+        setStaff(cached.staff || []);
+        setShifts(cached.shifts || []);
+        setTasks(cached.tasks || []);
+        setFromCache(true);
+      } else {
+        toast({ title: "Error", description: "Failed to load staff data", variant: "destructive" });
+      }
     } finally {
       setLoading(false);
     }

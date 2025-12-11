@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Plus, Search, Filter, Printer, Eye, Check, X, Clock,
-  UtensilsCrossed, Package, Truck
+  UtensilsCrossed, Package, Truck, WifiOff
 } from "lucide-react";
 import { format } from "date-fns";
 import LynNewOrderDialog from "./LynNewOrderDialog";
@@ -23,6 +24,7 @@ interface LynOrdersManagementProps {
 const LynOrdersManagement = ({ restaurant }: LynOrdersManagementProps) => {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fromCache, setFromCache] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -30,6 +32,9 @@ const LynOrdersManagement = ({ restaurant }: LynOrdersManagementProps) => {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [receiptOrder, setReceiptOrder] = useState<any>(null);
   const { toast } = useToast();
+  const { isOnline, cacheData, getCachedData, queueAction } = useOfflineSync();
+
+  const cacheKey = `lyn_orders_${restaurant.id}`;
 
   useEffect(() => {
     loadOrders();
@@ -37,6 +42,18 @@ const LynOrdersManagement = ({ restaurant }: LynOrdersManagementProps) => {
 
   const loadOrders = async () => {
     setLoading(true);
+    
+    // If offline, use cached data
+    if (!isOnline) {
+      const cached = getCachedData<any[]>(cacheKey);
+      if (cached) {
+        setOrders(cached);
+        setFromCache(true);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const { data, error } = await supabase
         .from("lyn_restaurant_orders")
@@ -47,13 +64,25 @@ const LynOrdersManagement = ({ restaurant }: LynOrdersManagementProps) => {
 
       if (error) throw error;
       setOrders(data || []);
+      setFromCache(false);
+      
+      // Cache for offline
+      cacheData(cacheKey, data);
     } catch (error: any) {
       console.error("Error loading orders:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load orders",
-        variant: "destructive"
-      });
+      
+      // Try cached data
+      const cached = getCachedData<any[]>(cacheKey);
+      if (cached) {
+        setOrders(cached);
+        setFromCache(true);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load orders",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -61,25 +90,39 @@ const LynOrdersManagement = ({ restaurant }: LynOrdersManagementProps) => {
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      const updates: any = { status: newStatus, updated_at: new Date().toISOString() };
+      const updates: any = { 
+        status: newStatus, 
+        updated_at: new Date().toISOString(),
+        id: orderId
+      };
       
       if (newStatus === "completed") {
         updates.payment_status = "paid";
       }
 
-      const { error } = await supabase
-        .from("lyn_restaurant_orders")
-        .update(updates)
-        .eq("id", orderId);
+      if (isOnline) {
+        const { error } = await supabase
+          .from("lyn_restaurant_orders")
+          .update(updates)
+          .eq("id", orderId);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // Queue for offline sync
+        queueAction('update', 'lyn_restaurant_orders', updates);
+        
+        // Optimistically update local state
+        setOrders(prev => prev.map(order => 
+          order.id === orderId ? { ...order, ...updates } : order
+        ));
+      }
 
       toast({
-        title: "Status Updated",
-        description: `Order marked as ${newStatus}`
+        title: isOnline ? "Status Updated" : "Saved Offline",
+        description: isOnline ? `Order marked as ${newStatus}` : "Changes will sync when back online"
       });
 
-      loadOrders();
+      if (isOnline) loadOrders();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -237,9 +280,17 @@ const LynOrdersManagement = ({ restaurant }: LynOrdersManagementProps) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Orders Management</h2>
-          <p className="text-muted-foreground">Manage dine-in, delivery, and pickup orders</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Orders Management</h2>
+            <p className="text-muted-foreground">Manage dine-in, delivery, and pickup orders</p>
+          </div>
+          {fromCache && (
+            <Badge variant="outline" className="gap-1 bg-yellow-500/10 text-yellow-600 border-yellow-500/30">
+              <WifiOff className="h-3 w-3" />
+              Offline
+            </Badge>
+          )}
         </div>
         <Button onClick={() => setNewOrderOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
