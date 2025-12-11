@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutGrid, ChefHat, ShoppingCart, DollarSign, Package, UserCog, BarChart3,
@@ -33,6 +34,7 @@ const LynRestaurantDashboard = () => {
   const [activeTab, setActiveTab] = useState("tables");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { fetchWithCache, isOnline, cacheData, getCachedData } = useOfflineSync();
 
   useEffect(() => {
     checkAuthAndLoadRestaurant();
@@ -40,19 +42,55 @@ const LynRestaurantDashboard = () => {
 
   const checkAuthAndLoadRestaurant = async () => {
     try {
+      // Try to get cached user and restaurant first for offline support
+      const cachedRestaurant = getCachedData<any>('lyn_restaurant');
+      
+      if (!isOnline && cachedRestaurant) {
+        setRestaurant(cachedRestaurant);
+        setLoading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate("/merchant-auth"); return; }
+      if (!user) { 
+        if (!isOnline && cachedRestaurant) {
+          setRestaurant(cachedRestaurant);
+          setLoading(false);
+          return;
+        }
+        navigate("/merchant-auth"); 
+        return; 
+      }
 
       const { data: restaurantData, error } = await supabase
         .from("restaurants").select("*").eq("merchant_id", user.id).maybeSingle();
       if (error) throw error;
       if (!restaurantData) {
+        if (!isOnline && cachedRestaurant) {
+          setRestaurant(cachedRestaurant);
+          setLoading(false);
+          return;
+        }
         toast({ title: "No Restaurant Found", variant: "destructive" });
         navigate("/merchant"); return;
       }
+      
+      // Cache the restaurant data for offline use
+      cacheData('lyn_restaurant', restaurantData);
+      cacheData('lyn_user_id', user.id);
       setRestaurant(restaurantData);
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      // If offline and we have cached data, use it
+      const cachedRestaurant = getCachedData<any>('lyn_restaurant');
+      if (!isOnline && cachedRestaurant) {
+        setRestaurant(cachedRestaurant);
+        toast({ 
+          title: "Offline Mode", 
+          description: "Using cached data. Some features may be limited.",
+        });
+      } else {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      }
     } finally {
       setLoading(false);
     }
