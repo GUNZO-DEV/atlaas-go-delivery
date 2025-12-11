@@ -333,19 +333,19 @@ const LynTableOrderDialog = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              <Badge variant={isOccupied ? "default" : "secondary"} className="text-base px-3 py-1">
+        <DialogContent className="max-w-5xl w-[95vw] md:w-auto max-h-[90vh] md:max-h-[95vh] overflow-hidden flex flex-col p-4 md:p-6">
+          <DialogHeader className="pb-2 md:pb-4">
+            <DialogTitle className="flex flex-wrap items-center gap-2 md:gap-3">
+              <Badge variant={isOccupied ? "default" : "secondary"} className="text-sm md:text-base px-2 md:px-3 py-0.5 md:py-1">
                 {table.table_number}
               </Badge>
-              <span className="capitalize">{table.status}</span>
-              <Badge variant="outline">
+              <span className="capitalize text-sm md:text-base">{table.status}</span>
+              <Badge variant="outline" className="text-xs md:text-sm">
                 <Users className="h-3 w-3 mr-1" />
                 {guestsCount}/{table.capacity}
               </Badge>
               {order && (
-                <Badge variant={order.kitchen_status === "ready" ? "default" : "outline"}>
+                <Badge variant={order.kitchen_status === "ready" ? "default" : "outline"} className="text-xs md:text-sm">
                   <ChefHat className="h-3 w-3 mr-1" />
                   {order.kitchen_status}
                 </Badge>
@@ -354,7 +354,201 @@ const LynTableOrderDialog = ({
           </DialogHeader>
 
           <div className="flex-1 overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+            <Tabs defaultValue="menu" className="flex flex-col h-full md:hidden">
+              <TabsList className="grid grid-cols-2 w-full mb-2">
+                <TabsTrigger value="menu">Menu</TabsTrigger>
+                <TabsTrigger value="order">Order ({items.length})</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="menu" className="flex-1 overflow-hidden m-0">
+                <div className="flex flex-col space-y-2 h-full">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search..."
+                        className="pl-8 h-8"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setGuestsCount(Math.max(1, guestsCount - 1))}>
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <span className="w-6 text-center text-sm">{guestsCount}</span>
+                      <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setGuestsCount(Math.min(table.capacity, guestsCount + 1))}>
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <ScrollArea className="w-full">
+                    <div className="flex gap-1 pb-2">
+                      {categories.map(category => (
+                        <Button
+                          key={category}
+                          variant={selectedCategory === category ? "default" : "outline"}
+                          size="sm"
+                          className="h-6 text-[10px] md:text-xs whitespace-nowrap px-2"
+                          onClick={() => setSelectedCategory(category)}
+                        >
+                          {category === "all" ? "All" : category}
+                        </Button>
+                      ))}
+                    </div>
+                  </ScrollArea>
+
+                  <ScrollArea className="flex-1 border rounded-lg p-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      {filteredMenuItems.map(item => (
+                        <Button
+                          key={item.id}
+                          variant="outline"
+                          className="h-auto py-2 px-2 flex flex-col items-start text-left"
+                          onClick={() => addItem(item)}
+                        >
+                          <span className="text-[10px] md:text-xs font-medium truncate w-full">{item.name}</span>
+                          <span className="text-xs text-primary font-bold">{item.price} DH</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="order" className="flex-1 overflow-hidden m-0">
+                <div className="flex flex-col space-y-2 h-full">
+                  <ScrollArea className="flex-1 border rounded-lg">
+                    {items.length === 0 ? (
+                      <div className="p-6 text-center text-muted-foreground text-sm">
+                        Click menu items to add
+                      </div>
+                    ) : (
+                      <div className="p-2 space-y-2">
+                        {items.map((item, index) => (
+                          <div key={index} className="p-2 bg-muted/50 rounded space-y-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs md:text-sm font-medium truncate">{item.name}</p>
+                                {item.notes && (
+                                  <p className="text-[10px] md:text-xs text-orange-600">📝 {item.notes}</p>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => updateQuantity(index, -1)}>
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <span className="w-5 text-center text-xs">{item.quantity}</span>
+                                <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => updateQuantity(index, 1)}>
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeItem(index)}>
+                                  <Trash2 className="h-3 w-3 text-red-600" />
+                                </Button>
+                                <span className="w-12 text-right text-xs font-medium">
+                                  {(item.price * item.quantity).toFixed(0)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </ScrollArea>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs">Discount</Label>
+                      <Input
+                        type="number"
+                        value={discount}
+                        onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+                        className="h-8"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Notes</Label>
+                      <Input
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Notes..."
+                        className="h-8"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-2 space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span>Subtotal</span>
+                      <span>{subtotal.toFixed(0)} DH</span>
+                    </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-sm text-red-600">
+                        <span>Discount</span>
+                        <span>-{discount.toFixed(0)} DH</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-bold text-lg">
+                      <span>Total</span>
+                      <span>{total.toFixed(0)} DH</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {!isOccupied ? (
+                      <>
+                        <Button className="w-full h-10" onClick={openTable} disabled={loading || items.length === 0}>
+                          <Users className="h-4 w-4 mr-2" />
+                          Open Table
+                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="outline" className="flex-1 h-9" onClick={() => setTableStatus("reserved")}>
+                            Reserve
+                          </Button>
+                          <Button variant="outline" className="flex-1 h-9" onClick={() => setTableStatus("cleaning")}>
+                            Cleaning
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Button className="w-full h-10" onClick={updateOrder} disabled={loading}>
+                          Update Order
+                        </Button>
+                        <div className="grid grid-cols-3 gap-1">
+                          <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => setReceiptOpen(true)}>
+                            <Printer className="h-3 w-3 mr-1" />
+                            Print
+                          </Button>
+                          <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => setSplitBillOpen(true)}>
+                            <Split className="h-3 w-3 mr-1" />
+                            Split
+                          </Button>
+                          <Button className="bg-green-600 hover:bg-green-700 h-9 text-xs" onClick={() => closeTable("cash")}>
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Close
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1">
+                          <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => closeTable("card")}>
+                            <CreditCard className="h-3 w-3 mr-1" />
+                            Card
+                          </Button>
+                          <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => closeTable("wallet")}>
+                            <Receipt className="h-3 w-3 mr-1" />
+                            Wallet
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            {/* Desktop Layout */}
+            <div className="hidden md:grid grid-cols-2 gap-4 h-full">
               {/* Left: Menu */}
               <div className="flex flex-col space-y-3 overflow-hidden">
                 <div className="flex gap-2">
@@ -448,7 +642,6 @@ const LynTableOrderDialog = ({
                               </span>
                             </div>
                           </div>
-                          {/* Add note input */}
                           <div className="flex gap-1">
                             <Input
                               placeholder="Add note (no salt, extra sauce...)"
@@ -466,7 +659,6 @@ const LynTableOrderDialog = ({
                   )}
                 </ScrollArea>
 
-                {/* Discount & Notes */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label className="text-xs">Discount (DH)</Label>
@@ -488,7 +680,6 @@ const LynTableOrderDialog = ({
                   </div>
                 </div>
 
-                {/* Totals */}
                 <div className="border-t pt-3 space-y-1">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal</span>
@@ -506,7 +697,6 @@ const LynTableOrderDialog = ({
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="space-y-2">
                   {!isOccupied ? (
                     <>

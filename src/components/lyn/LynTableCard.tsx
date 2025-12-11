@@ -50,44 +50,54 @@ const LynTableCard = ({ table, order, onClick, isSelected }: LynTableCardProps) 
   const waitTime = getWaitTime();
   const isLongWait = waitTime && waitTime > 20;
 
+  // Responsive sizes
+  const getSize = () => {
+    if (table.shape === "rectangle") {
+      return { width: "clamp(100px, 20vw, 140px)", height: "clamp(50px, 10vw, 70px)" };
+    }
+    return { width: "clamp(70px, 15vw, 90px)", height: "clamp(70px, 15vw, 90px)" };
+  };
+
+  const size = getSize();
+
   return (
     <button
       onClick={onClick}
       className={cn(
-        "relative p-3 border-2 transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary",
+        "relative p-2 md:p-3 border-2 transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary",
         table.shape === "round" ? "rounded-full" : table.shape === "rectangle" ? "rounded-lg aspect-[2/1]" : "rounded-lg aspect-square",
         statusColors[table.status] || statusColors.available,
         isSelected && "ring-2 ring-primary ring-offset-2",
         table.status === "occupied" && isLongWait && "animate-pulse"
       )}
       style={{
-        width: table.shape === "rectangle" ? "140px" : "90px",
-        height: table.shape === "rectangle" ? "70px" : "90px",
+        width: size.width,
+        height: size.height,
       }}
     >
       {/* Table Number */}
-      <div className="font-bold text-lg">{table.table_number}</div>
+      <div className="font-bold text-sm md:text-lg">{table.table_number}</div>
       
       {/* Capacity */}
-      <div className="flex items-center justify-center gap-1 text-xs">
-        <Users className="h-3 w-3" />
+      <div className="flex items-center justify-center gap-0.5 md:gap-1 text-[10px] md:text-xs">
+        <Users className="h-2.5 w-2.5 md:h-3 md:w-3" />
         {order ? order.guests_count : 0}/{table.capacity}
       </div>
 
       {/* Order Info (when occupied) */}
       {table.status === "occupied" && order && (
-        <div className="absolute -bottom-1 -right-1 flex gap-1">
+        <div className="absolute -bottom-1 -right-1 flex gap-0.5 md:gap-1">
           {/* Kitchen Status */}
           <Badge 
             variant="secondary" 
-            className="h-5 px-1 text-[10px] flex items-center gap-0.5"
+            className="h-4 md:h-5 px-1 text-[8px] md:text-[10px] flex items-center gap-0.5"
           >
             {kitchenStatusIcons[order.kitchen_status]}
           </Badge>
           
           {/* Wait Time Warning */}
           {isLongWait && (
-            <Badge variant="destructive" className="h-5 px-1 text-[10px]">
+            <Badge variant="destructive" className="h-4 md:h-5 px-1 text-[8px] md:text-[10px]">
               {waitTime}m
             </Badge>
           )}
@@ -96,15 +106,15 @@ const LynTableCard = ({ table, order, onClick, isSelected }: LynTableCardProps) 
 
       {/* Total */}
       {table.status === "occupied" && order && (
-        <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs font-bold">
+        <div className="absolute -top-1.5 md:-top-2 -right-1.5 md:-right-2 bg-primary text-primary-foreground rounded-full px-1.5 md:px-2 py-0.5 text-[10px] md:text-xs font-bold">
           {order.total.toFixed(0)}
         </div>
       )}
 
       {/* Reserved indicator */}
       {table.status === "reserved" && (
-        <div className="absolute -top-2 left-1/2 -translate-x-1/2">
-          <Badge variant="outline" className="text-[9px] bg-background">
+        <div className="absolute -top-1.5 md:-top-2 left-1/2 -translate-x-1/2">
+          <Badge variant="outline" className="text-[8px] md:text-[9px] bg-background px-1">
             Reserved
           </Badge>
         </div>
