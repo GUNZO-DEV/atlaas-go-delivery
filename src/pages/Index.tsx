@@ -17,8 +17,8 @@ const Index = () => {
       {/* 1. Hero - First impression */}
       <Hero />
 
-      {/* 2. Social Proof - Build trust immediately */}
-      <SocialProofStrip />
+      {/* 2. AUIER Campus Delivery - Key offering */}
+      <AuierHighlightSection />
 
       {/* 3. Categories - What are you craving? */}
       <PopularCategories />
@@ -26,17 +26,17 @@ const Index = () => {
       {/* 4. Featured Restaurants - Discovery */}
       <FeaturedRestaurants />
 
-      {/* 5. Testimonials - Social proof while browsing */}
+      {/* 5. Testimonials - Social proof */}
       <TestimonialsSection />
 
       {/* 6. Special Offer - Conversion nudge */}
       <SpecialOffersBanner />
-
-      {/* 7. AUIER Campus Delivery */}
-      <AuierHighlightSection />
       
-      {/* 8. Partner CTA */}
+      {/* 7. Partner CTA */}
       <PartnerCTA />
+
+      {/* 8. Social Proof Stats - Trust at the bottom */}
+      <SocialProofStrip />
       
       {/* 9. Footer */}
       <Footer />
