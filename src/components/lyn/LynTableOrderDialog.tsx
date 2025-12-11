@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +56,7 @@ const LynTableOrderDialog = ({
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [splitBillOpen, setSplitBillOpen] = useState(false);
   const { toast } = useToast();
+  const { isOnline, queueAction, getCachedData } = useOfflineSync();
 
   // Load existing order if any
   useEffect(() => {
@@ -147,39 +149,50 @@ const LynTableOrderDialog = ({
 
     setLoading(true);
     try {
-      // Create order
-      const { data: orderData, error: orderError } = await supabase
-        .from("lyn_restaurant_orders")
-        .insert({
-          restaurant_id: restaurant.id,
-          table_id: table.id,
-          order_type: "dine_in",
-          table_number: table.table_number,
-          guests_count: guestsCount,
-          items: items as any,
-          subtotal,
-          discount,
-          total,
-          notes,
-          status: "pending",
-          kitchen_status: "pending",
-          payment_status: "pending",
-          payment_method: "cash"
-        })
-        .select()
-        .single();
+      const orderId = crypto.randomUUID();
+      const orderData = {
+        id: orderId,
+        restaurant_id: restaurant.id,
+        table_id: table.id,
+        order_type: "dine_in",
+        table_number: table.table_number,
+        guests_count: guestsCount,
+        items: items as any,
+        subtotal,
+        discount,
+        total,
+        notes,
+        status: "pending",
+        kitchen_status: "pending",
+        payment_status: "pending",
+        payment_method: "cash",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
 
-      if (orderError) throw orderError;
+      const tableUpdate = {
+        id: table.id,
+        status: "occupied",
+        current_order_id: orderId,
+        updated_at: new Date().toISOString()
+      };
 
-      // Update table status
-      await supabase
-        .from("lyn_tables")
-        .update({
-          status: "occupied",
-          current_order_id: orderData.id,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", table.id);
+      if (isOnline) {
+        const { error: orderError } = await supabase
+          .from("lyn_restaurant_orders")
+          .insert(orderData);
+
+        if (orderError) throw orderError;
+
+        await supabase
+          .from("lyn_tables")
+          .update(tableUpdate)
+          .eq("id", table.id);
+      } else {
+        queueAction('insert', 'lyn_restaurant_orders', orderData);
+        queueAction('update', 'lyn_tables', tableUpdate);
+        toast({ title: "Saved Offline", description: "Will sync when back online." });
+      }
 
       toast({ title: "Table opened successfully" });
       onSuccess();
@@ -196,18 +209,26 @@ const LynTableOrderDialog = ({
 
     setLoading(true);
     try {
-      await supabase
-        .from("lyn_restaurant_orders")
-        .update({
-          items: items as any,
-          guests_count: guestsCount,
-          subtotal,
-          discount,
-          total,
-          notes,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", order.id);
+      const orderUpdate = {
+        id: order.id,
+        items: items as any,
+        guests_count: guestsCount,
+        subtotal,
+        discount,
+        total,
+        notes,
+        updated_at: new Date().toISOString()
+      };
+
+      if (isOnline) {
+        await supabase
+          .from("lyn_restaurant_orders")
+          .update(orderUpdate)
+          .eq("id", order.id);
+      } else {
+        queueAction('update', 'lyn_restaurant_orders', orderUpdate);
+        toast({ title: "Saved Offline", description: "Will sync when back online." });
+      }
 
       toast({ title: "Order updated" });
       onSuccess();
@@ -223,27 +244,37 @@ const LynTableOrderDialog = ({
 
     setLoading(true);
     try {
-      // Update order status
-      await supabase
-        .from("lyn_restaurant_orders")
-        .update({
-          status: "completed",
-          payment_status: "paid",
-          payment_method: paymentMethod,
-          served_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", order.id);
+      const orderUpdate = {
+        id: order.id,
+        status: "completed",
+        payment_status: "paid",
+        payment_method: paymentMethod,
+        served_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
 
-      // Free up table
-      await supabase
-        .from("lyn_tables")
-        .update({
-          status: "available",
-          current_order_id: null,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", table.id);
+      const tableUpdate = {
+        id: table.id,
+        status: "available",
+        current_order_id: null,
+        updated_at: new Date().toISOString()
+      };
+
+      if (isOnline) {
+        await supabase
+          .from("lyn_restaurant_orders")
+          .update(orderUpdate)
+          .eq("id", order.id);
+
+        await supabase
+          .from("lyn_tables")
+          .update(tableUpdate)
+          .eq("id", table.id);
+      } else {
+        queueAction('update', 'lyn_restaurant_orders', orderUpdate);
+        queueAction('update', 'lyn_tables', tableUpdate);
+        toast({ title: "Saved Offline", description: "Will sync when back online." });
+      }
 
       toast({ title: "Table closed successfully" });
       onSuccess();
@@ -256,10 +287,21 @@ const LynTableOrderDialog = ({
   };
 
   const setTableStatus = async (status: string) => {
-    await supabase
-      .from("lyn_tables")
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq("id", table.id);
+    const tableUpdate = {
+      id: table.id,
+      status,
+      updated_at: new Date().toISOString()
+    };
+
+    if (isOnline) {
+      await supabase
+        .from("lyn_tables")
+        .update(tableUpdate)
+        .eq("id", table.id);
+    } else {
+      queueAction('update', 'lyn_tables', tableUpdate);
+      toast({ title: "Saved Offline", description: "Will sync when back online." });
+    }
     onSuccess();
   };
 
