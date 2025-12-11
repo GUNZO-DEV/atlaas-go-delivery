@@ -588,6 +588,493 @@ export type Database = {
           },
         ]
       }
+      lyn_customer_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          customer_name: string | null
+          customer_phone: string | null
+          id: string
+          order_id: string | null
+          rating: number | null
+          restaurant_id: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          order_id?: string | null
+          rating?: number | null
+          restaurant_id?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          order_id?: string | null
+          rating?: number | null
+          restaurant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_customer_feedback_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "lyn_restaurant_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lyn_customer_feedback_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lyn_daily_closings: {
+        Row: {
+          card_revenue: number | null
+          cash_revenue: number | null
+          closed_by: string | null
+          closing_date: string
+          created_at: string
+          id: string
+          net_profit: number | null
+          notes: string | null
+          restaurant_id: string | null
+          total_expenses: number | null
+          total_orders: number
+          total_revenue: number
+          wallet_revenue: number | null
+        }
+        Insert: {
+          card_revenue?: number | null
+          cash_revenue?: number | null
+          closed_by?: string | null
+          closing_date: string
+          created_at?: string
+          id?: string
+          net_profit?: number | null
+          notes?: string | null
+          restaurant_id?: string | null
+          total_expenses?: number | null
+          total_orders?: number
+          total_revenue?: number
+          wallet_revenue?: number | null
+        }
+        Update: {
+          card_revenue?: number | null
+          cash_revenue?: number | null
+          closed_by?: string | null
+          closing_date?: string
+          created_at?: string
+          id?: string
+          net_profit?: number | null
+          notes?: string | null
+          restaurant_id?: string | null
+          total_expenses?: number | null
+          total_orders?: number
+          total_revenue?: number
+          wallet_revenue?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_daily_closings_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lyn_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          expense_date: string
+          id: string
+          payment_method: string | null
+          receipt_url: string | null
+          restaurant_id: string | null
+        }
+        Insert: {
+          amount: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          expense_date?: string
+          id?: string
+          payment_method?: string | null
+          receipt_url?: string | null
+          restaurant_id?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          expense_date?: string
+          id?: string
+          payment_method?: string | null
+          receipt_url?: string | null
+          restaurant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_expenses_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lyn_inventory_items: {
+        Row: {
+          category: string
+          cost_per_unit: number | null
+          created_at: string
+          current_stock: number
+          id: string
+          last_restocked_at: string | null
+          min_stock_level: number
+          name: string
+          restaurant_id: string | null
+          supplier_id: string | null
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          cost_per_unit?: number | null
+          created_at?: string
+          current_stock?: number
+          id?: string
+          last_restocked_at?: string | null
+          min_stock_level?: number
+          name: string
+          restaurant_id?: string | null
+          supplier_id?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          cost_per_unit?: number | null
+          created_at?: string
+          current_stock?: number
+          id?: string
+          last_restocked_at?: string | null
+          min_stock_level?: number
+          name?: string
+          restaurant_id?: string | null
+          supplier_id?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_inventory_items_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lyn_inventory_items_supplier_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "lyn_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lyn_restaurant_orders: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          customer_phone: string | null
+          discount: number | null
+          id: string
+          items: Json
+          notes: string | null
+          order_type: string
+          payment_method: string | null
+          payment_status: string | null
+          receipt_number: string | null
+          restaurant_id: string | null
+          status: string | null
+          subtotal: number
+          table_number: string | null
+          tax: number | null
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount?: number | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_type?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          receipt_number?: string | null
+          restaurant_id?: string | null
+          status?: string | null
+          subtotal?: number
+          table_number?: string | null
+          tax?: number | null
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount?: number | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_type?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          receipt_number?: string | null
+          restaurant_id?: string | null
+          status?: string | null
+          subtotal?: number
+          table_number?: string | null
+          tax?: number | null
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_restaurant_orders_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lyn_staff: {
+        Row: {
+          created_at: string
+          email: string | null
+          hired_at: string | null
+          hourly_rate: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          phone: string | null
+          restaurant_id: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          hired_at?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          phone?: string | null
+          restaurant_id?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          hired_at?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          phone?: string | null
+          restaurant_id?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_staff_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lyn_staff_shifts: {
+        Row: {
+          created_at: string
+          end_time: string | null
+          hours_worked: number | null
+          id: string
+          notes: string | null
+          restaurant_id: string | null
+          shift_date: string
+          staff_id: string | null
+          start_time: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: string | null
+          hours_worked?: number | null
+          id?: string
+          notes?: string | null
+          restaurant_id?: string | null
+          shift_date?: string
+          staff_id?: string | null
+          start_time: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string | null
+          hours_worked?: number | null
+          id?: string
+          notes?: string | null
+          restaurant_id?: string | null
+          shift_date?: string
+          staff_id?: string | null
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_staff_shifts_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lyn_staff_shifts_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "lyn_staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lyn_staff_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          restaurant_id: string | null
+          staff_id: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          restaurant_id?: string | null
+          staff_id?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          restaurant_id?: string | null
+          staff_id?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_staff_tasks_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lyn_staff_tasks_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "lyn_staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lyn_suppliers: {
+        Row: {
+          address: string | null
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          notes: string | null
+          phone: string | null
+          restaurant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          restaurant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          restaurant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyn_suppliers_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_items: {
         Row: {
           category: string | null
@@ -1659,6 +2146,10 @@ export type Database = {
           p_type: string
           p_user_id: string
         }
+        Returns: string
+      }
+      generate_receipt_number: {
+        Args: { p_restaurant_id: string }
         Returns: string
       }
       generate_referral_code: { Args: never; Returns: string }
