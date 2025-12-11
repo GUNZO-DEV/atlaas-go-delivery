@@ -14,10 +14,16 @@ const STORAGE_KEY = 'lyn_offline_queue';
 const CACHE_KEY = 'lyn_offline_cache';
 
 export const useOfflineSync = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [networkOnline, setNetworkOnline] = useState(navigator.onLine);
+  const [forceOffline, setForceOffline] = useState(() => {
+    return localStorage.getItem('lyn_force_offline') === 'true';
+  });
   const [pendingActions, setPendingActions] = useState<PendingAction[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const { toast } = useToast();
+
+  // Effective online status (network AND not forced offline)
+  const isOnline = networkOnline && !forceOffline;
 
   // Load pending actions from localStorage
   useEffect(() => {
@@ -39,17 +45,18 @@ export const useOfflineSync = () => {
   // Monitor online/offline status
   useEffect(() => {
     const handleOnline = async () => {
-      setIsOnline(true);
-      toast({
-        title: "Back Online",
-        description: "Syncing pending changes...",
-      });
-      // Auto-sync when back online
-      await syncPendingActions();
+      setNetworkOnline(true);
+      if (!forceOffline) {
+        toast({
+          title: "Back Online",
+          description: "Syncing pending changes...",
+        });
+        await syncPendingActions();
+      }
     };
 
     const handleOffline = () => {
-      setIsOnline(false);
+      setNetworkOnline(false);
       toast({
         title: "You're Offline",
         description: "Changes will be saved locally and synced when online.",
@@ -64,7 +71,33 @@ export const useOfflineSync = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [toast, pendingActions]);
+  }, [toast, forceOffline]);
+
+  // Toggle force offline mode
+  const toggleForceOffline = useCallback(() => {
+    setForceOffline(prev => {
+      const newValue = !prev;
+      localStorage.setItem('lyn_force_offline', String(newValue));
+      
+      if (newValue) {
+        toast({
+          title: "Offline Mode Enabled",
+          description: "Dashboard is now in offline mode.",
+        });
+      } else {
+        toast({
+          title: "Offline Mode Disabled", 
+          description: "Syncing pending changes...",
+        });
+        // Trigger sync when coming back online
+        if (networkOnline) {
+          syncPendingActions();
+        }
+      }
+      
+      return newValue;
+    });
+  }, [networkOnline, toast]);
 
   // Sync pending actions when online
   const syncPendingActions = useCallback(async () => {
@@ -190,6 +223,8 @@ export const useOfflineSync = () => {
 
   return {
     isOnline,
+    forceOffline,
+    toggleForceOffline,
     pendingActions,
     pendingCount: pendingActions.length,
     isSyncing,
