@@ -9,36 +9,51 @@ import TestimonialsSection from "@/components/TestimonialsSection";
 import FloatingOrderButton from "@/components/FloatingOrderButton";
 import StickyCategoryNav from "@/components/StickyCategoryNav";
 import Footer from "@/components/Footer";
+import ScrollReveal from "@/components/ScrollReveal";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
-      {/* 1. Hero - First impression */}
+      {/* Hero - No animation, already visible */}
       <Hero />
 
-      {/* 2. AUIER Campus Delivery - Key offering */}
-      <AuierHighlightSection />
+      {/* AUIER Campus Delivery */}
+      <ScrollReveal>
+        <AuierHighlightSection />
+      </ScrollReveal>
 
-      {/* 3. Categories - What are you craving? */}
-      <PopularCategories />
+      {/* Categories */}
+      <ScrollReveal delay={0.1}>
+        <PopularCategories />
+      </ScrollReveal>
 
-      {/* 4. Featured Restaurants - Discovery */}
-      <FeaturedRestaurants />
+      {/* Featured Restaurants */}
+      <ScrollReveal delay={0.1}>
+        <FeaturedRestaurants />
+      </ScrollReveal>
 
-      {/* 5. Testimonials - Social proof */}
-      <TestimonialsSection />
+      {/* Testimonials */}
+      <ScrollReveal direction="left">
+        <TestimonialsSection />
+      </ScrollReveal>
 
-      {/* 6. Special Offer - Conversion nudge */}
-      <SpecialOffersBanner />
+      {/* Special Offer */}
+      <ScrollReveal>
+        <SpecialOffersBanner />
+      </ScrollReveal>
       
-      {/* 7. Partner CTA */}
-      <PartnerCTA />
+      {/* Partner CTA */}
+      <ScrollReveal direction="right">
+        <PartnerCTA />
+      </ScrollReveal>
 
-      {/* 8. Social Proof Stats - Trust at the bottom */}
-      <SocialProofStrip />
+      {/* Social Proof Stats */}
+      <ScrollReveal>
+        <SocialProofStrip />
+      </ScrollReveal>
       
-      {/* 9. Footer */}
+      {/* Footer */}
       <Footer />
       
       {/* Floating elements */}
