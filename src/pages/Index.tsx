@@ -4,6 +4,7 @@ import FeaturedRestaurants from "@/components/FeaturedRestaurants";
 import AuierHighlightSection from "@/components/AuierHighlightSection";
 import SpecialOffersBanner from "@/components/SpecialOffersBanner";
 import HowItWorksSection from "@/components/HowItWorksSection";
+import PopularCategories from "@/components/PopularCategories";
 import SocialProofStrip from "@/components/SocialProofStrip";
 import LiveTrackingDemo from "@/components/LiveTrackingDemo";
 import PartnerCTA from "@/components/PartnerCTA";
@@ -85,13 +86,16 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 5. How It Works - Build confidence */}
+      {/* 5. Popular Categories - Quick filter */}
+      <PopularCategories />
+
+      {/* 6. How It Works - Build confidence */}
       <HowItWorksSection />
 
-      {/* 6. Social Proof - Trust signals */}
+      {/* 7. Social Proof - Trust signals */}
       <SocialProofStrip />
 
-      {/* 7. Featured Restaurants - Discovery */}
+      {/* 8. Featured Restaurants - Discovery */}
       <FeaturedRestaurants />
 
       {/* 8. Live Tracking Demo - Show tech */}
