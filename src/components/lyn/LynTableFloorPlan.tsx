@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, RefreshCw, Users, DollarSign, Clock, ChefHat, WifiOff } from "lucide-react";
+import { Plus, RefreshCw, Users, DollarSign, Clock, ChefHat, WifiOff, QrCode } from "lucide-react";
 import LynTableCard from "./LynTableCard";
 import LynTableOrderDialog from "./LynTableOrderDialog";
+import LynQRCodeDialog from "./LynQRCodeDialog";
 
 interface LynTableFloorPlanProps {
   restaurant: any;
@@ -18,6 +19,8 @@ const LynTableFloorPlan = ({ restaurant }: LynTableFloorPlanProps) => {
   const [orders, setOrders] = useState<any[]>([]);
   const [selectedTable, setSelectedTable] = useState<any>(null);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [qrTable, setQrTable] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [fromCache, setFromCache] = useState(false);
   const { isOnline, cacheData, getCachedData, queueAction } = useOfflineSync();
@@ -105,6 +108,11 @@ const LynTableFloorPlan = ({ restaurant }: LynTableFloorPlanProps) => {
   const handleTableClick = (table: any) => {
     setSelectedTable(table);
     setOrderDialogOpen(true);
+  };
+
+  const handleShowQR = (table?: any) => {
+    setQrTable(table || null);
+    setQrDialogOpen(true);
   };
 
   const stats = {
@@ -199,10 +207,16 @@ const LynTableFloorPlan = ({ restaurant }: LynTableFloorPlanProps) => {
                 </Badge>
               )}
             </div>
-            <Button variant="outline" size="sm" onClick={fetchData} disabled={loading} className="shrink-0 h-8">
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-              <span className="hidden sm:inline ml-1">Refresh</span>
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => handleShowQR()} className="shrink-0 h-8">
+                <QrCode className="h-4 w-4" />
+                <span className="hidden sm:inline ml-1">QR Codes</span>
+              </Button>
+              <Button variant="outline" size="sm" onClick={fetchData} disabled={loading} className="shrink-0 h-8">
+                <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                <span className="hidden sm:inline ml-1">Refresh</span>
+              </Button>
+            </div>
           </div>
           
           {/* Legend */}
@@ -259,6 +273,15 @@ const LynTableFloorPlan = ({ restaurant }: LynTableFloorPlanProps) => {
           </ScrollArea>
         </CardContent>
       </Card>
+
+      {/* QR Code Dialog */}
+      <LynQRCodeDialog
+        open={qrDialogOpen}
+        onOpenChange={setQrDialogOpen}
+        restaurant={restaurant}
+        table={qrTable}
+        tables={tables}
+      />
 
       {/* Table Order Dialog */}
       {selectedTable && (
