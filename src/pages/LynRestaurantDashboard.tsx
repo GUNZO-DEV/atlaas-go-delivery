@@ -160,113 +160,91 @@ cacheData('lyn_restaurant', restaurantData);
   const activeTabLabel = tabs.find(t => t.id === activeTab)?.label || "Tables";
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-16 md:pb-0">
+      {/* Simple Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-3 md:px-4 py-2 md:py-3 flex items-center justify-between">
-          {/* Left: Logo + Name */}
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-lg flex items-center justify-center shrink-0">
-              <span className="text-primary-foreground font-bold text-sm md:text-lg">L</span>
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">L</span>
             </div>
-            <div className="min-w-0">
-              <h1 className="font-bold text-sm md:text-lg text-foreground truncate max-w-[120px] md:max-w-none">{restaurant.name}</h1>
-              <p className="text-[10px] md:text-xs text-muted-foreground hidden md:block">Enterprise Management</p>
-            </div>
+            <span className="font-semibold text-sm truncate max-w-[150px] md:max-w-none">{restaurant.name}</span>
           </div>
-          
-          {/* Right: Actions */}
-          <div className="flex items-center gap-1 md:gap-2">
+          <div className="flex items-center gap-1">
             <LynOfflineIndicator />
             <LynDarkModeToggle />
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 px-2 md:px-3">
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="h-8 w-8">
               <LogOut className="h-4 w-4" />
-              <span className="hidden md:inline ml-2">Logout</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-3 md:px-4 py-4 md:py-6">
-        {/* Alerts & Weather Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
-          <LynOperationalAlerts restaurant={restaurant} />
-          <LynWeatherWidget restaurant={restaurant} />
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
-          {/* Desktop Tabs */}
-          <TabsList className="hidden md:flex w-full justify-start overflow-x-auto bg-muted/50 p-1 h-auto flex-nowrap">
+      <main className="p-3 md:p-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          {/* Desktop Tabs - Scrollable */}
+          <TabsList className="hidden md:flex w-full justify-start overflow-x-auto bg-muted/50 p-1 h-auto flex-nowrap mb-4">
             {tabs.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 px-3 py-2 data-[state=active]:bg-background whitespace-nowrap">
+              <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 px-3 py-2 whitespace-nowrap">
                 <tab.icon className="h-4 w-4" />
                 <span className="text-xs">{tab.label}</span>
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {/* Tab Content */}
-          <TabsContent value="tables"><LynTableFloorPlan restaurant={restaurant} /></TabsContent>
-          <TabsContent value="kitchen"><LynKitchenDisplay restaurant={restaurant} /></TabsContent>
-          <TabsContent value="orders"><LynOrdersManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="reservations"><LynReservationsManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="customers"><LynCustomerLoyalty restaurant={restaurant} /></TabsContent>
-          <TabsContent value="menu"><LynMenuEngineering restaurant={restaurant} /></TabsContent>
-          <TabsContent value="finances"><LynFinancesManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="inventory"><LynInventoryManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="staff"><LynStaffManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="checklists"><LynChecklistsManager restaurant={restaurant} /></TabsContent>
-          <TabsContent value="announcements"><LynAnnouncementsBoard restaurant={restaurant} /></TabsContent>
-          <TabsContent value="incidents"><LynIncidentsLog restaurant={restaurant} /></TabsContent>
-          <TabsContent value="audit"><LynAuditLogs restaurant={restaurant} /></TabsContent>
-          <TabsContent value="overview"><LynManagerDashboard restaurant={restaurant} /></TabsContent>
+          <TabsContent value="tables" className="mt-0"><LynTableFloorPlan restaurant={restaurant} /></TabsContent>
+          <TabsContent value="kitchen" className="mt-0"><LynKitchenDisplay restaurant={restaurant} /></TabsContent>
+          <TabsContent value="orders" className="mt-0"><LynOrdersManagement restaurant={restaurant} /></TabsContent>
+          <TabsContent value="reservations" className="mt-0"><LynReservationsManagement restaurant={restaurant} /></TabsContent>
+          <TabsContent value="customers" className="mt-0"><LynCustomerLoyalty restaurant={restaurant} /></TabsContent>
+          <TabsContent value="menu" className="mt-0"><LynMenuEngineering restaurant={restaurant} /></TabsContent>
+          <TabsContent value="finances" className="mt-0"><LynFinancesManagement restaurant={restaurant} /></TabsContent>
+          <TabsContent value="inventory" className="mt-0"><LynInventoryManagement restaurant={restaurant} /></TabsContent>
+          <TabsContent value="staff" className="mt-0"><LynStaffManagement restaurant={restaurant} /></TabsContent>
+          <TabsContent value="checklists" className="mt-0"><LynChecklistsManager restaurant={restaurant} /></TabsContent>
+          <TabsContent value="announcements" className="mt-0"><LynAnnouncementsBoard restaurant={restaurant} /></TabsContent>
+          <TabsContent value="incidents" className="mt-0"><LynIncidentsLog restaurant={restaurant} /></TabsContent>
+          <TabsContent value="audit" className="mt-0"><LynAuditLogs restaurant={restaurant} /></TabsContent>
+          <TabsContent value="overview" className="mt-0"><LynManagerDashboard restaurant={restaurant} /></TabsContent>
         </Tabs>
       </main>
 
-      {/* Mobile Bottom Navigation */}
+      {/* Mobile Bottom Nav - Simple */}
       {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-lg">
-          <div className="flex items-center justify-around py-2 px-1">
-            {/* Quick access tabs */}
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border">
+          <div className="flex items-center justify-around py-1">
             {tabs.slice(0, 4).map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-colors min-w-[60px] ${
-                  activeTab === tab.id 
-                    ? 'text-primary bg-primary/10' 
-                    : 'text-muted-foreground'
-                }`}
+                className={`flex flex-col items-center p-2 ${activeTab === tab.id ? 'text-primary' : 'text-muted-foreground'}`}
               >
                 <tab.icon className="h-5 w-5" />
-                <span className="text-[10px] font-medium">{tab.label}</span>
+                <span className="text-[9px] mt-0.5">{tab.label}</span>
               </button>
             ))}
-            
-            {/* More menu */}
             <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
               <SheetTrigger asChild>
-                <button className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg text-muted-foreground min-w-[60px]">
+                <button className="flex flex-col items-center p-2 text-muted-foreground">
                   <Menu className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">More</span>
+                  <span className="text-[9px] mt-0.5">More</span>
                 </button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[70vh] rounded-t-xl">
-                <SheetHeader className="pb-4">
-                  <SheetTitle>Navigation</SheetTitle>
+              <SheetContent side="bottom" className="h-auto max-h-[60vh] rounded-t-2xl">
+                <SheetHeader className="pb-3">
+                  <SheetTitle className="text-sm">All Sections</SheetTitle>
                 </SheetHeader>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-4 gap-2 pb-4">
                   {tabs.map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => handleTabChange(tab.id)}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-colors ${
-                        activeTab === tab.id 
-                          ? 'bg-primary text-primary-foreground' 
-                          : 'bg-muted/50 text-foreground hover:bg-muted'
+                      className={`flex flex-col items-center gap-1 p-3 rounded-xl ${
+                        activeTab === tab.id ? 'bg-primary text-primary-foreground' : 'bg-muted/50'
                       }`}
                     >
-                      <tab.icon className="h-6 w-6" />
-                      <span className="text-xs font-medium text-center">{tab.label}</span>
+                      <tab.icon className="h-5 w-5" />
+                      <span className="text-[10px] text-center leading-tight">{tab.label}</span>
                     </button>
                   ))}
                 </div>
