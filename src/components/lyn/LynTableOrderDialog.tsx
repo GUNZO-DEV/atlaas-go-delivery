@@ -396,15 +396,15 @@ const LynTableOrderDialog = ({
                   </div>
                 </ScrollArea>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col gap-2">
                   {filteredMenuItems.map(item => (
                     <Button
                       key={item.id}
                       variant="outline"
-                      className="h-auto py-3 px-3 flex flex-col items-start text-left"
+                      className="h-auto py-3 px-3 flex items-center justify-between text-left"
                       onClick={() => addItem(item)}
                     >
-                      <span className="text-xs font-medium truncate w-full">{item.name}</span>
+                      <span className="text-sm font-medium">{item.name}</span>
                       <span className="text-sm text-primary font-bold">{item.price} DH</span>
                     </Button>
                   ))}
@@ -612,16 +612,16 @@ const LynTableOrderDialog = ({
                 </ScrollArea>
 
                 <ScrollArea className="flex-1 border rounded-lg p-2">
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-2">
                     {filteredMenuItems.map(item => (
                       <Button
                         key={item.id}
                         variant="outline"
-                        className="h-auto py-2 px-3 flex flex-col items-start text-left"
+                        className="h-auto py-2 px-3 flex items-center justify-between text-left"
                         onClick={() => addItem(item)}
                       >
-                        <span className="text-xs font-medium truncate w-full">{item.name}</span>
-                        <span className="text-xs text-primary font-bold">{item.price} DH</span>
+                        <span className="text-sm font-medium">{item.name}</span>
+                        <span className="text-sm text-primary font-bold">{item.price} DH</span>
                       </Button>
                     ))}
                   </div>
