@@ -200,22 +200,22 @@ const LynRestaurantDashboard = () => {
         {activeFeature ? (
           renderFeatureContent()
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h1 className="text-lg font-semibold">What would you like to do?</h1>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="flex flex-col gap-2">
               {features.map((feature) => (
                 <Card 
                   key={feature.id}
                   className="cursor-pointer hover:shadow-md transition-all active:scale-95"
                   onClick={() => setActiveFeature(feature.id)}
                 >
-                  <CardContent className="p-4 flex flex-col items-center text-center gap-2">
-                    <div className={`w-12 h-12 rounded-xl ${feature.color} flex items-center justify-center`}>
-                      <feature.icon className="h-6 w-6 text-white" />
+                  <CardContent className="p-3 flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl ${feature.color} flex items-center justify-center shrink-0`}>
+                      <feature.icon className="h-5 w-5 text-white" />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">{feature.label}</p>
-                      <p className="text-[10px] text-muted-foreground">{feature.desc}</p>
+                      <p className="text-xs text-muted-foreground">{feature.desc}</p>
                     </div>
                   </CardContent>
                 </Card>
