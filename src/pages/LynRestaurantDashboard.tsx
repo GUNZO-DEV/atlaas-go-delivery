@@ -3,15 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutGrid, ChefHat, ShoppingCart, DollarSign, Package, UserCog, BarChart3,
   LogOut, Calendar, Megaphone, AlertTriangle, ClipboardList, Crown, History, PieChart,
-  Menu, X
+  ArrowLeft, Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Card, CardContent } from "@/components/ui/card";
 import LynTableFloorPlan from "@/components/lyn/LynTableFloorPlan";
 import LynKitchenDisplay from "@/components/lyn/LynKitchenDisplay";
 import LynManagerDashboard from "@/components/lyn/LynManagerDashboard";
@@ -25,8 +23,6 @@ import LynAnnouncementsBoard from "@/components/lyn/LynAnnouncementsBoard";
 import LynIncidentsLog from "@/components/lyn/LynIncidentsLog";
 import LynChecklistsManager from "@/components/lyn/LynChecklistsManager";
 import LynCustomerLoyalty from "@/components/lyn/LynCustomerLoyalty";
-import LynOperationalAlerts from "@/components/lyn/LynOperationalAlerts";
-import LynWeatherWidget from "@/components/lyn/LynWeatherWidget";
 import LynMenuEngineering from "@/components/lyn/LynMenuEngineering";
 import LynAuditLogs from "@/components/lyn/LynAuditLogs";
 import LynOfflineIndicator from "@/components/lyn/LynOfflineIndicator";
@@ -34,12 +30,10 @@ import LynOfflineIndicator from "@/components/lyn/LynOfflineIndicator";
 const LynRestaurantDashboard = () => {
   const [restaurant, setRestaurant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("tables");
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { fetchWithCache, isOnline, cacheData, getCachedData } = useOfflineSync();
-  const isMobile = useIsMobile();
+  const { isOnline, cacheData, getCachedData } = useOfflineSync();
 
   useEffect(() => {
     checkAuthAndLoadRestaurant();
@@ -47,7 +41,6 @@ const LynRestaurantDashboard = () => {
 
   const checkAuthAndLoadRestaurant = async () => {
     try {
-      // Try to get cached user and restaurant first for offline support
       const cachedRestaurant = getCachedData<any>('lyn_restaurant');
       
       if (!isOnline && cachedRestaurant) {
@@ -80,15 +73,11 @@ const LynRestaurantDashboard = () => {
         navigate("/merchant"); return;
       }
       
-      // Cache the restaurant data for offline use
-cacheData('lyn_restaurant', restaurantData);
+      cacheData('lyn_restaurant', restaurantData);
       cacheData('lyn_user_id', user.id);
       setRestaurant(restaurantData);
-      
-      // Pre-cache menu items for offline order creation
       preCacheMenuItems(restaurantData.id);
     } catch (error: any) {
-      // If offline and we have cached data, use it
       const cachedRestaurant = getCachedData<any>('lyn_restaurant');
       if (!isOnline && cachedRestaurant) {
         setRestaurant(cachedRestaurant);
@@ -104,7 +93,6 @@ cacheData('lyn_restaurant', restaurantData);
     }
   };
 
-  // Pre-cache menu items for offline use
   const preCacheMenuItems = async (restaurantId: string) => {
     try {
       const { data } = await supabase
@@ -134,44 +122,71 @@ cacheData('lyn_restaurant', restaurantData);
   }
   if (!restaurant) return null;
 
-  const tabs = [
-    { id: "tables", label: "Tables", icon: LayoutGrid },
-    { id: "kitchen", label: "Kitchen", icon: ChefHat },
-    { id: "orders", label: "Orders", icon: ShoppingCart },
-    { id: "reservations", label: "Reservations", icon: Calendar },
-    { id: "customers", label: "Loyalty", icon: Crown },
-    { id: "menu", label: "Menu Eng.", icon: PieChart },
-    { id: "finances", label: "Finances", icon: DollarSign },
-    { id: "inventory", label: "Inventory", icon: Package },
-    { id: "staff", label: "Staff", icon: UserCog },
-    { id: "checklists", label: "Checklists", icon: ClipboardList },
-    { id: "announcements", label: "Comms", icon: Megaphone },
-    { id: "incidents", label: "Incidents", icon: AlertTriangle },
-    { id: "audit", label: "Audit Logs", icon: History },
-    { id: "overview", label: "Overview", icon: BarChart3 },
+  const features = [
+    { id: "tables", label: "Tables", icon: LayoutGrid, color: "bg-blue-500", desc: "Floor plan & orders" },
+    { id: "kitchen", label: "Kitchen", icon: ChefHat, color: "bg-orange-500", desc: "Live kitchen display" },
+    { id: "orders", label: "Orders", icon: ShoppingCart, color: "bg-green-500", desc: "All orders history" },
+    { id: "reservations", label: "Reservations", icon: Calendar, color: "bg-purple-500", desc: "Book & manage" },
+    { id: "customers", label: "Loyalty", icon: Crown, color: "bg-yellow-500", desc: "Customer rewards" },
+    { id: "finances", label: "Finances", icon: DollarSign, color: "bg-emerald-500", desc: "Revenue & expenses" },
+    { id: "inventory", label: "Inventory", icon: Package, color: "bg-cyan-500", desc: "Stock management" },
+    { id: "staff", label: "Staff", icon: UserCog, color: "bg-pink-500", desc: "Team & shifts" },
+    { id: "checklists", label: "Checklists", icon: ClipboardList, color: "bg-indigo-500", desc: "Daily tasks" },
+    { id: "menu", label: "Menu Eng.", icon: PieChart, color: "bg-rose-500", desc: "Profitability" },
+    { id: "announcements", label: "Comms", icon: Megaphone, color: "bg-amber-500", desc: "Team messages" },
+    { id: "incidents", label: "Incidents", icon: AlertTriangle, color: "bg-red-500", desc: "Issue tracking" },
+    { id: "audit", label: "Audit Logs", icon: History, color: "bg-slate-500", desc: "Activity history" },
+    { id: "overview", label: "Overview", icon: BarChart3, color: "bg-teal-500", desc: "Dashboard stats" },
   ];
 
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    setMobileNavOpen(false);
+  const renderFeatureContent = () => {
+    switch (activeFeature) {
+      case "tables": return <LynTableFloorPlan restaurant={restaurant} />;
+      case "kitchen": return <LynKitchenDisplay restaurant={restaurant} />;
+      case "orders": return <LynOrdersManagement restaurant={restaurant} />;
+      case "reservations": return <LynReservationsManagement restaurant={restaurant} />;
+      case "customers": return <LynCustomerLoyalty restaurant={restaurant} />;
+      case "menu": return <LynMenuEngineering restaurant={restaurant} />;
+      case "finances": return <LynFinancesManagement restaurant={restaurant} />;
+      case "inventory": return <LynInventoryManagement restaurant={restaurant} />;
+      case "staff": return <LynStaffManagement restaurant={restaurant} />;
+      case "checklists": return <LynChecklistsManager restaurant={restaurant} />;
+      case "announcements": return <LynAnnouncementsBoard restaurant={restaurant} />;
+      case "incidents": return <LynIncidentsLog restaurant={restaurant} />;
+      case "audit": return <LynAuditLogs restaurant={restaurant} />;
+      case "overview": return <LynManagerDashboard restaurant={restaurant} />;
+      default: return null;
+    }
   };
 
-  const ActiveTabIcon = tabs.find(t => t.id === activeTab)?.icon || LayoutGrid;
-  const activeTabLabel = tabs.find(t => t.id === activeTab)?.label || "Tables";
+  const activeFeatureData = features.find(f => f.id === activeFeature);
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
-      {/* Simple Header */}
+    <div className="min-h-screen bg-background">
+      {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">L</span>
-            </div>
-            <span className="font-semibold text-sm truncate max-w-[150px] md:max-w-none">{restaurant.name}</span>
+            {activeFeature ? (
+              <Button variant="ghost" size="icon" onClick={() => setActiveFeature(null)} className="h-8 w-8">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            ) : (
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-sm">L</span>
+              </div>
+            )}
+            <span className="font-semibold text-sm truncate max-w-[180px]">
+              {activeFeature ? activeFeatureData?.label : restaurant.name}
+            </span>
           </div>
           <div className="flex items-center gap-1">
             <LynOfflineIndicator />
+            {activeFeature && (
+              <Button variant="ghost" size="icon" onClick={() => setActiveFeature(null)} className="h-8 w-8">
+                <Home className="h-4 w-4" />
+              </Button>
+            )}
             <LynDarkModeToggle />
             <Button variant="ghost" size="icon" onClick={handleLogout} className="h-8 w-8">
               <LogOut className="h-4 w-4" />
@@ -180,79 +195,35 @@ cacheData('lyn_restaurant', restaurantData);
         </div>
       </header>
 
-      <main className="p-3 md:p-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          {/* Desktop Tabs - Scrollable */}
-          <TabsList className="hidden md:flex w-full justify-start overflow-x-auto bg-muted/50 p-1 h-auto flex-nowrap mb-4">
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 px-3 py-2 whitespace-nowrap">
-                <tab.icon className="h-4 w-4" />
-                <span className="text-xs">{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          <TabsContent value="tables" className="mt-0"><LynTableFloorPlan restaurant={restaurant} /></TabsContent>
-          <TabsContent value="kitchen" className="mt-0"><LynKitchenDisplay restaurant={restaurant} /></TabsContent>
-          <TabsContent value="orders" className="mt-0"><LynOrdersManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="reservations" className="mt-0"><LynReservationsManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="customers" className="mt-0"><LynCustomerLoyalty restaurant={restaurant} /></TabsContent>
-          <TabsContent value="menu" className="mt-0"><LynMenuEngineering restaurant={restaurant} /></TabsContent>
-          <TabsContent value="finances" className="mt-0"><LynFinancesManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="inventory" className="mt-0"><LynInventoryManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="staff" className="mt-0"><LynStaffManagement restaurant={restaurant} /></TabsContent>
-          <TabsContent value="checklists" className="mt-0"><LynChecklistsManager restaurant={restaurant} /></TabsContent>
-          <TabsContent value="announcements" className="mt-0"><LynAnnouncementsBoard restaurant={restaurant} /></TabsContent>
-          <TabsContent value="incidents" className="mt-0"><LynIncidentsLog restaurant={restaurant} /></TabsContent>
-          <TabsContent value="audit" className="mt-0"><LynAuditLogs restaurant={restaurant} /></TabsContent>
-          <TabsContent value="overview" className="mt-0"><LynManagerDashboard restaurant={restaurant} /></TabsContent>
-        </Tabs>
-      </main>
-
-      {/* Mobile Bottom Nav - Simple */}
-      {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border">
-          <div className="flex items-center justify-around py-1">
-            {tabs.slice(0, 4).map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={`flex flex-col items-center p-2 ${activeTab === tab.id ? 'text-primary' : 'text-muted-foreground'}`}
-              >
-                <tab.icon className="h-5 w-5" />
-                <span className="text-[9px] mt-0.5">{tab.label}</span>
-              </button>
-            ))}
-            <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
-              <SheetTrigger asChild>
-                <button className="flex flex-col items-center p-2 text-muted-foreground">
-                  <Menu className="h-5 w-5" />
-                  <span className="text-[9px] mt-0.5">More</span>
-                </button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-auto max-h-[60vh] rounded-t-2xl">
-                <SheetHeader className="pb-3">
-                  <SheetTitle className="text-sm">All Sections</SheetTitle>
-                </SheetHeader>
-                <div className="grid grid-cols-4 gap-2 pb-4">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => handleTabChange(tab.id)}
-                      className={`flex flex-col items-center gap-1 p-3 rounded-xl ${
-                        activeTab === tab.id ? 'bg-primary text-primary-foreground' : 'bg-muted/50'
-                      }`}
-                    >
-                      <tab.icon className="h-5 w-5" />
-                      <span className="text-[10px] text-center leading-tight">{tab.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
+      {/* Main Content */}
+      <main className="p-4">
+        {activeFeature ? (
+          renderFeatureContent()
+        ) : (
+          <div className="space-y-4">
+            <h1 className="text-lg font-semibold">What would you like to do?</h1>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {features.map((feature) => (
+                <Card 
+                  key={feature.id}
+                  className="cursor-pointer hover:shadow-md transition-all active:scale-95"
+                  onClick={() => setActiveFeature(feature.id)}
+                >
+                  <CardContent className="p-4 flex flex-col items-center text-center gap-2">
+                    <div className={`w-12 h-12 rounded-xl ${feature.color} flex items-center justify-center`}>
+                      <feature.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{feature.label}</p>
+                      <p className="text-[10px] text-muted-foreground">{feature.desc}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </nav>
-      )}
+        )}
+      </main>
     </div>
   );
 };
