@@ -412,66 +412,72 @@ const LynTableOrderDialog = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="order" className="flex-1 overflow-auto p-4 pt-2 m-0">
-              <div className="space-y-3">
-                {items.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">
-                    Click menu items to add
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {items.map((item, index) => (
-                      <div key={index} className="p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{item.name}</p>
-                            {item.notes && (
-                              <p className="text-xs text-orange-600">📝 {item.notes}</p>
-                            )}
+            <TabsContent value="order" className="flex-1 flex flex-col overflow-hidden p-4 pt-2 m-0">
+              {/* Scrollable content */}
+              <ScrollArea className="flex-1 pr-2">
+                <div className="space-y-3 pb-4">
+                  {items.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground">
+                      Click menu items to add
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {items.map((item, index) => (
+                        <div key={index} className="p-3 bg-muted/50 rounded-lg">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{item.name}</p>
+                              {item.notes && (
+                                <p className="text-xs text-orange-600">📝 {item.notes}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => updateQuantity(index, -1)}>
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="w-6 text-center">{item.quantity}</span>
+                              <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => updateQuantity(index, 1)}>
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => removeItem(index)}>
+                                <Trash2 className="h-4 w-4 text-red-600" />
+                              </Button>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => updateQuantity(index, -1)}>
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="w-6 text-center">{item.quantity}</span>
-                            <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => updateQuantity(index, 1)}>
-                              <Plus className="h-3 w-3" />
-                            </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => removeItem(index)}>
-                              <Trash2 className="h-4 w-4 text-red-600" />
-                            </Button>
+                          <div className="flex justify-end mt-1">
+                            <span className="text-sm font-bold">{(item.price * item.quantity).toFixed(0)} DH</span>
                           </div>
                         </div>
-                        <div className="flex justify-end mt-1">
-                          <span className="text-sm font-bold">{(item.price * item.quantity).toFixed(0)} DH</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-xs">Discount</Label>
-                    <Input
-                      type="number"
-                      value={discount}
-                      onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                      className="h-9"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Notes</Label>
-                    <Input
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Notes..."
-                      className="h-9"
-                    />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs">Discount</Label>
+                      <Input
+                        type="number"
+                        value={discount}
+                        onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+                        className="h-9"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Notes</Label>
+                      <Input
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Notes..."
+                        className="h-9"
+                      />
+                    </div>
                   </div>
                 </div>
+              </ScrollArea>
 
-                <div className="border-t pt-3 space-y-1">
+              {/* Sticky footer with totals + actions */}
+              <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 pt-3 space-y-2">
+                <div className="space-y-1">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
                     <span>{subtotal.toFixed(0)} DH</span>
@@ -488,7 +494,7 @@ const LynTableOrderDialog = ({
                   </div>
                 </div>
 
-                <div className="space-y-2 pb-4">
+                <div className="space-y-2 pb-2">
                   {!isOccupied ? (
                     <>
                       <Button className="w-full h-12 text-base" onClick={openTable} disabled={loading || items.length === 0}>
