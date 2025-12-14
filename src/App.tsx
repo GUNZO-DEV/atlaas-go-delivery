@@ -35,6 +35,7 @@ import Favorites from "./pages/Favorites";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminSetup from "./pages/AdminSetup";
 import AuierDelivery from "./pages/AuierDelivery";
+import AuierAdminDashboard from "./pages/AuierAdminDashboard";
 import Notifications from "./pages/Notifications";
 import Orders from "./pages/Orders";
 import LynRestaurantDashboard from "./pages/LynRestaurantDashboard";
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/partner-restaurant" element={<PartnerRestaurant />} />
             <Route path="/restaurants" element={<Restaurants />} />
             <Route path="/auier-delivery" element={<AuierDelivery />} />
+            <Route path="/auier-admin" element={<ProtectedRoute requiredRole="admin"><AuierAdminDashboard /></ProtectedRoute>} />
             <Route path="/customer" element={<ProtectedRoute requiredRole="customer"><CustomerDashboard /></ProtectedRoute>} />
             <Route path="/merchant" element={<ProtectedRoute requiredRole="merchant"><LynRestaurantDashboard /></ProtectedRoute>} />
             <Route path="/rider" element={<ProtectedRoute requiredRole="rider"><RiderDashboard /></ProtectedRoute>} />
