@@ -72,7 +72,7 @@ serve(async (req) => {
     // Fetch restaurants from database
     const { data: restaurants, error: dbError } = await supabase
       .from('restaurants')
-      .select('id, name, cuisine_type, description, address, average_rating, review_count, is_active')
+      .select('id, name, cuisine_type, description, address, average_rating, review_count, is_active, delivery_time_min, delivery_time_max, minimum_order')
       .eq('is_active', true)
       .order('average_rating', { ascending: false });
 
@@ -80,21 +80,51 @@ serve(async (req) => {
       console.error('Database error:', dbError);
     }
 
-    // Fetch popular menu items
+    // Fetch menu items with restaurant names
     const { data: menuItems } = await supabase
       .from('menu_items')
-      .select('name, category, restaurant_id, price')
+      .select('name, category, restaurant_id, price, description')
       .eq('is_available', true)
-      .limit(50);
+      .order('popularity_score', { ascending: false })
+      .limit(100);
 
-    // Create restaurant context
+    // Fetch active promotions
+    const { data: promotions } = await supabase
+      .from('promotions')
+      .select('code, description, discount_percentage, discount_amount, min_order_amount, expires_at')
+      .eq('is_active', true)
+      .gt('expires_at', new Date().toISOString());
+
+    // Get current hour for time-aware recommendations
+    const currentHour = new Date().getHours();
+    const mealTime = currentHour >= 6 && currentHour < 11 ? 'breakfast' : 
+                     currentHour >= 11 && currentHour < 15 ? 'lunch' :
+                     currentHour >= 15 && currentHour < 18 ? 'afternoon snack' :
+                     currentHour >= 18 && currentHour < 22 ? 'dinner' : 'late night';
+
+    // Create restaurant context with delivery info
     const restaurantContext = restaurants ? restaurants.map(r => 
-      `${r.name} (${r.cuisine_type || 'Various'}) - ${r.description || 'No description'} - Rating: ${r.average_rating}/5 (${r.review_count} reviews) - Location: ${r.address}`
+      `**${r.name}** (${r.cuisine_type || 'Various'}) - ${r.description || 'No description'} - ⭐ ${r.average_rating}/5 (${r.review_count} reviews) - 📍 ${r.address} - 🕐 ${r.delivery_time_min || 20}-${r.delivery_time_max || 45} min - Min order: ${r.minimum_order || 0} MAD`
     ).join('\n') : 'No restaurants available';
 
-    const popularItems = menuItems ? menuItems.slice(0, 20).map(m => 
-      `${m.name} (${m.category || 'Food'}) - ${m.price} MAD`
-    ).join('\n') : '';
+    // Group menu items by restaurant
+    const restaurantMenuMap = new Map<string, typeof menuItems>();
+    menuItems?.forEach(item => {
+      const existing = restaurantMenuMap.get(item.restaurant_id) || [];
+      existing.push(item);
+      restaurantMenuMap.set(item.restaurant_id, existing);
+    });
+
+    // Create menu context with categories
+    const menuContext = menuItems ? Array.from(new Set(menuItems.map(m => m.category))).map(category => {
+      const categoryItems = menuItems.filter(m => m.category === category).slice(0, 5);
+      return `**${category || 'Other'}**: ${categoryItems.map(m => `${m.name} (${m.price} MAD)`).join(', ')}`;
+    }).join('\n') : '';
+
+    // Promotions context
+    const promoContext = promotions && promotions.length > 0 ? 
+      promotions.map(p => `🎁 ${p.code}: ${p.description} - ${p.discount_percentage ? p.discount_percentage + '% off' : p.discount_amount + ' MAD off'}${p.min_order_amount ? ` (min ${p.min_order_amount} MAD)` : ''}`).join('\n') : 
+      'No active promotions right now';
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -103,54 +133,68 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-flash-preview",
         messages: [
           { 
             role: "system", 
-            content: `You are ATLAAS AI, the smart food discovery assistant for ATLAAS GO - Morocco's favorite food delivery app.
+            content: `You are ATLAAS AI, the intelligent food discovery assistant for ATLAAS GO - Morocco's favorite food delivery app.
 
 ## YOUR PERSONALITY
-- Friendly, enthusiastic, and helpful
-- You speak casually but professionally
-- Use emojis sparingly to add warmth (1-2 per response max)
-- Keep responses concise (under 150 words unless detailed info is needed)
+- Friendly, enthusiastic, and genuinely helpful
+- You speak casually but professionally, like a foodie friend
+- Use emojis thoughtfully (1-2 per response) to add warmth
+- Be concise (under 150 words) unless detailed info is requested
+- Personalize recommendations based on context
 
-## AVAILABLE DATA
+## CURRENT CONTEXT
+🕐 It's ${mealTime} time right now - tailor your suggestions accordingly!
 
-### RESTAURANTS ON ATLAAS GO:
-${restaurantContext || 'Currently fetching restaurant data...'}
+## RESTAURANTS ON ATLAAS GO
+${restaurantContext || 'Currently loading restaurant data...'}
 
-### POPULAR DISHES:
-${popularItems || 'Currently fetching menu data...'}
+## MENU HIGHLIGHTS BY CATEGORY
+${menuContext || 'Currently loading menu data...'}
 
-## RESPONSE GUIDELINES
+## ACTIVE PROMOTIONS & DEALS
+${promoContext}
 
-1. **Restaurant Recommendations:**
-   - ONLY recommend restaurants from the list above
-   - Always mention: name, cuisine type, rating, and a brief highlight
-   - Format restaurant names in **bold** for visibility
-   - If asked about unavailable restaurants, suggest similar alternatives from our list
+## SMART RESPONSE GUIDELINES
 
-2. **Menu Suggestions:**
-   - Reference actual menu items with prices in MAD
-   - Group suggestions by category when helpful
+### Restaurant Recommendations
+- ONLY recommend restaurants from the list above
+- Always mention: **restaurant name**, cuisine type, rating, delivery time, and why it's a good choice
+- Consider meal time when suggesting (breakfast spots in morning, etc.)
+- If asked about unavailable options, suggest similar alternatives from our list
+- Highlight promotions when relevant
 
-3. **Order & Delivery Questions:**
-   - Help with order tracking, delivery estimates
-   - Explain ATLAAS Prime benefits if relevant
-   - Guide users to the right sections of the app
+### Menu Suggestions
+- Reference actual menu items with accurate prices in MAD
+- Group by category when showing multiple options
+- Suggest pairings (e.g., "This goes great with...")
 
-4. **Format Tips:**
-   - Use bullet points for multiple options
-   - Keep recommendations to 2-3 choices unless asked for more
-   - End with a helpful follow-up question when appropriate
+### Smart Features
+- Proactively mention applicable promo codes
+- Consider delivery times for urgent orders
+- Suggest popular/trending items when asked for recommendations
+- If user seems undecided, ask clarifying questions (budget, cuisine preference, dietary needs)
 
-## THINGS YOU CAN'T DO
-- Access real-time order status (direct them to Orders page)
-- Process payments or refunds (direct to Support)
-- Make reservations (that's LYN's feature)
+### Order & Delivery Questions
+- Guide users to the Orders page for tracking
+- Explain ATLAAS Prime benefits (free delivery, 2x loyalty points)
+- Help with delivery estimates based on restaurant data
 
-Remember: You're here to make food discovery fun and easy! 🍽️` 
+### Response Format
+- Use **bold** for restaurant names and important info
+- Use bullet points for multiple options
+- Keep recommendations to 2-3 choices unless more requested
+- End with a helpful follow-up question when appropriate
+
+## LIMITATIONS (direct users appropriately)
+- Real-time order tracking → Orders page
+- Payments/refunds → Support
+- Table reservations → LYN feature (for dine-in)
+
+Remember: Make food discovery delightful! Help users find their perfect meal. 🍽️` 
           },
           ...messages,
         ],
