@@ -1,55 +1,51 @@
-import { Smartphone, MapPin, Package } from 'lucide-react';
+import { Search, ShoppingBag, Bike } from 'lucide-react';
+
+const steps = [
+  {
+    icon: Search,
+    title: "Browse & Choose",
+    description: "Explore restaurants near you and add your favorites to cart.",
+    step: "01",
+  },
+  {
+    icon: ShoppingBag,
+    title: "Place Your Order",
+    description: "Confirm your order, choose payment, and sit back.",
+    step: "02",
+  },
+  {
+    icon: Bike,
+    title: "Fast Delivery",
+    description: "Track your rider in real-time as food arrives at your door.",
+    step: "03",
+  },
+];
 
 const HowItWorksSection = () => {
-  const steps = [
-    {
-      icon: Smartphone,
-      step: '1',
-      title: 'Choose',
-      description: 'Browse restaurants & pick your favorites',
-    },
-    {
-      icon: MapPin,
-      step: '2',
-      title: 'Order',
-      description: 'Add to cart & confirm your delivery address',
-    },
-    {
-      icon: Package,
-      step: '3',
-      title: 'Enjoy',
-      description: 'Track your rider & receive your food hot',
-    },
-  ];
-
   return (
-    <section className="py-10 md:py-12 bg-background">
+    <section className="py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">Order in 3 Simple Steps</h2>
-          <p className="text-muted-foreground text-sm md:text-base">Fast, easy, delicious</p>
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">How It Works</h2>
+          <p className="text-muted-foreground text-sm md:text-base">Three simple steps to get your food</p>
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {steps.map((step, index) => (
-              <div key={step.title} className="relative text-center group">
-                {/* Connector line */}
-                {index < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-10 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-primary/50 to-primary/20" />
-                )}
-                
-                {/* Step circle */}
-                <div className="relative inline-flex items-center justify-center w-20 h-20 mb-4">
-                  <div className="absolute inset-0 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors duration-300" />
-                  <div className="absolute -top-1 -right-1 w-7 h-7 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 relative">
+            <div className="hidden md:block absolute top-12 left-[20%] right-[20%] h-px bg-border" />
+            
+            {steps.map((step) => (
+              <div key={step.step} className="relative text-center group">
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-primary/5 border-2 border-primary/20 mb-5 group-hover:border-primary/40 group-hover:bg-primary/10 transition-all duration-300 relative z-10 bg-background">
+                  <step.icon className="w-10 h-10 text-primary" />
+                  <span className="absolute -top-2 -right-2 w-7 h-7 bg-primary text-primary-foreground rounded-full text-xs font-bold flex items-center justify-center">
                     {step.step}
-                  </div>
-                  <step.icon className="w-8 h-8 text-primary" />
+                  </span>
                 </div>
-
-                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                <p className="text-muted-foreground text-sm">{step.description}</p>
+                <h3 className="text-lg font-bold mb-2">{step.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-[260px] mx-auto">
+                  {step.description}
+                </p>
               </div>
             ))}
           </div>

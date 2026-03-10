@@ -8,229 +8,98 @@ const Footer = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
+  const linkClass = "text-muted-foreground hover:text-foreground transition-colors text-sm";
+
   return (
-    <footer className="bg-gradient-to-b from-card to-card/95 border-t border-border relative overflow-hidden">
-      <div className="absolute inset-0 zellij-pattern opacity-10" />
-      
-      <div className="container mx-auto px-6 py-16 relative z-10">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+    <footer className="bg-card border-t border-border">
+      <div className="container mx-auto px-6 py-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-3 mb-6">
-              <MapPin className="w-8 h-8 text-primary-glow animate-pulse" />
-              <h3 className="text-3xl font-bold">
-                ATLAAS <span className="text-primary-glow">GO</span>
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin className="w-6 h-6 text-primary" />
+              <h3 className="text-xl font-bold">
+                ATLAAS <span className="text-primary">GO</span>
               </h3>
             </div>
-            <p className="text-muted-foreground mb-4 italic font-medium">
-              "{t('hero.tagline')}"
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+              Morocco's food delivery platform. Fast delivery, fair commissions, supporting local restaurants.
             </p>
-            <p className="text-muted-foreground/80 text-sm leading-relaxed mb-4">
-              {t('hero.description')}
-            </p>
-            
-            {/* University Credit */}
-            <div className="mt-4 pt-4 border-t border-primary/20">
-              <p className="text-muted-foreground/70 text-xs">
-                {t('footer.developed')}
-              </p>
+            <div className="flex gap-2">
+              {[Facebook, Instagram, Twitter, Linkedin].map((Icon, i) => (
+                <Button key={i} size="icon" variant="ghost" className="w-8 h-8 text-muted-foreground hover:text-foreground">
+                  <Icon className="w-4 h-4" />
+                </Button>
+              ))}
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-primary-glow border-b border-primary/20 pb-2">
-              {t('footer.quickLinks')}
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <button 
-                  onClick={() => navigate("/about")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  {t('footer.about')}
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => navigate("/")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  {t('footer.howItWorks')}
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => navigate("/partner-restaurant")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  {t('partner.restaurant')}
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => navigate("/rider-auth")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  {t('hero.becomeRider')}
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => navigate("/careers")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  {t('footer.careers')}
-                </button>
-              </li>
+            <h4 className="font-semibold text-sm mb-4 text-foreground">{t('footer.quickLinks')}</h4>
+            <ul className="space-y-2.5">
+              {[
+                { label: t('footer.about'), to: "/about" },
+                { label: t('partner.restaurant'), to: "/partner-restaurant" },
+                { label: t('hero.becomeRider'), to: "/rider-auth" },
+                { label: t('footer.careers'), to: "/careers" },
+              ].map(link => (
+                <li key={link.to}>
+                  <button onClick={() => navigate(link.to)} className={linkClass}>{link.label}</button>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Support */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-primary-glow border-b border-primary/20 pb-2">
-              {t('footer.support')}
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <button 
-                  onClick={() => navigate("/help")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  {t('footer.helpCenter')}
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => navigate("/safety")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  {t('footer.safety')}
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => navigate("/terms")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  {t('footer.terms')}
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => navigate("/privacy")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  {t('footer.privacy')}
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => navigate("/privacy")} 
-                  className="text-muted-foreground hover:text-primary-glow transition-all hover:translate-x-1 inline-block"
-                >
-                  Cookie Policy
-                </button>
-              </li>
+            <h4 className="font-semibold text-sm mb-4 text-foreground">{t('footer.support')}</h4>
+            <ul className="space-y-2.5">
+              {[
+                { label: t('footer.helpCenter'), to: "/help" },
+                { label: t('footer.safety'), to: "/safety" },
+                { label: t('footer.terms'), to: "/terms" },
+                { label: t('footer.privacy'), to: "/privacy" },
+              ].map(link => (
+                <li key={link.to}>
+                  <button onClick={() => navigate(link.to)} className={linkClass}>{link.label}</button>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Newsletter */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-primary-glow border-b border-primary/20 pb-2">
-              {t('footer.contact')}
-            </h4>
-            <ul className="space-y-4">
-              <li className="flex items-center gap-3 text-muted-foreground group">
-                <Mail className="w-5 h-5 text-primary group-hover:text-primary-glow transition-colors" />
-                <a 
-                  href="mailto:hello@atlaasgo.ma" 
-                  className="hover:text-primary-glow transition-colors"
-                >
-                  hello@atlaasgo.ma
-                </a>
-              </li>
-              <li className="flex items-center gap-3 text-muted-foreground group">
-                <Phone className="w-5 h-5 text-primary group-hover:text-primary-glow transition-colors" />
-                <a 
-                  href="tel:+212523456789" 
-                  className="hover:text-primary-glow transition-colors"
-                >
-                  +212 5 23 45 67 89
-                </a>
-              </li>
-              <li className="flex items-center gap-3 text-muted-foreground">
-                <MapPin className="w-5 h-5 text-primary" />
-                <span>Casablanca, Morocco</span>
-              </li>
-            </ul>
-
-            {/* Social Links */}
-            <div className="mt-6 flex gap-3">
-              <Button
-                size="icon"
-                variant="outline"
-                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-foreground hover:text-white transition-all hover:scale-110"
-              >
-                <Facebook className="w-5 h-5" />
-              </Button>
-              <Button
-                size="icon"
-                variant="outline"
-                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-foreground hover:text-white transition-all hover:scale-110"
-              >
-                <Instagram className="w-5 h-5" />
-              </Button>
-              <Button
-                size="icon"
-                variant="outline"
-                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-foreground hover:text-white transition-all hover:scale-110"
-              >
-                <Twitter className="w-5 h-5" />
-              </Button>
-              <Button
-                size="icon"
-                variant="outline"
-                className="border-primary/30 bg-primary/5 hover:bg-primary hover:border-primary text-foreground hover:text-white transition-all hover:scale-110"
-              >
-                <Linkedin className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Newsletter */}
-        <div className="border-t border-border pt-12 mb-12">
-          <div className="max-w-2xl mx-auto text-center">
-            <h4 className="text-2xl font-bold mb-3 text-primary-glow">Stay Updated</h4>
-            <p className="text-muted-foreground mb-6 text-lg">
-              Get the latest news and exclusive offers from ATLAAS GO
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <h4 className="font-semibold text-sm mb-4 text-foreground">Stay Updated</h4>
+            <p className="text-muted-foreground text-sm mb-3">Get exclusive offers and news.</p>
+            <div className="flex gap-2">
               <Input 
                 type="email" 
-                placeholder="Your email address" 
-                className="bg-background border-input placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                placeholder="Your email" 
+                className="h-9 text-sm"
               />
-              <Button className="bg-primary hover:bg-primary-glow text-white font-semibold shadow-glow hover:scale-105 transition-all">
-                Subscribe
+              <Button size="sm" className="h-9 px-4 font-semibold">
+                Join
               </Button>
+            </div>
+            <div className="mt-5 space-y-2 text-sm text-muted-foreground">
+              <a href="mailto:hello@atlaasgo.ma" className="flex items-center gap-2 hover:text-foreground transition-colors">
+                <Mail className="w-3.5 h-3.5" /> hello@atlaasgo.ma
+              </a>
+              <a href="tel:+212523456789" className="flex items-center gap-2 hover:text-foreground transition-colors">
+                <Phone className="w-3.5 h-3.5" /> +212 5 23 45 67 89
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-border pt-8 text-center">
-          <p className="text-muted-foreground text-sm mb-3">
+        {/* Bottom */}
+        <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-muted-foreground text-xs">
             © 2025 ATLAAS GO. All rights reserved.
           </p>
-          <p className="text-primary-glow font-bold text-xl italic mb-4 animate-pulse">
-            "ATLAAS GO — Strength. Speed. Morocco."
-          </p>
-          <p className="text-muted-foreground text-sm flex items-center justify-center gap-2">
-            <span>🇲🇦</span>
-            {t('footer.built')}
-            <span>🇲🇦</span>
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            🇲🇦 {t('footer.built')} 🇲🇦
           </p>
         </div>
       </div>

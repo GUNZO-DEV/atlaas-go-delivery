@@ -10,53 +10,54 @@ import FloatingOrderButton from "@/components/FloatingOrderButton";
 import StickyCategoryNav from "@/components/StickyCategoryNav";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
+import HowItWorksSection from "@/components/HowItWorksSection";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
-      {/* Hero - No animation, already visible */}
       <Hero />
 
-      {/* AUIER Campus Delivery */}
-      <ScrollReveal>
-        <AuierHighlightSection />
-      </ScrollReveal>
+      {/* Special Offer Banner */}
+      <SpecialOffersBanner />
 
       {/* Categories */}
-      <ScrollReveal delay={0.1}>
+      <ScrollReveal>
         <PopularCategories />
       </ScrollReveal>
 
       {/* Featured Restaurants */}
-      <ScrollReveal delay={0.1}>
+      <ScrollReveal>
         <FeaturedRestaurants />
       </ScrollReveal>
 
+      {/* How It Works */}
+      <ScrollReveal>
+        <HowItWorksSection />
+      </ScrollReveal>
+
+      {/* AUIER Campus */}
+      <ScrollReveal>
+        <AuierHighlightSection />
+      </ScrollReveal>
+
       {/* Testimonials */}
-      <ScrollReveal direction="left">
+      <ScrollReveal>
         <TestimonialsSection />
       </ScrollReveal>
 
-      {/* Special Offer */}
-      <ScrollReveal>
-        <SpecialOffersBanner />
-      </ScrollReveal>
-      
-      {/* Partner CTA */}
-      <ScrollReveal direction="right">
-        <PartnerCTA />
-      </ScrollReveal>
-
-      {/* Social Proof Stats */}
+      {/* Social Proof */}
       <ScrollReveal>
         <SocialProofStrip />
       </ScrollReveal>
-      
-      {/* Footer */}
+
+      {/* Partner CTA */}
+      <ScrollReveal>
+        <PartnerCTA />
+      </ScrollReveal>
+
       <Footer />
       
-      {/* Floating elements */}
       <StickyCategoryNav />
       <FloatingOrderButton />
       <AtlaasAIChat />
