@@ -7,22 +7,25 @@ const testimonials = [
     name: "Amina",
     location: "Fez",
     rating: 5,
-    text: "The first app that feels truly Moroccan. Fast delivery and the riders are always respectful. I love supporting local restaurants through ATLAAS GO!",
-    role: "Customer"
+    text: "The first app that feels truly Moroccan. Fast delivery and the riders are always respectful.",
+    role: "Customer",
+    avatar: "A",
   },
   {
     name: "Youssef",
     location: "Casablanca",
     rating: 5,
-    text: "I earn more and feel respected. The weekly payouts are always on time, and the support team actually listens to us riders. Best decision I made!",
-    role: "Rider"
+    text: "I earn more and feel respected. Weekly payouts are always on time. Best decision I made!",
+    role: "Rider",
+    avatar: "Y",
   },
   {
     name: "Fatima",
     location: "Marrakech",
     rating: 5,
-    text: "Finally, a platform that doesn't take all our profits. The 10% commission means we can actually grow our small restaurant. Shukran ATLAAS GO!",
-    role: "Restaurant Owner"
+    text: "10% commission means we can actually grow our small restaurant. Shukran ATLAAS GO!",
+    role: "Restaurant Owner",
+    avatar: "F",
   }
 ];
 
@@ -30,47 +33,42 @@ const TestimonialsSection = () => {
   const { t } = useLanguage();
   
   return (
-    <section className="py-24 bg-gradient-to-b from-background to-secondary/20 relative overflow-hidden">
-      <div className="absolute inset-0 zellij-pattern opacity-20" />
-      
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 moroccan-underline inline-block">
+    <section className="py-16 md:py-20 bg-muted/20">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">
             {t('testimonials.title')}
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mt-8">
+          <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto">
             {t('testimonials.subtitle')}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
           {testimonials.map((testimonial, index) => (
             <Card 
               key={index} 
-              className="hover-lift transition-all duration-300 border-2 border-primary/10 hover:border-primary/30 bg-card/80 backdrop-blur-sm"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="border hover:border-primary/20 hover:shadow-md transition-all duration-200 bg-card"
             >
-              <CardContent className="p-8">
-                {/* Stars */}
-                <div className="flex gap-1 mb-4">
+              <CardContent className="p-6">
+                <div className="flex gap-0.5 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-primary text-primary" />
+                    <Star key={i} className="w-4 h-4 fill-primary text-primary" />
                   ))}
                 </div>
 
-                {/* Quote */}
-                <p className="text-lg text-foreground mb-6 italic leading-relaxed">
+                <p className="text-sm text-foreground mb-5 leading-relaxed">
                   "{testimonial.text}"
                 </p>
 
-                {/* Author */}
-                <div className="border-t border-border pt-4">
-                  <p className="font-bold text-lg text-primary">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {testimonial.role} • {testimonial.location}
-                  </p>
+                <div className="flex items-center gap-3 pt-4 border-t border-border">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                    {testimonial.avatar}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">{testimonial.name}</p>
+                    <p className="text-xs text-muted-foreground">{testimonial.role} • {testimonial.location}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -78,10 +76,11 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Trust Badge */}
-        <div className="mt-16 text-center inline-flex items-center gap-3 bg-primary/10 text-primary px-6 py-3 rounded-full border-2 border-primary/20 mx-auto">
-            <Star className="w-5 h-5 fill-primary" />
-            <span className="font-semibold">Rated 4.8/5 by over 10,000 Moroccans</span>
-            <Star className="w-5 h-5 fill-primary" />
+        <div className="mt-10 text-center">
+          <div className="inline-flex items-center gap-2 bg-primary/5 text-primary px-5 py-2.5 rounded-full border border-primary/15 text-sm font-medium">
+            <Star className="w-4 h-4 fill-primary" />
+            <span>Rated 4.8/5 by over 10,000 users</span>
+          </div>
         </div>
       </div>
     </section>

@@ -1,39 +1,32 @@
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Clock, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const SpecialOffersBanner = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-4 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10">
+    <section className="py-3 bg-primary/5 border-y border-primary/10">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 max-w-5xl mx-auto">
+        <div className="flex items-center justify-between gap-4 max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-accent/20 rounded-full">
-              <Sparkles className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-foreground">First Order?</span>
-                <span className="bg-accent text-accent-foreground text-xs font-bold px-2 py-0.5 rounded-full">
-                  FREE DELIVERY
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                Limited time offer for new customers
-              </p>
+            <Sparkles className="w-4 h-4 text-accent flex-shrink-0" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-sm text-foreground">First order?</span>
+              <span className="bg-accent text-accent-foreground text-xs font-bold px-2 py-0.5 rounded-full">
+                FREE DELIVERY
+              </span>
             </div>
           </div>
           
           <Button 
             onClick={() => navigate('/restaurants')}
-            className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
+            variant="ghost"
             size="sm"
+            className="text-accent font-semibold text-sm flex-shrink-0"
           >
-            Claim Now
-            <ArrowRight className="w-4 h-4 ml-1" />
+            Order Now
+            <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Store, Bike, ArrowRight } from 'lucide-react';
+import { Store, Bike, ArrowRight, Percent, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -8,10 +8,10 @@ const PartnerCTA = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="py-10 md:py-12 bg-muted/30">
+    <section className="py-12 md:py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-6">
+          <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold mb-2">{t('partner.title')}</h2>
             <p className="text-muted-foreground text-sm">{t('partner.subtitle')}</p>
           </div>
@@ -19,36 +19,44 @@ const PartnerCTA = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Restaurant Partner */}
             <div 
-              className="bg-card rounded-xl p-5 border shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex items-center gap-4"
+              className="bg-card rounded-2xl p-6 border hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer group"
               onClick={() => navigate('/partner-restaurant')}
             >
-              <div className="p-3 bg-primary/10 rounded-xl flex-shrink-0">
-                <Store className="w-8 h-8 text-primary" />
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-primary/10 rounded-xl flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                  <Store className="w-7 h-7 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg mb-1">{t('partner.restaurant')}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">Reach more customers and grow your business</p>
+                  <div className="flex gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><Percent className="w-3 h-3 text-primary" />10% commission</span>
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-primary" />Fast payouts</span>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-lg mb-0.5">{t('partner.restaurant')}</h3>
-                <p className="text-sm text-muted-foreground truncate">10% commission • Fast payouts</p>
-              </div>
-              <Button variant="ghost" size="icon" className="flex-shrink-0">
-                <ArrowRight className="w-5 h-5" />
-              </Button>
             </div>
 
             {/* Rider Partner */}
             <div 
-              className="bg-card rounded-xl p-5 border shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex items-center gap-4"
+              className="bg-card rounded-2xl p-6 border hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer group"
               onClick={() => navigate('/rider-auth')}
             >
-              <div className="p-3 bg-primary/10 rounded-xl flex-shrink-0">
-                <Bike className="w-8 h-8 text-primary" />
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-accent/10 rounded-xl flex-shrink-0 group-hover:bg-accent/15 transition-colors">
+                  <Bike className="w-7 h-7 text-accent" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg mb-1">{t('partner.rider')}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">Be your own boss with flexible hours</p>
+                  <div className="flex gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-accent" />Flexible hours</span>
+                    <span>Weekly payouts</span>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-lg mb-0.5">{t('partner.rider')}</h3>
-                <p className="text-sm text-muted-foreground truncate">Flexible hours • Great earnings</p>
-              </div>
-              <Button variant="ghost" size="icon" className="flex-shrink-0">
-                <ArrowRight className="w-5 h-5" />
-              </Button>
             </div>
           </div>
         </div>
