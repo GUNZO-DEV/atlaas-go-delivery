@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, User, Lock, Store } from "lucide-react";
+import { Loader2, ArrowLeft, User, Lock, Store, CreditCard, ExternalLink, CheckCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function MerchantSettings() {
   const navigate = useNavigate();
@@ -27,11 +28,14 @@ export default function MerchantSettings() {
     address: "",
     phone: "",
     commission_rate: 0,
+    stripe_account_id: "",
+    stripe_onboarding_complete: false,
   });
   const [passwords, setPasswords] = useState({
     new: "",
     confirm: "",
   });
+  const [connectingStripe, setConnectingStripe] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -74,6 +78,8 @@ export default function MerchantSettings() {
           address: restaurantData.address || "",
           phone: restaurantData.phone || "",
           commission_rate: restaurantData.commission_rate || 0,
+          stripe_account_id: (restaurantData as any).stripe_account_id || "",
+          stripe_onboarding_complete: (restaurantData as any).stripe_onboarding_complete || false,
         });
       }
     } catch (error: any) {
@@ -174,6 +180,32 @@ export default function MerchantSettings() {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleStripeOnboard = async () => {
+    if (!restaurant.id) return;
+    setConnectingStripe(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("stripe-connect-onboard", {
+        body: { restaurant_id: restaurant.id },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+        toast({
+          title: "Stripe Setup",
+          description: "Complete the setup in the new tab. Refresh this page when done.",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to start Stripe setup",
+        variant: "destructive",
+      });
+    } finally {
+      setConnectingStripe(false);
     }
   };
 
@@ -320,6 +352,68 @@ export default function MerchantSettings() {
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Save Changes
               </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Stripe Connect - Online Payments */}
+        {restaurant.id && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Online Payments
+                {restaurant.stripe_onboarding_complete && (
+                  <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Active
+                  </Badge>
+                )}
+              </CardTitle>
+              <CardDescription>
+                Accept online payments from customers via Stripe Connect
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {restaurant.stripe_onboarding_complete ? (
+                <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                  <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+                    ✅ Online payments are enabled! Customers can pay securely via Stripe when ordering from your restaurant.
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Funds are deposited directly to your connected Stripe account minus the platform commission ({restaurant.commission_rate}%).
+                  </p>
+                </div>
+              ) : restaurant.stripe_account_id ? (
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg space-y-3">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    ⏳ Your Stripe account setup is incomplete. Please complete the onboarding to start accepting online payments.
+                  </p>
+                  <Button
+                    onClick={handleStripeOnboard}
+                    disabled={connectingStripe}
+                    variant="outline"
+                  >
+                    {connectingStripe ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ExternalLink className="h-4 w-4 mr-2" />}
+                    Complete Setup
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Enable online payments to let customers pay securely before delivery. 
+                    Payments are split automatically — you receive your share minus the platform commission.
+                  </p>
+                  <Button
+                    onClick={handleStripeOnboard}
+                    disabled={connectingStripe}
+                    className="w-full"
+                  >
+                    {connectingStripe ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CreditCard className="h-4 w-4 mr-2" />}
+                    Set Up Online Payments
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
