@@ -78,6 +78,8 @@ export default function MerchantSettings() {
           address: restaurantData.address || "",
           phone: restaurantData.phone || "",
           commission_rate: restaurantData.commission_rate || 0,
+          stripe_account_id: (restaurantData as any).stripe_account_id || "",
+          stripe_onboarding_complete: (restaurantData as any).stripe_onboarding_complete || false,
         });
       }
     } catch (error: any) {
