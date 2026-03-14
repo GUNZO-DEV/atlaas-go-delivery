@@ -2118,6 +2118,8 @@ export type Database = {
           name: string
           phone: string
           review_count: number | null
+          stripe_account_id: string | null
+          stripe_onboarding_complete: boolean | null
           updated_at: string
           whatsapp_enabled: boolean | null
           whatsapp_number: string | null
@@ -2138,6 +2140,8 @@ export type Database = {
           name: string
           phone: string
           review_count?: number | null
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean | null
           updated_at?: string
           whatsapp_enabled?: boolean | null
           whatsapp_number?: string | null
@@ -2158,6 +2162,8 @@ export type Database = {
           name?: string
           phone?: string
           review_count?: number | null
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean | null
           updated_at?: string
           whatsapp_enabled?: boolean | null
           whatsapp_number?: string | null
