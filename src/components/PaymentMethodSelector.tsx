@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Wallet, CreditCard, Banknote, Smartphone } from "lucide-react";
+import { Wallet, CreditCard, Banknote, Smartphone, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 
@@ -10,14 +10,17 @@ interface PaymentMethodSelectorProps {
   value: string;
   onChange: (value: string) => void;
   orderTotal?: number;
+  restaurantId?: string;
 }
 
-const PaymentMethodSelector = ({ value, onChange, orderTotal = 0 }: PaymentMethodSelectorProps) => {
+const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }: PaymentMethodSelectorProps) => {
   const [walletBalance, setWalletBalance] = useState(0);
+  const [stripeEnabled, setStripeEnabled] = useState(false);
 
   useEffect(() => {
     fetchWalletBalance();
-  }, []);
+    if (restaurantId) checkStripeEnabled();
+  }, [restaurantId]);
 
   const fetchWalletBalance = async () => {
     try {
@@ -34,6 +37,21 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0 }: PaymentMetho
       setWalletBalance(data?.wallet_balance || 0);
     } catch (error) {
       console.error("Error fetching wallet balance:", error);
+    }
+  };
+
+  const checkStripeEnabled = async () => {
+    if (!restaurantId) return;
+    try {
+      const { data } = await supabase
+        .from("restaurants")
+        .select("stripe_account_id, stripe_onboarding_complete")
+        .eq("id", restaurantId)
+        .single();
+
+      setStripeEnabled(!!data?.stripe_account_id && !!data?.stripe_onboarding_complete);
+    } catch {
+      setStripeEnabled(false);
     }
   };
 
@@ -54,6 +72,18 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0 }: PaymentMetho
       color: "text-blue-600",
       available: true,
     },
+    ...(stripeEnabled
+      ? [
+          {
+            id: "stripe",
+            name: "Pay Online",
+            icon: Globe,
+            description: "Secure online payment via Stripe",
+            color: "text-indigo-600",
+            available: true,
+          },
+        ]
+      : []),
     {
       id: "cih_pay",
       name: "CIH Pay",
@@ -109,6 +139,11 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0 }: PaymentMetho
                       >
                         {method.name}
                       </Label>
+                      {method.id === "stripe" && (
+                        <Badge variant="secondary" className="text-xs bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                          Secure
+                        </Badge>
+                      )}
                       {method.id === "cih_pay" && (
                         <Badge variant="secondary" className="text-xs">
                           Instant
@@ -130,6 +165,13 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0 }: PaymentMetho
           );
         })}
       </RadioGroup>
+      {value === "stripe" && (
+        <div className="mt-3 p-3 bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 rounded-lg animate-fade-in">
+          <p className="text-sm text-indigo-800 dark:text-indigo-200">
+            🔒 You'll be redirected to a secure Stripe checkout page to complete payment
+          </p>
+        </div>
+      )}
       {value === "wallet" && walletBalance >= orderTotal && (
         <div className="mt-3 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg animate-fade-in">
           <p className="text-sm text-green-800 dark:text-green-200">

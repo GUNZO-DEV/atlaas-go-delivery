@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, User, Lock, Store } from "lucide-react";
+import { Loader2, ArrowLeft, User, Lock, Store, CreditCard, ExternalLink, CheckCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function MerchantSettings() {
   const navigate = useNavigate();
