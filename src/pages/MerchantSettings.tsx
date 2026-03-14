@@ -28,11 +28,14 @@ export default function MerchantSettings() {
     address: "",
     phone: "",
     commission_rate: 0,
+    stripe_account_id: "",
+    stripe_onboarding_complete: false,
   });
   const [passwords, setPasswords] = useState({
     new: "",
     confirm: "",
   });
+  const [connectingStripe, setConnectingStripe] = useState(false);
 
   useEffect(() => {
     loadUserData();
