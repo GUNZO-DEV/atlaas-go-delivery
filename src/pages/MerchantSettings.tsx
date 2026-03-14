@@ -183,6 +183,32 @@ export default function MerchantSettings() {
     }
   };
 
+  const handleStripeOnboard = async () => {
+    if (!restaurant.id) return;
+    setConnectingStripe(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("stripe-connect-onboard", {
+        body: { restaurant_id: restaurant.id },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+        toast({
+          title: "Stripe Setup",
+          description: "Complete the setup in the new tab. Refresh this page when done.",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to start Stripe setup",
+        variant: "destructive",
+      });
+    } finally {
+      setConnectingStripe(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
