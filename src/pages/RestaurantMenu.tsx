@@ -520,6 +520,28 @@ export default function RestaurantMenu() {
           title: "Order placed & paid!",
           description: `${total.toFixed(2)} MAD deducted from your wallet`,
         });
+      } else if (paymentMethod === "stripe") {
+        // Redirect to Stripe checkout
+        try {
+          const { data: stripeData, error: stripeError } = await supabase.functions.invoke("create-order-payment", {
+            body: { order_id: order.id },
+          });
+
+          if (stripeError) throw stripeError;
+          if (stripeData?.url) {
+            window.location.href = stripeData.url;
+            return; // Don't clear cart — user is being redirected
+          }
+        } catch (stripeErr: any) {
+          console.error("Stripe error:", stripeErr);
+          toast({
+            title: "Payment Error",
+            description: "Failed to initiate online payment. Your order is saved — please try again or choose another payment method.",
+            variant: "destructive",
+          });
+          setIsOrdering(false);
+          return;
+        }
       } else if (paymentMethod === "cih_pay") {
         toast({
           title: "Order placed!",
