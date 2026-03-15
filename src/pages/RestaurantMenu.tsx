@@ -765,6 +765,7 @@ export default function RestaurantMenu() {
                           value={paymentMethod}
                           onChange={setPaymentMethod}
                           orderTotal={getTotal().total}
+                          restaurantId={restaurant?.id}
                         />
 
                         <div>
