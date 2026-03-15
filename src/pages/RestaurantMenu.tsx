@@ -923,11 +923,52 @@ export default function RestaurantMenu() {
                   <span className="ml-auto font-bold">{getTotal().total.toFixed(0)} MAD</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
+              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>Your Cart</SheetTitle>
                 </SheetHeader>
-                {/* Cart content is same as sidebar - you could extract to component */}
+                <div className="mt-4 space-y-4">
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex gap-3 items-start">
+                      <img src={item.image_url} alt={item.name} className="w-14 h-14 object-cover rounded" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm truncate">{item.name}</h4>
+                        <p className="text-xs text-muted-foreground">{item.price} MAD</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => updateQuantity(item.id, -1)}><Minus className="h-3 w-3" /></Button>
+                          <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
+                          <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => updateQuantity(item.id, 1)}><Plus className="h-3 w-3" /></Button>
+                        </div>
+                      </div>
+                      <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => removeFromCart(item.id)}><X className="h-4 w-4" /></Button>
+                    </div>
+                  ))}
+
+                  <div className="pt-4 border-t space-y-3">
+                    <div>
+                      <Label>Delivery Address *</Label>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal h-auto py-3" onClick={() => setAddressSelectorOpen(true)}>
+                        <MapPin className="mr-2 h-4 w-4 shrink-0" />
+                        <span className="flex-1 text-left truncate">{deliveryAddress || "Select delivery address"}</span>
+                      </Button>
+                    </div>
+
+                    <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} orderTotal={getTotal().total} restaurantId={restaurant?.id} />
+
+                    <OrderNotesInput value={notes} onChange={setNotes} />
+                  </div>
+
+                  <div className="space-y-2 pt-4 border-t">
+                    <div className="flex justify-between text-sm"><span>Subtotal</span><span>{getTotal().subtotal.toFixed(2)} MAD</span></div>
+                    <div className="flex justify-between text-sm"><span>Delivery Fee</span><span>{getTotal().deliveryFee} MAD</span></div>
+                    {appliedPromo && <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>-{getTotal().discount.toFixed(2)} MAD</span></div>}
+                    <div className="flex justify-between font-bold text-lg"><span>Total</span><span>{getTotal().total.toFixed(2)} MAD</span></div>
+                  </div>
+
+                  <Button className="w-full" size="lg" onClick={placeOrder} disabled={isOrdering}>
+                    {isOrdering ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Placing Order...</> : "Place Order"}
+                  </Button>
+                </div>
               </SheetContent>
             </Sheet>
           </motion.div>
