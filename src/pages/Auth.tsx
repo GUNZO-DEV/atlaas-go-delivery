@@ -321,7 +321,7 @@ const Auth = () => {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="text-xs text-green-600 font-medium"
+                          className="text-xs text-primary font-medium"
                         >
                           🎉 Get 10% off your first order!
                         </motion.p>
