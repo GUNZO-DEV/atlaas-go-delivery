@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin } from "lucide-react";
+import { MapPin, ArrowLeft, Sparkles, Shield, Zap } from "lucide-react";
 import { signUpSchema, signInSchema } from "@/lib/validation";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -18,9 +19,9 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("signin");
 
   useEffect(() => {
-    // Pre-fill referral code from URL if present
     const refCode = searchParams.get("ref");
     if (refCode) {
       setReferralCode(refCode);
@@ -29,6 +30,8 @@ const Auth = () => {
         description: "You'll get 10% off your first order!",
       });
     }
+    const mode = searchParams.get("mode");
+    if (mode === "signup") setActiveTab("signup");
   }, [searchParams]);
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -36,7 +39,6 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Validate input
       const validatedData = signUpSchema.parse({
         email: email.trim(),
         password,
@@ -47,38 +49,30 @@ const Auth = () => {
         email: validatedData.email,
         password: validatedData.password,
         options: {
-          data: {
-            full_name: validatedData.fullName,
-          },
+          data: { full_name: validatedData.fullName },
           emailRedirectTo: `${window.location.origin}/`,
         },
       });
 
       if (error) throw error;
 
-      // Apply referral code if provided
       if (referralCode && data.user) {
-        const { data: result, error: refError } = await supabase
-          .rpc('apply_referral_code', {
-            user_id: data.user.id,
-            ref_code: referralCode.trim().toUpperCase()
-          });
-
+        const { data: result, error: refError } = await supabase.rpc('apply_referral_code', {
+          user_id: data.user.id,
+          ref_code: referralCode.trim().toUpperCase()
+        });
         if (!refError && result) {
-          toast({
-            title: "Referral Applied!",
-            description: "You'll get 10% off your first order!",
-          });
+          toast({ title: "Referral Applied!", description: "You'll get 10% off your first order!" });
         }
       }
 
       toast({
         title: "Check your email!",
-        description: "We've sent you a verification link. Please check your email to activate your account.",
+        description: "We've sent you a verification link to activate your account.",
       });
     } catch (error: any) {
       toast({
-        title: "Validation Error",
+        title: "Error",
         description: error.errors?.[0]?.message || error.message,
         variant: "destructive",
       });
@@ -92,11 +86,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Validate input
-      const validatedData = signInSchema.parse({
-        email: email.trim(),
-        password,
-      });
+      const validatedData = signInSchema.parse({ email: email.trim(), password });
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
@@ -105,27 +95,19 @@ const Auth = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Welcome back!",
-        description: "Successfully signed in.",
-      });
+      toast({ title: "Welcome back!", description: "Successfully signed in." });
 
-      // Check user role and redirect accordingly
       const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", data.user.id);
 
-      if (roles?.some(r => r.role === 'merchant')) {
-        navigate("/merchant");
-      } else if (roles?.some(r => r.role === 'rider')) {
-        navigate("/rider");
-      } else {
-        navigate("/customer");
-      }
+      if (roles?.some(r => r.role === 'merchant')) navigate("/merchant");
+      else if (roles?.some(r => r.role === 'rider')) navigate("/rider");
+      else navigate("/customer");
     } catch (error: any) {
       toast({
-        title: "Validation Error",
+        title: "Error",
         description: error.errors?.[0]?.message || error.message,
         variant: "destructive",
       });
@@ -134,137 +116,247 @@ const Auth = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 zellij-pattern">
-      <div className="w-full max-w-md p-8">
-        <div className="bg-card rounded-3xl shadow-elevation p-8 border-2 border-primary/10">
-          {/* Logo */}
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <MapPin className="w-10 h-10 text-primary" />
-            <h1 className="text-4xl font-bold">
-              ATLAAS <span className="text-primary">GO</span>
-            </h1>
-          </div>
+  const formVariants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } },
+    exit: { opacity: 0, x: -20, transition: { duration: 0.2 } },
+  };
 
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-primary/5 zellij-pattern relative overflow-hidden">
+      {/* Decorative blobs */}
+      <div className="absolute top-20 -left-32 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-20 -right-32 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+
+      <motion.div
+        className="w-full max-w-md p-6 relative z-10"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Button variant="ghost" onClick={() => navigate("/")} className="mb-4 group">
+            <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+            Back to Home
+          </Button>
+        </motion.div>
+
+        <motion.div
+          className="bg-card rounded-3xl shadow-xl p-8 border border-border/50 backdrop-blur-sm"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          {/* Logo */}
+          <motion.div
+            className="flex items-center justify-center gap-3 mb-2"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+              <MapPin className="w-7 h-7 text-primary" />
+            </div>
+          </motion.div>
+          <motion.h1
+            className="text-3xl font-bold text-center mb-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+          >
+            ATLAAS <span className="text-primary">GO</span>
+          </motion.h1>
+          <motion.p
+            className="text-center text-muted-foreground text-sm mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            Order food from Morocco's best restaurants
+          </motion.p>
+
+          {/* Trust badges */}
+          <motion.div
+            className="flex items-center justify-center gap-4 mb-6"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+          >
+            {[
+              { icon: Shield, label: "Secure" },
+              { icon: Zap, label: "Fast" },
+              { icon: Sparkles, label: "Easy" },
+            ].map((badge) => (
+              <div key={badge.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <badge.icon className="w-3.5 h-3.5 text-primary" />
+                <span>{badge.label}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6 h-11">
+              <TabsTrigger value="signin" className="data-[state=active]:shadow-sm transition-all">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="data-[state=active]:shadow-sm transition-all">Sign Up</TabsTrigger>
             </TabsList>
 
-            {/* Sign In Tab */}
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Password</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full bg-primary hover:bg-primary-glow text-white"
-                  disabled={loading}
+            <AnimatePresence mode="wait">
+              <TabsContent value="signin" key="signin">
+                <motion.form
+                  onSubmit={handleSignIn}
+                  className="space-y-4"
+                  variants={formVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                 >
-                  {loading ? "Signing in..." : "Sign In"}
-                </Button>
-              </form>
-            </TabsContent>
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-email">Email</Label>
+                    <Input
+                      id="signin-email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="h-11 transition-all focus:scale-[1.01]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-password">Password</Label>
+                    <Input
+                      id="signin-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="h-11 transition-all focus:scale-[1.01]"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full h-11 font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <motion.div
+                        className="flex items-center gap-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                        Signing in...
+                      </motion.div>
+                    ) : "Sign In"}
+                  </Button>
+                </motion.form>
+              </TabsContent>
 
-            {/* Sign Up Tab */}
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Full Name</Label>
-                  <Input
-                    id="signup-name"
-                    type="text"
-                    placeholder="Ahmed Benali"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={8}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Must be 8+ characters with uppercase, lowercase, and number
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="referral-code">Referral Code (Optional)</Label>
-                  <Input
-                    id="referral-code"
-                    type="text"
-                    placeholder="Enter referral code"
-                    value={referralCode}
-                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                    maxLength={8}
-                  />
-                  {referralCode && (
-                    <p className="text-xs text-green-600">
-                      🎉 Get 10% off your first order!
-                    </p>
-                  )}
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-                  disabled={loading}
+              <TabsContent value="signup" key="signup">
+                <motion.form
+                  onSubmit={handleSignUp}
+                  className="space-y-4"
+                  variants={formVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                 >
-                  {loading ? "Creating account..." : "Sign Up"}
-                </Button>
-              </form>
-            </TabsContent>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-name">Full Name</Label>
+                    <Input
+                      id="signup-name"
+                      type="text"
+                      placeholder="Ahmed Benali"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      className="h-11 transition-all focus:scale-[1.01]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="h-11 transition-all focus:scale-[1.01]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Password</Label>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={8}
+                      className="h-11 transition-all focus:scale-[1.01]"
+                    />
+                    <p className="text-xs text-muted-foreground">8+ characters with uppercase, lowercase, and number</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="referral-code">Referral Code (Optional)</Label>
+                    <Input
+                      id="referral-code"
+                      type="text"
+                      placeholder="Enter referral code"
+                      value={referralCode}
+                      onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                      maxLength={8}
+                      className="h-11 transition-all focus:scale-[1.01]"
+                    />
+                    <AnimatePresence>
+                      {referralCode && (
+                        <motion.p
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="text-xs text-green-600 font-medium"
+                        >
+                          🎉 Get 10% off your first order!
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full h-11 font-semibold bg-accent hover:bg-accent/90 text-accent-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        <div className="w-4 h-4 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin" />
+                        Creating account...
+                      </motion.div>
+                    ) : "Sign Up"}
+                  </Button>
+                </motion.form>
+              </TabsContent>
+            </AnimatePresence>
           </Tabs>
 
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            By continuing, you agree to ATLAAS GO's Terms of Service and Privacy Policy
-          </p>
-        </div>
-      </div>
+          <motion.p
+            className="text-center text-xs text-muted-foreground mt-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            By continuing, you agree to ATLAAS GO's{" "}
+            <a href="/terms" className="underline hover:text-foreground transition-colors">Terms</a> and{" "}
+            <a href="/privacy" className="underline hover:text-foreground transition-colors">Privacy Policy</a>
+          </motion.p>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
