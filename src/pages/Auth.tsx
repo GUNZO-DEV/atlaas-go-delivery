@@ -112,12 +112,12 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
     else navigate("/customer", { replace: true });
   };
 
-  const handlePostAuthRedirect = async (userId: string) => {
+  const handlePostAuthRedirect = async (userId: string, explicitRole?: UserRole | null) => {
     const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
-    const preferredRole = pendingRole || getPreferredRole();
+    const preferredRole = explicitRole || pendingRole || getPreferredRole();
 
-    // Always try to assign the preferred role (rider/merchant) if user doesn't have it yet
-    const roleToAssign = pendingRole || preferredRole;
+    // Always try to assign the role chosen in the UI or pending OAuth role
+    const roleToAssign = explicitRole || pendingRole || preferredRole;
 
     try {
       await assignRoleIfNeeded(userId, roleToAssign);
