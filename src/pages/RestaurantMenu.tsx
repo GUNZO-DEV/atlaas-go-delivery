@@ -1211,18 +1211,14 @@ export default function RestaurantMenu() {
 
           {/* Search Results Info */}
           {searchQuery && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-6 flex items-center justify-between"
-            >
+            <div className="mb-6 flex items-center justify-between">
               <p className="text-muted-foreground">
                 {filteredMenuItems.length} results for "{searchQuery}"
               </p>
               <Button variant="ghost" size="sm" onClick={() => setSearchQuery("")}>
                 Clear search
               </Button>
-            </motion.div>
+            </div>
           )}
 
           {/* No Results */}
