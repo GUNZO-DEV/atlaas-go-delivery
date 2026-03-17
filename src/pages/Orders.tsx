@@ -134,7 +134,9 @@ const Orders = () => {
     if (!userId) return;
     
     setLoading(true);
-    const { data, error } = await supabase
+    
+    // Fetch regular orders
+    const { data: regularData, error: regularError } = await supabase
       .from('orders')
       .select(`
         id,
@@ -155,11 +157,42 @@ const Orders = () => {
       .eq('customer_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) {
+    // Fetch AUIER orders
+    const { data: auierData } = await supabase
+      .from('auier_orders' as any)
+      .select('*')
+      .eq('customer_id', userId)
+      .order('created_at', { ascending: false });
+
+    // Map AUIER orders to same format
+    const mappedAuier: Order[] = (auierData || []).map((ao: any) => ({
+      id: ao.id,
+      status: ao.status === 'completed' ? 'delivered' : ao.status,
+      total_amount: ao.delivery_fee,
+      delivery_fee: 0,
+      delivery_address: `Room ${ao.room_number}, ${ao.building_name}`,
+      created_at: ao.created_at,
+      restaurant: {
+        name: `🎓 ${ao.restaurant_name} (AUIER)`,
+        image_url: null,
+      },
+      order_items: [{
+        id: ao.id,
+        quantity: 1,
+        price: ao.delivery_fee,
+        special_instructions: null,
+        menu_item: { name: ao.order_details, image_url: null },
+      }],
+    }));
+
+    if (regularError) {
       toast.error('Failed to load orders');
-    } else {
-      setOrders((data as unknown as Order[]) || []);
     }
+    
+    const allOrders = [...((regularData as unknown as Order[]) || []), ...mappedAuier]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    
+    setOrders(allOrders);
     setLoading(false);
   };
 
