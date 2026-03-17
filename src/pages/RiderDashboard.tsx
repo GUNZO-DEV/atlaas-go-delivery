@@ -73,7 +73,7 @@ export default function RiderDashboard() {
   
   // Get active order ID for location tracking
   const activeOrder = orders.find(o => 
-    (o.status === 'picking_it_up' || o.status === 'picked_up') && o.rider_id
+    (o.status === 'picking_it_up' || o.status === 'picked_up' || o.status === 'delivering') && o.rider_id
   );
   
   // Track rider location when on active delivery
