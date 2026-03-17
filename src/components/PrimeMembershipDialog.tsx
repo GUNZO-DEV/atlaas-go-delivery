@@ -70,13 +70,28 @@ export const PrimeMembershipDialog = ({
   const handleSubscribe = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("prime-checkout");
+      const { data: sessionData } = await supabase.auth.getSession();
+      let session = sessionData.session;
+
+      if (!session) {
+        throw new Error("Please sign in first");
+      }
+
+      const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+      if (!refreshError && refreshed.session) {
+        session = refreshed.session;
+      }
+
+      const { data, error } = await supabase.functions.invoke("prime-checkout", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
       if (error) {
-        // Try to parse error body
         let errMsg = error.message;
         try {
-          const body = typeof error.context === 'object' ? await error.context?.text?.() : null;
+          const body = typeof error.context === "object" ? await error.context?.text?.() : null;
           if (body) {
             const parsed = JSON.parse(body);
             errMsg = parsed.error || errMsg;
@@ -84,12 +99,11 @@ export const PrimeMembershipDialog = ({
         } catch {}
         throw new Error(errMsg);
       }
+
       if (data?.error) throw new Error(data.error);
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
+      if (!data?.url) throw new Error("No checkout URL returned");
+
+      window.location.href = data.url;
     } catch (error: any) {
       console.error("Error subscribing to Prime:", error);
       toast.error(error.message || t.error);
