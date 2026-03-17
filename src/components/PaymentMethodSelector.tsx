@@ -144,17 +144,10 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }
           );
         })}
       </RadioGroup>
-      {value === "stripe" && stripeConnectEnabled && (
+      {value === "stripe" && (
         <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3 animate-fade-in">
           <p className="text-sm text-foreground">
             🔒 You'll be redirected to a secure Stripe checkout page to complete payment
-          </p>
-        </div>
-      )}
-      {value === "stripe" && !stripeConnectEnabled && (
-        <div className="mt-3 rounded-lg border border-destructive/20 bg-destructive/10 p-3 animate-fade-in">
-          <p className="text-sm text-destructive">
-            Online card payments are not available for this restaurant yet.
           </p>
         </div>
       )}
