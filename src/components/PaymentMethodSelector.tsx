@@ -15,7 +15,7 @@ interface PaymentMethodSelectorProps {
 
 const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }: PaymentMethodSelectorProps) => {
   const [walletBalance, setWalletBalance] = useState(0);
-  const [stripeEnabled, setStripeEnabled] = useState(false);
+  const [stripeConnectEnabled, setStripeConnectEnabled] = useState(false);
 
   useEffect(() => {
     fetchWalletBalance();
@@ -49,9 +49,9 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }
         .eq("id", restaurantId)
         .single();
 
-      setStripeEnabled(!!data?.stripe_account_id && !!data?.stripe_onboarding_complete);
+      setStripeConnectEnabled(!!data?.stripe_account_id && !!data?.stripe_onboarding_complete);
     } catch {
-      setStripeEnabled(false);
+      setStripeConnectEnabled(false);
     }
   };
 
@@ -72,18 +72,16 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }
       color: "text-blue-600",
       available: true,
     },
-    ...(stripeEnabled
-      ? [
-          {
-            id: "stripe",
-            name: "Pay Online",
-            icon: Globe,
-            description: "Secure online payment via Stripe",
-            color: "text-indigo-600",
-            available: true,
-          },
-        ]
-      : []),
+    {
+      id: "stripe",
+      name: "Pay Online (Credit/Debit Card)",
+      icon: Globe,
+      description: stripeConnectEnabled
+        ? "Secure online payment via Stripe"
+        : "Secure online payment via Stripe",
+      color: "text-indigo-600",
+      available: true,
+    },
     {
       id: "cih_pay",
       name: "CIH Pay",
