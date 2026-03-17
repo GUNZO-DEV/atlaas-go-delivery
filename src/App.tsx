@@ -67,8 +67,8 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/merchant-auth" element={<Auth />} />
-              <Route path="/rider-auth" element={<Auth />} />
+              <Route path="/merchant-auth" element={<Auth defaultRole="merchant" />} />
+              <Route path="/rider-auth" element={<Auth defaultRole="rider" />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/admin/setup" element={<AdminSetup />} />
               <Route path="/install" element={<Install />} />
