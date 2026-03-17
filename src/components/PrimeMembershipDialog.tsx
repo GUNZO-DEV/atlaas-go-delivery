@@ -35,11 +35,9 @@ export const PrimeMembershipDialog = ({
       doublePoints: "Earn 2x loyalty points on every order",
       prioritySupport: "Priority customer support",
       price: "49 MAD/month",
-      subscribe: "Subscribe Now",
-      paymentNote: "Payment will be processed via CMI payment gateway",
-      comingSoon: "Subscribe (Payment Coming Soon)",
-      success: "Prime membership activated!",
-      error: "Failed to activate membership",
+      subscribe: "Subscribe Now — Pay Online",
+      paymentNote: "Secure recurring payment via Stripe",
+      error: "Failed to start checkout",
     },
     fr: {
       title: "Rejoindre ATLAAS Prime",
@@ -49,11 +47,9 @@ export const PrimeMembershipDialog = ({
       doublePoints: "Gagnez 2x points de fidélité sur chaque commande",
       prioritySupport: "Support client prioritaire",
       price: "49 MAD/mois",
-      subscribe: "S'abonner maintenant",
-      paymentNote: "Le paiement sera traité via la passerelle CMI",
-      comingSoon: "S'abonner (Paiement bientôt)",
-      success: "Adhésion Prime activée!",
-      error: "Échec de l'activation",
+      subscribe: "S'abonner — Payer en ligne",
+      paymentNote: "Paiement récurrent sécurisé via Stripe",
+      error: "Échec du démarrage du paiement",
     },
     ar: {
       title: "انضم إلى أطلس برايم",
@@ -63,11 +59,9 @@ export const PrimeMembershipDialog = ({
       doublePoints: "اربح ضعف نقاط الولاء على كل طلب",
       prioritySupport: "دعم عملاء ذو أولوية",
       price: "49 درهم/شهر",
-      subscribe: "اشترك الآن",
-      paymentNote: "سيتم معالجة الدفع عبر بوابة CMI",
-      comingSoon: "اشترك (الدفع قريباً)",
-      success: "تم تفعيل عضوية برايم!",
-      error: "فشل التفعيل",
+      subscribe: "اشترك الآن — ادفع أونلاين",
+      paymentNote: "دفع متكرر آمن عبر Stripe",
+      error: "فشل بدء الدفع",
     },
   };
 
@@ -76,29 +70,19 @@ export const PrimeMembershipDialog = ({
   const handleSubscribe = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      // For now, create a pending membership
-      // Later integrate with CMI payment gateway
-      const expiresAt = new Date();
-      expiresAt.setMonth(expiresAt.getMonth() + 1);
-
-      const { error } = await supabase.from("prime_memberships").insert({
-        user_id: user.id,
-        status: "active", // Change to 'pending' when CMI is integrated
-        expires_at: expiresAt.toISOString(),
-        payment_method: "pending",
-      });
+      const { data, error } = await supabase.functions.invoke("prime-checkout");
 
       if (error) throw error;
-
-      toast.success(t.success);
-      onSuccess();
-      onOpenChange(false);
-    } catch (error) {
+      if (data?.url) {
+        window.location.href = data.url;
+      } else if (data?.error) {
+        throw new Error(data.error);
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error: any) {
       console.error("Error subscribing to Prime:", error);
-      toast.error(t.error);
+      toast.error(error.message || t.error);
     } finally {
       setLoading(false);
     }
@@ -143,7 +127,7 @@ export const PrimeMembershipDialog = ({
 
           <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50">
             <CreditCard className="h-4 w-4 text-muted-foreground mt-0.5" />
-            <p className="text-xs text-muted-foreground">{t.paymentNote}</p>
+            <p className="text-xs text-muted-foreground">🔒 {t.paymentNote}</p>
           </div>
 
           <Button
@@ -153,7 +137,7 @@ export const PrimeMembershipDialog = ({
             size="lg"
           >
             <Crown className="h-4 w-4 mr-2" />
-            {loading ? "..." : t.comingSoon}
+            {loading ? "Redirecting..." : t.subscribe}
           </Button>
         </div>
       </DialogContent>

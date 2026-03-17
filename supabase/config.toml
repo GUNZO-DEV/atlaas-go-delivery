@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.ocr-menu]
 verify_jwt = false
+
+[functions.wallet-topup-checkout]
+verify_jwt = false
+
+[functions.prime-checkout]
+verify_jwt = false
+
+[functions.verify-wallet-topup]
+verify_jwt = false
