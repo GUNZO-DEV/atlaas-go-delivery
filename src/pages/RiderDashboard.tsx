@@ -308,22 +308,29 @@ export default function RiderDashboard() {
       
       const channel = supabase
         .channel("rider-orders")
+        // Listen to ALL order changes to catch new ready_for_pickup orders
         .on(
           "postgres_changes",
           {
             event: "*",
             schema: "public",
             table: "orders",
-            filter: `rider_id=eq.${userId}`,
           },
           (payload) => {
             console.log('[Rider] Order updated:', payload);
             fetchOrders();
             
-            if (payload.eventType === 'UPDATE') {
+            if (payload.eventType === 'UPDATE' && payload.new.rider_id === userId) {
               toast({
                 title: "Order Updated",
                 description: `Order status changed to ${payload.new.status}`,
+              });
+            }
+            
+            if (payload.eventType === 'UPDATE' && payload.new.status === 'ready_for_pickup' && !payload.new.rider_id) {
+              toast({
+                title: "New Order Available! 🔔",
+                description: "A new delivery is ready for pickup",
               });
             }
           }
