@@ -1183,14 +1183,14 @@ export default function RiderDashboard() {
             {/* Fixed Chat for Active Order */}
             {orders.filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status)).length > 0 && (
               <OrderChat 
-                orderId={orders.filter((o) => o.status === "picking_it_up" || o.status === "picked_up")[0].id} 
+                orderId={orders.filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status))[0].id} 
                 userType="rider" 
                 floating 
               />
             )}
             
             {orders
-              .filter((o) => o.status === "picking_it_up" || o.status === "picked_up")
+              .filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status))
               .map((order) => (
                 <Card key={order.id} className="animate-fade-in">
                   <CardHeader>
