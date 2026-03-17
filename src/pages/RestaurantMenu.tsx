@@ -1161,10 +1161,10 @@ export default function RestaurantMenu() {
                         </div>
                       </div>
                     </Card>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
-            </motion.section>
+            </section>
           )}
 
           {/* Reviews Section */}
