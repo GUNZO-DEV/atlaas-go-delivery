@@ -984,11 +984,10 @@ export default function RestaurantMenu() {
                     {isOrdering ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Placing Order...</> : "Place Order"}
                   </Button>
                 </div>
-              </SheetContent>
-            </Sheet>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </SheetContent>
+          </Sheet>
+        </div>
+      )}
 
       {/* WhatsApp Button & Info - Hani Sugar Art Only */}
       {restaurant.id === 'df84d31b-0214-4a78-bd37-775422949bcf' && (
