@@ -72,18 +72,16 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }
       color: "text-blue-600",
       available: true,
     },
-    ...(stripeEnabled
-      ? [
-          {
-            id: "stripe",
-            name: "Pay Online",
-            icon: Globe,
-            description: "Secure online payment via Stripe",
-            color: "text-indigo-600",
-            available: true,
-          },
-        ]
-      : []),
+    {
+      id: "stripe",
+      name: "Pay Online (Credit/Debit Card)",
+      icon: Globe,
+      description: stripeConnectEnabled
+        ? "Secure online payment via Stripe"
+        : "Secure online payment via Stripe",
+      color: "text-indigo-600",
+      available: true,
+    },
     {
       id: "cih_pay",
       name: "CIH Pay",
