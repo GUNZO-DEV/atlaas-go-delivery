@@ -45,31 +45,79 @@ const Auth = () => {
     const role = searchParams.get("role") as UserRole | null;
     if (role && ROLE_CONFIG[role]) setSelectedRole(role);
 
-    // Check existing auth
-    checkExistingAuth();
-  }, [searchParams]);
+    // Listen for auth state changes (handles OAuth callback)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+        await handlePostAuthRedirect(session.user.id);
+      }
+    });
 
-  const checkExistingAuth = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) redirectByRole(user.id);
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handlePostAuthRedirect = async (userId: string) => {
+    // Check if there's a pending role from OAuth sign-in
+    const pendingRole = localStorage.getItem("atlaas_pending_role") as UserRole | null;
+    
+    if (pendingRole && (pendingRole === "merchant" || pendingRole === "rider")) {
+      try {
+        // Check if user already has this role
+        const { data: existingRoles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId);
+        
+        const alreadyHasRole = existingRoles?.some(r => r.role === pendingRole);
+        
+        if (!alreadyHasRole) {
+          if (pendingRole === "merchant") {
+            await supabase.rpc("assign_merchant_role", { user_id_param: userId });
+          } else if (pendingRole === "rider") {
+            await supabase.rpc("assign_rider_role", { user_id_param: userId });
+          }
+        }
+      } catch (error) {
+        console.error("Error assigning pending role:", error);
+      } finally {
+        localStorage.removeItem("atlaas_pending_role");
+      }
+    }
+    
+    await redirectByRole(userId);
   };
 
   const redirectByRole = async (userId: string) => {
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-    if (roles?.some(r => r.role === "admin")) navigate("/admin");
-    else if (roles?.some(r => r.role === "merchant")) navigate("/lyn-dashboard");
-    else if (roles?.some(r => r.role === "rider")) navigate("/rider");
-    else navigate("/customer");
+    
+    if (!roles || roles.length === 0) {
+      // Roles might not be created yet (trigger delay), wait and retry once
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data: retryRoles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+      if (retryRoles?.some(r => r.role === "admin")) navigate("/admin", { replace: true });
+      else if (retryRoles?.some(r => r.role === "merchant")) navigate("/lyn-dashboard", { replace: true });
+      else if (retryRoles?.some(r => r.role === "rider")) navigate("/rider", { replace: true });
+      else navigate("/customer", { replace: true });
+      return;
+    }
+    
+    if (roles.some(r => r.role === "admin")) navigate("/admin", { replace: true });
+    else if (roles.some(r => r.role === "merchant")) navigate("/lyn-dashboard", { replace: true });
+    else if (roles.some(r => r.role === "rider")) navigate("/rider", { replace: true });
+    else navigate("/customer", { replace: true });
   };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
+      // Store selected role so we can assign it after OAuth callback
+      localStorage.setItem("atlaas_pending_role", selectedRole);
+      
       const { error } = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
       if (error) throw error;
     } catch (error: any) {
+      localStorage.removeItem("atlaas_pending_role");
       toast({ title: "Error", description: error.message, variant: "destructive" });
       setLoading(false);
     }
