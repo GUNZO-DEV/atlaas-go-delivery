@@ -22,8 +22,7 @@ const Restaurants = lazy(() => import("./pages/Restaurants"));
 const GroupOrder = lazy(() => import("./pages/GroupOrder"));
 const MerchantAnalytics = lazy(() => import("./pages/MerchantAnalytics"));
 const RiderEarnings = lazy(() => import("./pages/RiderEarnings"));
-const MerchantAuth = lazy(() => import("./pages/MerchantAuth"));
-const RiderAuth = lazy(() => import("./pages/RiderAuth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PartnerRestaurant = lazy(() => import("./pages/PartnerRestaurant"));
 const CustomerSettings = lazy(() => import("./pages/CustomerSettings"));
 const RiderSettings = lazy(() => import("./pages/RiderSettings"));
@@ -68,9 +67,10 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/merchant-auth" element={<MerchantAuth />} />
+              <Route path="/merchant-auth" element={<Auth />} />
+              <Route path="/rider-auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/admin/setup" element={<AdminSetup />} />
-              <Route path="/rider-auth" element={<RiderAuth />} />
               <Route path="/install" element={<Install />} />
               <Route path="/partner-restaurant" element={<PartnerRestaurant />} />
               <Route path="/restaurants" element={<Restaurants />} />
