@@ -40,31 +40,21 @@ serve(async (req) => {
     const { order_id, restaurant_id, amount, order_items } = await req.json();
     if (!restaurant_id || !amount) throw new Error("restaurant_id and amount are required");
 
-    // Get restaurant's Stripe Connect account
+    // Get restaurant name for the checkout description
     const { data: restaurant, error: restError } = await supabase
       .from("restaurants")
-      .select("id, name, stripe_account_id, stripe_onboarding_complete, commission_rate")
+      .select("id, name")
       .eq("id", restaurant_id)
       .single();
 
     if (restError || !restaurant) throw new Error("Restaurant not found");
-    if (!restaurant.stripe_account_id) throw new Error("Restaurant has not set up online payments");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const origin = req.headers.get("origin") || "https://atlaas-go-delivery.lovable.app";
 
-    // Calculate platform fee (commission)
-    const commissionRate = restaurant.commission_rate || 10;
     const amountInCents = Math.round(amount * 100); // Convert MAD to centimes
-    const platformFee = Math.round(amountInCents * (commissionRate / 100));
 
-    logStep("Payment calculation", {
-      amount,
-      amountInCents,
-      commissionRate,
-      platformFee,
-      restaurantReceives: amountInCents - platformFee,
-    });
+    logStep("Payment calculation", { amount, amountInCents });
 
     // Find or create Stripe customer
     let customerId: string | undefined;
@@ -86,7 +76,7 @@ serve(async (req) => {
       ? order_items.map((i: any) => `${i.quantity}x ${i.name}`).join(", ")
       : `Order from ${restaurant.name}`;
 
-    // Create Checkout Session with destination charge
+    // Create Checkout Session — platform collects payment directly
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -104,17 +94,6 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      payment_intent_data: {
-        application_fee_amount: platformFee,
-        transfer_data: {
-          destination: restaurant.stripe_account_id,
-        },
-        metadata: {
-          order_id: order_id || "",
-          restaurant_id,
-          user_id: user.id,
-        },
-      },
       success_url: `${origin}/orders?payment=success&order_id=${order_id || ""}`,
       cancel_url: `${origin}/restaurant/${restaurant_id}?payment=cancelled`,
       metadata: {

@@ -15,12 +15,10 @@ interface PaymentMethodSelectorProps {
 
 const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }: PaymentMethodSelectorProps) => {
   const [walletBalance, setWalletBalance] = useState(0);
-  const [stripeConnectEnabled, setStripeConnectEnabled] = useState(false);
 
   useEffect(() => {
     fetchWalletBalance();
-    if (restaurantId) checkStripeEnabled();
-  }, [restaurantId]);
+  }, []);
 
   const fetchWalletBalance = async () => {
     try {
@@ -37,21 +35,6 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }
       setWalletBalance(data?.wallet_balance || 0);
     } catch (error) {
       console.error("Error fetching wallet balance:", error);
-    }
-  };
-
-  const checkStripeEnabled = async () => {
-    if (!restaurantId) return;
-    try {
-      const { data } = await supabase
-        .from("restaurants")
-        .select("stripe_account_id, stripe_onboarding_complete")
-        .eq("id", restaurantId)
-        .single();
-
-      setStripeConnectEnabled(!!data?.stripe_account_id && !!data?.stripe_onboarding_complete);
-    } catch {
-      setStripeConnectEnabled(false);
     }
   };
 
@@ -76,11 +59,9 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }
       id: "stripe",
       name: "Pay Online (Credit/Debit Card)",
       icon: Globe,
-      description: stripeConnectEnabled
-        ? "Secure online payment via Stripe"
-        : "This restaurant hasn't enabled online card payments yet",
+      description: "Secure online payment via Stripe",
       color: "text-indigo-600",
-      available: stripeConnectEnabled,
+      available: true,
     },
     {
       id: "cih_pay",
@@ -163,17 +144,10 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }
           );
         })}
       </RadioGroup>
-      {value === "stripe" && stripeConnectEnabled && (
+      {value === "stripe" && (
         <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3 animate-fade-in">
           <p className="text-sm text-foreground">
             🔒 You'll be redirected to a secure Stripe checkout page to complete payment
-          </p>
-        </div>
-      )}
-      {value === "stripe" && !stripeConnectEnabled && (
-        <div className="mt-3 rounded-lg border border-destructive/20 bg-destructive/10 p-3 animate-fade-in">
-          <p className="text-sm text-destructive">
-            Online card payments are not available for this restaurant yet.
           </p>
         </div>
       )}
