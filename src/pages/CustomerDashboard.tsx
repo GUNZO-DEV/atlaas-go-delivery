@@ -89,7 +89,8 @@ export default function CustomerDashboard() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      // Fetch regular orders
+      const { data: regularOrders, error: regularError } = await supabase
         .from("orders")
         .select(`
           *,
@@ -105,8 +106,45 @@ export default function CustomerDashboard() {
         .eq("customer_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setOrders(data || []);
+      if (regularError) throw regularError;
+
+      // Fetch AUIER orders
+      const { data: auierOrders, error: auierError } = await supabase
+        .from("auier_orders" as any)
+        .select("*")
+        .eq("customer_id", user.id)
+        .order("created_at", { ascending: false });
+
+      // Map AUIER orders to the same format
+      const mappedAuierOrders: Order[] = (auierOrders || []).map((ao: any) => ({
+        id: ao.id,
+        status: ao.status === 'completed' ? 'delivered' : ao.status,
+        total_amount: ao.delivery_fee,
+        delivery_fee: 0,
+        delivery_address: `Room ${ao.room_number}, ${ao.building_name}`,
+        created_at: ao.created_at,
+        estimated_delivery_time: 30,
+        restaurant_id: '',
+        is_auier: true,
+        restaurant: {
+          id: '',
+          name: `🎓 ${ao.restaurant_name} (AUIER)`,
+          image_url: '',
+        },
+        order_items: [{
+          id: ao.id,
+          quantity: 1,
+          price: ao.delivery_fee,
+          menu_item_id: '',
+          menu_item: { name: ao.order_details },
+        }],
+      }));
+
+      // Merge and sort by date
+      const allOrders = [...(regularOrders || []), ...mappedAuierOrders]
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      setOrders(allOrders);
     } catch (error: any) {
       toast({
         title: "Error",
