@@ -72,11 +72,21 @@ export const PrimeMembershipDialog = ({
     try {
       const { data, error } = await supabase.functions.invoke("prime-checkout");
 
-      if (error) throw error;
+      if (error) {
+        // Try to parse error body
+        let errMsg = error.message;
+        try {
+          const body = typeof error.context === 'object' ? await error.context?.text?.() : null;
+          if (body) {
+            const parsed = JSON.parse(body);
+            errMsg = parsed.error || errMsg;
+          }
+        } catch {}
+        throw new Error(errMsg);
+      }
+      if (data?.error) throw new Error(data.error);
       if (data?.url) {
         window.location.href = data.url;
-      } else if (data?.error) {
-        throw new Error(data.error);
       } else {
         throw new Error("No checkout URL returned");
       }
