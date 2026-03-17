@@ -9,7 +9,13 @@ const corsHeaders = {
 
 const PRIME_PRICE_ID = "price_1TBqsrJz6x94DaUCIMouyOda";
 
+const log = (step: string, details?: any) => {
+  console.log(`[PRIME-CHECKOUT] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
+};
+
 serve(async (req) => {
+  log("Request received", { method: req.method });
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -17,6 +23,7 @@ serve(async (req) => {
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    log("Stripe key found");
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -25,12 +32,21 @@ serve(async (req) => {
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");
+    log("Auth header present");
+
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData.user?.email) throw new Error("Not authenticated");
+    if (userError) {
+      log("Auth error", { message: userError.message });
+      throw new Error("Not authenticated: " + userError.message);
+    }
+    if (!userData.user?.email) throw new Error("Not authenticated or no email");
     const user = userData.user;
+    log("User authenticated", { email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    log("Stripe initialized");
+
     const origin = req.headers.get("origin") || "https://atlaas-go-delivery.lovable.app";
 
     // Find or create customer
@@ -38,14 +54,18 @@ serve(async (req) => {
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
+      log("Existing customer found", { customerId });
 
       // Check if already has active subscription
       const subs = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
       if (subs.data.length > 0) {
         throw new Error("You already have an active Prime membership");
       }
+    } else {
+      log("No existing customer, will create via checkout");
     }
 
+    log("Creating checkout session", { priceId: PRIME_PRICE_ID });
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -59,11 +79,14 @@ serve(async (req) => {
       },
     });
 
+    log("Checkout session created", { url: session.url });
+
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
+    log("ERROR", { message: msg });
     return new Response(JSON.stringify({ error: msg }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
