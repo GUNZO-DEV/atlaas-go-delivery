@@ -35,6 +35,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const authHandledRef = useRef(false);
+  const selectedRoleRef = useRef<UserRole>(defaultRole || "customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
