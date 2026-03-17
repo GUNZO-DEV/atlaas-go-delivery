@@ -1180,14 +1180,7 @@ export default function RiderDashboard() {
           </TabsContent>
 
           <TabsContent value="active" className="space-y-4">
-            {/* Fixed Chat for Active Order */}
-            {orders.filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status)).length > 0 && (
-              <OrderChat 
-                orderId={orders.filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status))[0].id} 
-                userType="rider" 
-                floating 
-              />
-            )}
+            {/* Chat button for each active order */}
             
             {orders
               .filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status))
