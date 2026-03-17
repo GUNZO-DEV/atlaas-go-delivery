@@ -161,8 +161,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
 
       try {
         const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
-        if (pendingRole) {
-          await handlePostAuthRedirect(session.user.id, pendingRole || selectedRole);
+        await handlePostAuthRedirect(session.user.id, pendingRole || selectedRole);
       } finally {
         setCheckingAuth(false);
       }
