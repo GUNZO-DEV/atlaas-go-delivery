@@ -237,7 +237,7 @@ export default function RiderDashboard() {
           *,
           restaurant:restaurants(name, address, latitude, longitude)
         `)
-        .or(`rider_id.eq.${user.id},status.eq.ready_for_pickup`)
+        .or(`rider_id.eq.${user.id},status.eq.ready_for_pickup,status.eq.pending`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -327,7 +327,7 @@ export default function RiderDashboard() {
               });
             }
             
-            if (payload.eventType === 'UPDATE' && payload.new.status === 'ready_for_pickup' && !payload.new.rider_id) {
+            if (payload.eventType === 'UPDATE' && (payload.new.status === 'ready_for_pickup' || payload.new.status === 'pending') && !payload.new.rider_id) {
               toast({
                 title: "New Order Available! 🔔",
                 description: "A new delivery is ready for pickup",
@@ -999,7 +999,7 @@ export default function RiderDashboard() {
 
           <TabsContent value="available" className="space-y-4">
             {orders
-              .filter((o) => o.status === "ready_for_pickup" && !o.rider_id)
+              .filter((o) => (o.status === "ready_for_pickup" || o.status === "pending") && !o.rider_id)
               .map((order) => (
                 <Card key={order.id}>
                   <CardHeader>
