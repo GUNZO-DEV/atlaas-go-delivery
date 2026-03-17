@@ -37,41 +37,73 @@ const WalletCard = () => {
   // Handle return from Stripe checkout
   useEffect(() => {
     const walletTopup = searchParams.get("wallet_topup");
-    const amount = searchParams.get("amount");
+    const sessionId = searchParams.get("session_id");
 
-    if (walletTopup === "success" && amount) {
-      // Credit the wallet after successful payment
+    const clearCheckoutParams = () => {
+      const next = new URLSearchParams(searchParams);
+      next.delete("wallet_topup");
+      next.delete("session_id");
+      next.delete("amount");
+      setSearchParams(next, { replace: true });
+    };
+
+    if (walletTopup === "success" && sessionId) {
       const creditWallet = async () => {
         try {
-          const { error } = await supabase.functions.invoke("verify-wallet-topup", {
-            body: { amount: parseFloat(amount) },
+          const { data: sessionData } = await supabase.auth.getSession();
+          let session = sessionData.session;
+
+          if (!session) {
+            throw new Error("Please sign in first");
+          }
+
+          const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+          if (!refreshError && refreshed.session) {
+            session = refreshed.session;
+          }
+
+          const { data, error } = await supabase.functions.invoke("verify-wallet-topup", {
+            body: { sessionId, type: "wallet_topup" },
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
           });
-          if (error) throw error;
+
+          if (error) {
+            let errMsg = error.message;
+            try {
+              const body = typeof error.context === "object" ? await error.context?.text?.() : null;
+              if (body) {
+                const parsed = JSON.parse(body);
+                errMsg = parsed.error || errMsg;
+              }
+            } catch {}
+            throw new Error(errMsg);
+          }
+
           toast({
             title: "Top-up successful! 🎉",
-            description: `${amount} MAD added to your wallet`,
+            description: `${data?.amount ?? "Your"} MAD added to your wallet`,
           });
           fetchWalletData();
         } catch (err: any) {
           console.error("Error crediting wallet:", err);
           toast({
             title: "Error",
-            description: "Payment received but wallet credit failed. Contact support.",
+            description: err.message || "Payment received but wallet credit failed. Contact support.",
             variant: "destructive",
           });
+        } finally {
+          clearCheckoutParams();
         }
       };
+
       creditWallet();
-      // Clean URL params
-      searchParams.delete("wallet_topup");
-      searchParams.delete("amount");
-      setSearchParams(searchParams, { replace: true });
     } else if (walletTopup === "cancelled") {
       toast({ title: "Top-up cancelled", description: "Payment was cancelled" });
-      searchParams.delete("wallet_topup");
-      setSearchParams(searchParams, { replace: true });
+      clearCheckoutParams();
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams, toast]);
 
   const fetchWalletData = async () => {
     try {

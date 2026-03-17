@@ -64,7 +64,7 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${origin}/customer?wallet_topup=success&amount=${amount}`,
+      success_url: `${origin}/customer?wallet_topup=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/customer?wallet_topup=cancelled`,
       metadata: { type: "wallet_topup", user_id: userId, amount: String(amount) },
     });

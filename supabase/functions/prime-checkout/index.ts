@@ -64,7 +64,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : email,
       line_items: [{ price: PRIME_PRICE_ID, quantity: 1 }],
       mode: "subscription",
-      success_url: `${origin}/customer?prime=success`,
+      success_url: `${origin}/customer?prime=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/customer?prime=cancelled`,
       metadata: { type: "prime_membership", user_id: userId },
     });

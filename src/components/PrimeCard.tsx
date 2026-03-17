@@ -6,16 +6,82 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PrimeMembershipDialog } from "./PrimeMembershipDialog";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 export const PrimeCard = () => {
   const { language } = useLanguage();
   const [isPrime, setIsPrime] = useState(false);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     fetchPrimeStatus();
   }, []);
+
+  useEffect(() => {
+    const primeStatus = searchParams.get("prime");
+    const sessionId = searchParams.get("session_id");
+
+    if (primeStatus === "cancelled") {
+      toast.info("Prime checkout cancelled");
+      const next = new URLSearchParams(searchParams);
+      next.delete("prime");
+      next.delete("session_id");
+      setSearchParams(next, { replace: true });
+      return;
+    }
+
+    if (primeStatus !== "success" || !sessionId) return;
+
+    const verifyPrimePayment = async () => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        let session = sessionData.session;
+
+        if (!session) throw new Error("Please sign in first");
+
+        const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+        if (!refreshError && refreshed.session) {
+          session = refreshed.session;
+        }
+
+        const { data, error } = await supabase.functions.invoke("verify-wallet-topup", {
+          body: { sessionId, type: "prime_membership" },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
+
+        if (error) {
+          let errMsg = error.message;
+          try {
+            const body = typeof error.context === "object" ? await error.context?.text?.() : null;
+            if (body) {
+              const parsed = JSON.parse(body);
+              errMsg = parsed.error || errMsg;
+            }
+          } catch {}
+          throw new Error(errMsg);
+        }
+
+        if (data?.error) throw new Error(data.error);
+
+        await fetchPrimeStatus();
+        toast.success("Prime activated successfully");
+      } catch (error: any) {
+        toast.error(error.message || "Failed to verify Prime payment");
+      } finally {
+        const next = new URLSearchParams(searchParams);
+        next.delete("prime");
+        next.delete("session_id");
+        setSearchParams(next, { replace: true });
+      }
+    };
+
+    verifyPrimePayment();
+  }, [searchParams, setSearchParams]);
 
   const fetchPrimeStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
