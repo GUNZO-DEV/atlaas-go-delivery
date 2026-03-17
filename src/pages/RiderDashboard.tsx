@@ -73,7 +73,7 @@ export default function RiderDashboard() {
   
   // Get active order ID for location tracking
   const activeOrder = orders.find(o => 
-    (o.status === 'picking_it_up' || o.status === 'picked_up') && o.rider_id
+    (o.status === 'picking_it_up' || o.status === 'picked_up' || o.status === 'delivering') && o.rider_id
   );
   
   // Track rider location when on active delivery
@@ -292,7 +292,7 @@ export default function RiderDashboard() {
       todayEarnings: todayOrders
         .filter((o) => o.status === "delivered")
         .reduce((sum, o) => sum + Number(o.delivery_fee), 0),
-      activeDeliveries: myOrders.filter((o) => o.status === "picked_up").length,
+      activeDeliveries: myOrders.filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status)).length,
       allTimeDeliveries: deliveredCount,
     }));
   };
@@ -1181,16 +1181,16 @@ export default function RiderDashboard() {
 
           <TabsContent value="active" className="space-y-4">
             {/* Fixed Chat for Active Order */}
-            {orders.filter((o) => o.status === "picking_it_up" || o.status === "picked_up").length > 0 && (
+            {orders.filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status)).length > 0 && (
               <OrderChat 
-                orderId={orders.filter((o) => o.status === "picking_it_up" || o.status === "picked_up")[0].id} 
+                orderId={orders.filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status))[0].id} 
                 userType="rider" 
                 floating 
               />
             )}
             
             {orders
-              .filter((o) => o.status === "picking_it_up" || o.status === "picked_up")
+              .filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status))
               .map((order) => (
                 <Card key={order.id} className="animate-fade-in">
                   <CardHeader>
