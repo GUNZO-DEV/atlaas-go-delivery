@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { walletAmountSchema } from "@/lib/validation";
+import { useSearchParams } from "react-router-dom";
 
 interface Transaction {
   id: string;
@@ -26,17 +27,57 @@ const WalletCard = () => {
   const [loading, setLoading] = useState(true);
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpDialogOpen, setTopUpDialogOpen] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     fetchWalletData();
   }, []);
+
+  // Handle return from Stripe checkout
+  useEffect(() => {
+    const walletTopup = searchParams.get("wallet_topup");
+    const amount = searchParams.get("amount");
+
+    if (walletTopup === "success" && amount) {
+      // Credit the wallet after successful payment
+      const creditWallet = async () => {
+        try {
+          const { error } = await supabase.functions.invoke("verify-wallet-topup", {
+            body: { amount: parseFloat(amount) },
+          });
+          if (error) throw error;
+          toast({
+            title: "Top-up successful! 🎉",
+            description: `${amount} MAD added to your wallet`,
+          });
+          fetchWalletData();
+        } catch (err: any) {
+          console.error("Error crediting wallet:", err);
+          toast({
+            title: "Error",
+            description: "Payment received but wallet credit failed. Contact support.",
+            variant: "destructive",
+          });
+        }
+      };
+      creditWallet();
+      // Clean URL params
+      searchParams.delete("wallet_topup");
+      searchParams.delete("amount");
+      setSearchParams(searchParams, { replace: true });
+    } else if (walletTopup === "cancelled") {
+      toast({ title: "Top-up cancelled", description: "Payment was cancelled" });
+      searchParams.delete("wallet_topup");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams]);
 
   const fetchWalletData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Fetch balance
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("wallet_balance")
@@ -46,7 +87,6 @@ const WalletCard = () => {
       if (profileError) throw profileError;
       setBalance(profile.wallet_balance || 0);
 
-      // Fetch transactions
       const { data: txData, error: txError } = await supabase
         .from("wallet_transactions")
         .select("*")
@@ -58,11 +98,6 @@ const WalletCard = () => {
       setTransactions(txData || []);
     } catch (error: any) {
       console.error("Error fetching wallet data:", error);
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
     } finally {
       setLoading(false);
     }
@@ -70,8 +105,7 @@ const WalletCard = () => {
 
   const handleTopUp = async () => {
     const amount = parseFloat(topUpAmount);
-    
-    // Validate using Zod schema
+
     const validation = walletAmountSchema.safeParse({ amount });
     if (!validation.success) {
       toast({
@@ -82,29 +116,27 @@ const WalletCard = () => {
       return;
     }
 
+    setProcessing(true);
     try {
-      // Use secure server-side function for wallet operations
-      const { error } = await supabase.rpc('secure_wallet_topup', {
-        p_amount: amount
+      const { data, error } = await supabase.functions.invoke("wallet-topup-checkout", {
+        body: { amount },
       });
 
       if (error) throw error;
-
-      toast({
-        title: "Top-up successful!",
-        description: `${amount.toFixed(2)} MAD added to your wallet`,
-      });
-
-      setTopUpAmount("");
-      setTopUpDialogOpen(false);
-      fetchWalletData();
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
     } catch (error: any) {
-      console.error("Error topping up wallet:", error);
+      console.error("Error initiating top-up:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to initiate payment",
         variant: "destructive",
       });
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -134,7 +166,7 @@ const WalletCard = () => {
               <DialogHeader>
                 <DialogTitle>Top Up Wallet</DialogTitle>
                 <DialogDescription>
-                  Add funds to your ATLAAS wallet for faster checkout
+                  Pay securely online to add funds to your wallet
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -165,9 +197,12 @@ const WalletCard = () => {
                     ))}
                   </div>
                 </div>
-                <Button onClick={handleTopUp} className="w-full">
-                  Add {topUpAmount ? `${topUpAmount} MAD` : "Funds"}
+                <Button onClick={handleTopUp} className="w-full" disabled={processing}>
+                  {processing ? "Redirecting to payment..." : `Pay ${topUpAmount ? `${topUpAmount} MAD` : ""} Online`}
                 </Button>
+                <p className="text-xs text-center text-muted-foreground">
+                  🔒 Secure payment via Stripe
+                </p>
               </div>
             </DialogContent>
           </Dialog>
@@ -197,9 +232,7 @@ const WalletCard = () => {
                           <ArrowDownRight className="h-4 w-4 text-red-300" />
                         )}
                         <div>
-                          <p className="text-sm font-medium text-white">
-                            {tx.description}
-                          </p>
+                          <p className="text-sm font-medium text-white">{tx.description}</p>
                           <p className="text-xs text-purple-100">
                             {new Date(tx.created_at).toLocaleDateString()}
                           </p>
