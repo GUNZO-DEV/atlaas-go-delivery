@@ -19,7 +19,11 @@ const ROLE_CONFIG: Record<UserRole, { icon: typeof MapPin; label: string; color:
   rider: { icon: Bike, label: "Rider", color: "bg-primary/10 text-primary", desc: "Deliver orders and earn money" },
 };
 
-const Auth = () => {
+interface AuthProps {
+  defaultRole?: UserRole;
+}
+
+const Auth = ({ defaultRole }: AuthProps = {}) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -28,8 +32,9 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [activeTab, setActiveTab] = useState("signin");
-  const [selectedRole, setSelectedRole] = useState<UserRole>("customer");
+  const [selectedRole, setSelectedRole] = useState<UserRole>(defaultRole || "customer");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
@@ -44,16 +49,24 @@ const Auth = () => {
     if (mode === "signup") setActiveTab("signup");
     const role = searchParams.get("role") as UserRole | null;
     if (role && ROLE_CONFIG[role]) setSelectedRole(role);
+    else if (defaultRole) setSelectedRole(defaultRole);
 
     // Listen for auth state changes (handles OAuth callback)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+      if (event === 'SIGNED_IN' && session?.user) {
         await handlePostAuthRedirect(session.user.id);
+      } else if (event === 'INITIAL_SESSION') {
+        if (session?.user) {
+          // User already logged in, redirect them
+          await redirectByRole(session.user.id);
+        } else {
+          setCheckingAuth(false);
+        }
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [defaultRole]);
 
   const handlePostAuthRedirect = async (userId: string) => {
     // Check if there's a pending role from OAuth sign-in
