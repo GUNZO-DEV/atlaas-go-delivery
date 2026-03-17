@@ -129,6 +129,12 @@ const LynMenuEngineering = ({ restaurant }: LynMenuEngineeringProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Menu OCR Scanner */}
+      <MenuOCRUpload
+        restaurantId={restaurant.id}
+        onItemsAdded={() => loadMenuItems()}
+      />
+
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
