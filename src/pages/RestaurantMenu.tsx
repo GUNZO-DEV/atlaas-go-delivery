@@ -41,7 +41,7 @@ import LiveTrackingMap from "@/components/LiveTrackingMap";
 import OrderNotesInput from "@/components/OrderNotesInput";
 import FavoriteButton from "@/components/FavoriteButton";
 import MenuCategorySelector from "@/components/MenuCategorySelector";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface MenuItem {
   id: string;
