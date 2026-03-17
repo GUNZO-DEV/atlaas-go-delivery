@@ -91,12 +91,12 @@ export function AssignRiderDialog({
   const assignRider = async (riderId: string) => {
     setAssigning(true);
     try {
-      // Update order with rider
+      // Update order with rider and move it into the rider's active pickup queue
       const { error: orderError } = await supabase
         .from("orders")
         .update({ 
           rider_id: riderId,
-          status: "picked_up"
+          status: "picking_it_up"
         })
         .eq("id", orderId);
 
