@@ -524,19 +524,30 @@ export default function RestaurantMenu() {
         // Redirect to Stripe checkout
         try {
           const { data: stripeData, error: stripeError } = await supabase.functions.invoke("create-order-payment", {
-            body: { order_id: order.id },
+            body: {
+              order_id: order.id,
+              restaurant_id: restaurant!.id,
+              amount: total,
+              order_items: cart.map((item) => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+              })),
+            },
           });
 
           if (stripeError) throw stripeError;
-          if (stripeData?.url) {
-            window.location.href = stripeData.url;
-            return; // Don't clear cart — user is being redirected
-          }
+          if (stripeData?.error) throw new Error(stripeData.error);
+          if (!stripeData?.url) throw new Error("Online payment checkout link was not returned");
+
+          window.location.href = stripeData.url;
+          return; // Don't clear cart — user is being redirected
         } catch (stripeErr: any) {
+          const errorMessage = stripeErr?.message || "Failed to initiate online payment. Your order is saved — please try again or choose another payment method.";
           console.error("Stripe error:", stripeErr);
           toast({
             title: "Payment Error",
-            description: "Failed to initiate online payment. Your order is saved — please try again or choose another payment method.",
+            description: errorMessage,
             variant: "destructive",
           });
           setIsOrdering(false);
