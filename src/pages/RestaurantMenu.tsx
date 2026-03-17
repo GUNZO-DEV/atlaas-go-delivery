@@ -41,7 +41,7 @@ import LiveTrackingMap from "@/components/LiveTrackingMap";
 import OrderNotesInput from "@/components/OrderNotesInput";
 import FavoriteButton from "@/components/FavoriteButton";
 import MenuCategorySelector from "@/components/MenuCategorySelector";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface MenuItem {
   id: string;
@@ -646,32 +646,33 @@ export default function RestaurantMenu() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 sm:pb-0">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-                <ArrowLeft className="h-5 w-5" />
+      <header className="sticky top-0 z-50 border-b bg-background">
+        <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => navigate("/")}>
+                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
+                className="hidden sm:flex"
                 onClick={() => navigate(`/group-order/new?restaurant=${restaurant.id}`)}
               >
                 <Users className="h-4 w-4 mr-2" />
                 Start Group Order
               </Button>
             </div>
-            <h1 className="text-xl font-bold">{restaurant.name}</h1>
+            <h1 className="text-sm sm:text-xl font-bold truncate max-w-[180px] sm:max-w-none">{restaurant.name}</h1>
             {restaurant.id !== 'df84d31b-0214-4a78-bd37-775422949bcf' && (
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
+                <Button variant="outline" size="icon" className="relative h-9 w-9 sm:h-10 sm:w-10 shrink-0">
+                  <ShoppingCart className="h-5 w-5 sm:h-5 sm:w-5" />
                   {cart.length > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0">
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-[10px] sm:text-xs">
                       {cart.reduce((sum, item) => sum + item.quantity, 0)}
                     </Badge>
                   )}
@@ -885,78 +886,59 @@ export default function RestaurantMenu() {
       </header>
 
       {/* Restaurant Hero */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="relative h-56 sm:h-64 md:h-72 lg:h-80 overflow-hidden"
-      >
-        <motion.img
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.6 }}
+      <div className="relative h-40 sm:h-56 md:h-72 lg:h-80 overflow-hidden">
+        <img
           src={restaurant.image_url}
           alt={restaurant.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white"
-        >
+        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 text-white">
           <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">{restaurant.name}</h1>
-              <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-2">
-                <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
-                  <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2 truncate">{restaurant.name}</h1>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:gap-4 mb-1 sm:mb-2">
+                <div className="flex items-center gap-1 bg-white/20 px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm">
+                  <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400 fill-yellow-400" />
                   <span className="font-semibold">{restaurant.average_rating?.toFixed(1) || '0'}</span>
-                  <span className="text-xs opacity-80">({restaurant.review_count || 0})</span>
+                  <span className="opacity-80">({restaurant.review_count || 0})</span>
                 </div>
-                <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0">
+                <Badge variant="secondary" className="bg-white/20 border-0 text-xs px-1.5 py-0.5 sm:px-2 sm:py-1">
                   <Clock className="h-3 w-3 mr-1" />
                   20-35 min
                 </Badge>
               </div>
-              <p className="text-xs md:text-sm mb-2 line-clamp-2 opacity-90">{restaurant.description}</p>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs md:text-sm opacity-80">
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-                  <span className="line-clamp-1">{restaurant.address}</span>
+              <p className="text-[11px] sm:text-xs md:text-sm mb-1 sm:mb-2 line-clamp-1 sm:line-clamp-2 opacity-90">{restaurant.description}</p>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-[11px] sm:text-xs md:text-sm opacity-80">
+                <span className="flex items-center gap-1 truncate">
+                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{restaurant.address}</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <Phone className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+                  <Phone className="h-3 w-3 flex-shrink-0" />
                   {restaurant.phone}
                 </span>
               </div>
             </div>
-            {/* Restaurant favorite */}
             <div className="hidden md:block">
               <FavoriteButton itemId={restaurant.id} itemType="restaurant" size="lg" />
             </div>
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Floating Cart Button (Mobile) */}
-      <AnimatePresence>
-        {cart.length > 0 && restaurant.id !== 'df84d31b-0214-4a78-bd37-775422949bcf' && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-4 left-4 right-4 z-50 md:hidden"
-          >
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button className="w-full h-14 text-lg shadow-2xl rounded-2xl">
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  View Cart ({cart.reduce((sum, item) => sum + item.quantity, 0)})
-                  <span className="ml-auto font-bold">{getTotal().total.toFixed(0)} MAD</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl overflow-y-auto">
+      {cart.length > 0 && restaurant.id !== 'df84d31b-0214-4a78-bd37-775422949bcf' && (
+        <div className="fixed bottom-16 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-50 sm:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="w-full h-12 text-base shadow-2xl rounded-2xl">
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                View Cart ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+                <span className="ml-auto font-bold">{getTotal().total.toFixed(0)} MAD</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>Your Cart</SheetTitle>
                 </SheetHeader>
@@ -1002,11 +984,10 @@ export default function RestaurantMenu() {
                     {isOrdering ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Placing Order...</> : "Place Order"}
                   </Button>
                 </div>
-              </SheetContent>
-            </Sheet>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </SheetContent>
+          </Sheet>
+        </div>
+      )}
 
       {/* WhatsApp Button & Info - Hani Sugar Art Only */}
       {restaurant.id === 'df84d31b-0214-4a78-bd37-775422949bcf' && (
@@ -1099,9 +1080,9 @@ export default function RestaurantMenu() {
 
       {/* Menu - Hidden for Hani Sugar Art */}
       {restaurant.id !== 'df84d31b-0214-4a78-bd37-775422949bcf' && (
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
           {/* Search & Delivery Info Bar */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -1111,20 +1092,20 @@ export default function RestaurantMenu() {
                 className="pl-10 bg-muted/50 border-0 focus-visible:ring-1"
               />
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-lg">
-                <Clock className="h-4 w-4 text-primary" />
-                <span>20-35 min delivery</span>
+            <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground bg-muted/50 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg whitespace-nowrap">
+                <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span>20-35 min</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-lg">
-                <Tag className="h-4 w-4 text-primary" />
+              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground bg-muted/50 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg whitespace-nowrap">
+                <Tag className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                 <span>Min. 30 MAD</span>
               </div>
             </div>
           </div>
 
           {/* Category Selector */}
-          <div className="-mx-4 mb-8">
+          <div className="-mx-3 sm:-mx-4 mb-6 sm:mb-8">
             <MenuCategorySelector
               menuItems={menuItems}
               selectedCategory={selectedCategory}
@@ -1132,33 +1113,24 @@ export default function RestaurantMenu() {
             />
           </div>
 
-          {/* Popular Items Section - Only show when not searching */}
+          {/* Popular Items */}
           {!searchQuery && selectedCategory === "all" && popularItems.length > 0 && (
-            <motion.section 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-12"
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Flame className="h-5 w-5 text-primary" />
+            <section className="mb-8 sm:mb-12">
+              <div className="flex items-center gap-2 mb-4 sm:mb-6">
+                <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                  <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold">Popular Right Now</h2>
-                <Badge variant="secondary" className="ml-2">
+                <h2 className="text-lg sm:text-2xl font-bold">Popular Right Now</h2>
+                <Badge variant="secondary" className="ml-1 sm:ml-2 text-[10px] sm:text-xs">
                   <TrendingUp className="h-3 w-3 mr-1" />
                   Trending
                 </Badge>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
                 {popularItems.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
+                  <div key={item.id}>
                     <Card 
-                      className={`overflow-hidden cursor-pointer group relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                      className={`overflow-hidden cursor-pointer group relative transition-shadow hover:shadow-xl ${
                         addedItemId === item.id ? 'ring-2 ring-primary scale-95' : ''
                       }`}
                       onClick={() => addToCart(item)}
@@ -1179,20 +1151,18 @@ export default function RestaurantMenu() {
                         </div>
                         {/* Quick Add Overlay */}
                         <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: addedItemId === item.id ? 1.2 : 0 }}
-                            className="bg-primary text-primary-foreground rounded-full p-3"
-                          >
-                            <Plus className="h-6 w-6" />
-                          </motion.div>
+                          {addedItemId === item.id && (
+                            <div className="bg-primary text-primary-foreground rounded-full p-3 animate-ping">
+                              <Plus className="h-6 w-6" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </Card>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
-            </motion.section>
+            </section>
           )}
 
           {/* Reviews Section */}
@@ -1241,120 +1211,100 @@ export default function RestaurantMenu() {
 
           {/* Search Results Info */}
           {searchQuery && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-6 flex items-center justify-between"
-            >
+            <div className="mb-6 flex items-center justify-between">
               <p className="text-muted-foreground">
                 {filteredMenuItems.length} results for "{searchQuery}"
               </p>
               <Button variant="ghost" size="sm" onClick={() => setSearchQuery("")}>
                 Clear search
               </Button>
-            </motion.div>
+            </div>
           )}
 
           {/* No Results */}
           {filteredMenuItems.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16"
-            >
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-                <Search className="h-8 w-8 text-muted-foreground" />
+            <div className="text-center py-12 sm:py-16">
+              <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-muted mb-4">
+                <Search className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">No items found</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="text-base sm:text-lg font-semibold mb-2">No items found</h3>
+              <p className="text-sm text-muted-foreground mb-4">
                 Try adjusting your search or browse our categories
               </p>
-              <Button variant="outline" onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}>
+              <Button variant="outline" size="sm" onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}>
                 View all items
               </Button>
-            </motion.div>
+            </div>
           )}
 
           {/* Menu Items */}
-          <AnimatePresence mode="wait">
-            {Object.entries(groupedItems).map(([category, items], categoryIndex) => (
-              <motion.div 
-                key={category} 
-                className="mb-12"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: categoryIndex * 0.1 }}
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <ChefHat className="h-5 w-5 text-primary" />
-                  </div>
-                  <h2 className="text-2xl font-bold">{category}</h2>
-                  <Badge variant="secondary">{items.length} items</Badge>
+          {Object.entries(groupedItems).map(([category, items]) => (
+            <div key={category} className="mb-8 sm:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                  <ChefHat className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {items.map((item, itemIndex) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: itemIndex * 0.05 }}
-                    >
-                      <Card 
-                        className={`overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                          addedItemId === item.id ? 'ring-2 ring-primary' : ''
-                        }`}
-                      >
-                        <div className="aspect-video relative overflow-hidden">
-                          <img
-                            src={item.image_url}
-                            alt={item.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                          <div className="absolute top-2 right-2 flex gap-1">
-                            <div className="bg-background/90 backdrop-blur rounded-full">
-                              <FavoriteButton itemId={item.id} itemType="menu_item" size="sm" />
-                            </div>
-                          </div>
-                          {/* Quick add button on hover */}
-                          <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button 
-                              size="sm" 
-                              className="rounded-full shadow-lg"
-                              onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
+                <h2 className="text-lg sm:text-2xl font-bold">{category}</h2>
+                <Badge variant="secondary" className="text-[10px] sm:text-xs">{items.length} items</Badge>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+                {items.map((item) => (
+                  <Card 
+                    key={item.id}
+                    className={`overflow-hidden group transition-shadow hover:shadow-xl ${
+                      addedItemId === item.id ? 'ring-2 ring-primary' : ''
+                    }`}
+                  >
+                    <div className="aspect-video relative overflow-hidden">
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <div className="bg-background/90 rounded-full">
+                          <FavoriteButton itemId={item.id} itemType="menu_item" size="sm" />
                         </div>
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <h3 className="font-semibold text-lg line-clamp-1">{item.name}</h3>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-[2.5rem]">
-                            {item.description || "Delicious dish prepared with fresh ingredients"}
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-xl font-bold text-primary">{item.price}</span>
-                              <span className="text-sm text-muted-foreground">MAD</span>
-                            </div>
-                            <Button 
-                              onClick={() => addToCart(item)}
-                              className="group/btn"
-                            >
-                              <Plus className="h-4 w-4 mr-1 group-hover/btn:rotate-90 transition-transform" />
-                              Add
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                      </div>
+                      {/* Quick add button */}
+                      <div className="absolute bottom-2 right-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                        <Button 
+                          size="sm" 
+                          className="rounded-full shadow-lg h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-3"
+                          onClick={(e) => { e.stopPropagation(); addToCart(item); }}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-start justify-between gap-2 mb-1 sm:mb-2">
+                        <h3 className="font-semibold text-sm sm:text-lg line-clamp-1">{item.name}</h3>
+                      </div>
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-4 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
+                        {item.description || "Delicious dish prepared with fresh ingredients"}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-base sm:text-xl font-bold text-primary">{item.price}</span>
+                          <span className="text-xs sm:text-sm text-muted-foreground">MAD</span>
+                        </div>
+                        <Button 
+                          onClick={() => addToCart(item)}
+                          size="sm"
+                          className="text-xs sm:text-sm"
+                        >
+                          <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+                          Add
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
         </main>
       )}
 
