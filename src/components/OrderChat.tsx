@@ -459,6 +459,14 @@ export default function OrderChat({ orderId, userType, floating = false, compact
                     onClick={() => { setIsMinimized(true); }}
                     className="h-7 w-7 text-primary-foreground hover:bg-primary-foreground/20 rounded-full"
                   >
+                    <span className="text-xs font-bold">—</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => { onClose?.(); }}
+                    className="h-7 w-7 text-primary-foreground hover:bg-primary-foreground/20 rounded-full"
+                  >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>

@@ -749,6 +749,7 @@ export default function CustomerDashboard() {
           orderId={chatOrderId} 
           userType="customer" 
           floating 
+          onClose={() => setChatOrderId(null)}
         />
       )}
     </div>
