@@ -1105,7 +1105,7 @@ export default function RestaurantMenu() {
           </div>
 
           {/* Category Selector */}
-          <div className="-mx-4 mb-8">
+          <div className="-mx-3 sm:-mx-4 mb-6 sm:mb-8">
             <MenuCategorySelector
               menuItems={menuItems}
               selectedCategory={selectedCategory}
@@ -1113,19 +1113,15 @@ export default function RestaurantMenu() {
             />
           </div>
 
-          {/* Popular Items Section - Only show when not searching */}
+          {/* Popular Items */}
           {!searchQuery && selectedCategory === "all" && popularItems.length > 0 && (
-            <motion.section 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-12"
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Flame className="h-5 w-5 text-primary" />
+            <section className="mb-8 sm:mb-12">
+              <div className="flex items-center gap-2 mb-4 sm:mb-6">
+                <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                  <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold">Popular Right Now</h2>
-                <Badge variant="secondary" className="ml-2">
+                <h2 className="text-lg sm:text-2xl font-bold">Popular Right Now</h2>
+                <Badge variant="secondary" className="ml-1 sm:ml-2 text-[10px] sm:text-xs">
                   <TrendingUp className="h-3 w-3 mr-1" />
                   Trending
                 </Badge>
