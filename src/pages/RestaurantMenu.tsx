@@ -1126,14 +1126,9 @@ export default function RestaurantMenu() {
                   Trending
                 </Badge>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
                 {popularItems.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
+                  <div key={item.id}>
                     <Card 
                       className={`overflow-hidden cursor-pointer group relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
                         addedItemId === item.id ? 'ring-2 ring-primary scale-95' : ''
