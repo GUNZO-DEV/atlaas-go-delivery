@@ -999,7 +999,7 @@ export default function RiderDashboard() {
 
           <TabsContent value="available" className="space-y-4">
             {orders
-              .filter((o) => o.status === "ready_for_pickup" && !o.rider_id)
+              .filter((o) => (o.status === "ready_for_pickup" || o.status === "pending") && !o.rider_id)
               .map((order) => (
                 <Card key={order.id}>
                   <CardHeader>
