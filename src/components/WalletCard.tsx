@@ -118,16 +118,29 @@ const WalletCard = () => {
 
     setProcessing(true);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      let session = sessionData.session;
+
+      if (!session) {
+        throw new Error("Please sign in first");
+      }
+
+      const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+      if (!refreshError && refreshed.session) {
+        session = refreshed.session;
+      }
+
       const { data, error } = await supabase.functions.invoke("wallet-topup-checkout", {
         body: { amount },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
 
       if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
+      if (!data?.url) throw new Error("No checkout URL returned");
+
+      window.location.href = data.url;
     } catch (error: any) {
       console.error("Error initiating top-up:", error);
       toast({
