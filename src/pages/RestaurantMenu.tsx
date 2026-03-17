@@ -1151,13 +1151,11 @@ export default function RestaurantMenu() {
                         </div>
                         {/* Quick Add Overlay */}
                         <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: addedItemId === item.id ? 1.2 : 0 }}
-                            className="bg-primary text-primary-foreground rounded-full p-3"
-                          >
-                            <Plus className="h-6 w-6" />
-                          </motion.div>
+                          {addedItemId === item.id && (
+                            <div className="bg-primary text-primary-foreground rounded-full p-3 animate-ping">
+                              <Plus className="h-6 w-6" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </Card>
