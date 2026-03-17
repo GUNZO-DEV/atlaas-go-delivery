@@ -47,7 +47,9 @@ const OrderChatPage = lazy(() => import("./pages/OrderChatPage"));
 
 // Lazy-load heavier components
 const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
-const MobileBottomNav = lazy(() => import("./components/MobileBottomNav"));
+
+// Eagerly load bottom nav - needed immediately on every page
+import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
 
