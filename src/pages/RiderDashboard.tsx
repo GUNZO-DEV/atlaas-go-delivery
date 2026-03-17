@@ -292,7 +292,7 @@ export default function RiderDashboard() {
       todayEarnings: todayOrders
         .filter((o) => o.status === "delivered")
         .reduce((sum, o) => sum + Number(o.delivery_fee), 0),
-      activeDeliveries: myOrders.filter((o) => o.status === "picked_up").length,
+      activeDeliveries: myOrders.filter((o) => ["picking_it_up", "picked_up", "delivering"].includes(o.status)).length,
       allTimeDeliveries: deliveredCount,
     }));
   };
