@@ -886,59 +886,46 @@ export default function RestaurantMenu() {
       </header>
 
       {/* Restaurant Hero */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="relative h-56 sm:h-64 md:h-72 lg:h-80 overflow-hidden"
-      >
-        <motion.img
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.6 }}
+      <div className="relative h-40 sm:h-56 md:h-72 lg:h-80 overflow-hidden">
+        <img
           src={restaurant.image_url}
           alt={restaurant.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white"
-        >
+        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 text-white">
           <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">{restaurant.name}</h1>
-              <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-2">
-                <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
-                  <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2 truncate">{restaurant.name}</h1>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:gap-4 mb-1 sm:mb-2">
+                <div className="flex items-center gap-1 bg-white/20 px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm">
+                  <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400 fill-yellow-400" />
                   <span className="font-semibold">{restaurant.average_rating?.toFixed(1) || '0'}</span>
-                  <span className="text-xs opacity-80">({restaurant.review_count || 0})</span>
+                  <span className="opacity-80">({restaurant.review_count || 0})</span>
                 </div>
-                <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0">
+                <Badge variant="secondary" className="bg-white/20 border-0 text-xs px-1.5 py-0.5 sm:px-2 sm:py-1">
                   <Clock className="h-3 w-3 mr-1" />
                   20-35 min
                 </Badge>
               </div>
-              <p className="text-xs md:text-sm mb-2 line-clamp-2 opacity-90">{restaurant.description}</p>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs md:text-sm opacity-80">
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-                  <span className="line-clamp-1">{restaurant.address}</span>
+              <p className="text-[11px] sm:text-xs md:text-sm mb-1 sm:mb-2 line-clamp-1 sm:line-clamp-2 opacity-90">{restaurant.description}</p>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-[11px] sm:text-xs md:text-sm opacity-80">
+                <span className="flex items-center gap-1 truncate">
+                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{restaurant.address}</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <Phone className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+                  <Phone className="h-3 w-3 flex-shrink-0" />
                   {restaurant.phone}
                 </span>
               </div>
             </div>
-            {/* Restaurant favorite */}
             <div className="hidden md:block">
               <FavoriteButton itemId={restaurant.id} itemType="restaurant" size="lg" />
             </div>
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Floating Cart Button (Mobile) */}
       <AnimatePresence>
