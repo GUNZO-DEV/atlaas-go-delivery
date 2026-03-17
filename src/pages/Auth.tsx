@@ -137,6 +137,10 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
   };
 
   useEffect(() => {
+    selectedRoleRef.current = selectedRole;
+  }, [selectedRole]);
+
+  useEffect(() => {
     const refCode = searchParams.get("ref");
     if (refCode) {
       setReferralCode(refCode);
@@ -162,7 +166,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
 
       try {
         const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
-        await handlePostAuthRedirect(session.user.id, pendingRole || selectedRole);
+        await handlePostAuthRedirect(session.user.id, pendingRole || selectedRoleRef.current || getPreferredRole());
       } finally {
         setCheckingAuth(false);
       }
