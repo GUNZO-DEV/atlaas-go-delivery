@@ -237,7 +237,7 @@ export default function RiderDashboard() {
           *,
           restaurant:restaurants(name, address, latitude, longitude)
         `)
-        .or(`rider_id.eq.${user.id},status.eq.ready_for_pickup`)
+        .or(`rider_id.eq.${user.id},status.eq.ready_for_pickup,status.eq.pending`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
