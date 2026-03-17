@@ -29,6 +29,7 @@ interface OrderChatProps {
   userType: 'customer' | 'merchant' | 'rider';
   floating?: boolean;
   compact?: boolean;
+  onClose?: () => void;
 }
 
 const QUICK_REPLIES: Record<string, string[]> = {
@@ -39,7 +40,7 @@ const QUICK_REPLIES: Record<string, string[]> = {
 
 const EMOJI_LIST = ["👍", "❤️", "😊", "🙏", "👋", "🔥", "✅", "⭐"];
 
-export default function OrderChat({ orderId, userType, floating = false, compact = false }: OrderChatProps) {
+export default function OrderChat({ orderId, userType, floating = false, compact = false, onClose }: OrderChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [user, setUser] = useState<any>(null);
@@ -456,6 +457,14 @@ export default function OrderChat({ orderId, userType, floating = false, compact
                     variant="ghost"
                     size="icon"
                     onClick={() => { setIsMinimized(true); }}
+                    className="h-7 w-7 text-primary-foreground hover:bg-primary-foreground/20 rounded-full"
+                  >
+                    <span className="text-xs font-bold">—</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => { onClose?.(); }}
                     className="h-7 w-7 text-primary-foreground hover:bg-primary-foreground/20 rounded-full"
                   >
                     <X className="h-4 w-4" />
