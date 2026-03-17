@@ -49,9 +49,9 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }
         .eq("id", restaurantId)
         .single();
 
-      setStripeEnabled(!!data?.stripe_account_id && !!data?.stripe_onboarding_complete);
+      setStripeConnectEnabled(!!data?.stripe_account_id && !!data?.stripe_onboarding_complete);
     } catch {
-      setStripeEnabled(false);
+      setStripeConnectEnabled(false);
     }
   };
 
