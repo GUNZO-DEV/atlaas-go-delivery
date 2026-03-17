@@ -327,7 +327,7 @@ export default function RiderDashboard() {
               });
             }
             
-            if (payload.eventType === 'UPDATE' && payload.new.status === 'ready_for_pickup' && !payload.new.rider_id) {
+            if (payload.eventType === 'UPDATE' && (payload.new.status === 'ready_for_pickup' || payload.new.status === 'pending') && !payload.new.rider_id) {
               toast({
                 title: "New Order Available! 🔔",
                 description: "A new delivery is ready for pickup",

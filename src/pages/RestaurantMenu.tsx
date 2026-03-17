@@ -446,7 +446,7 @@ export default function RestaurantMenu() {
           delivery_latitude: deliveryLat,
           delivery_longitude: deliveryLng,
           order_notes: notes || null,
-          status: "pending" as const,
+          status: "ready_for_pickup" as const,
           scheduled_for: scheduledDate?.toISOString() || null,
           promo_code: appliedPromo?.code || null,
           discount_amount: appliedPromo ? getTotal().discount : 0,
