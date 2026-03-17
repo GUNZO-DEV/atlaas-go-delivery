@@ -229,6 +229,17 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
 
   const roleConfig = ROLE_CONFIG[selectedRole];
 
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-primary/5 zellij-pattern relative overflow-hidden">
       <div className="absolute top-20 -left-32 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" />
