@@ -112,12 +112,12 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
     else navigate("/customer", { replace: true });
   };
 
-  const handlePostAuthRedirect = async (userId: string) => {
+  const handlePostAuthRedirect = async (userId: string, explicitRole?: UserRole | null) => {
     const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
-    const preferredRole = pendingRole || getPreferredRole();
+    const preferredRole = explicitRole || pendingRole || getPreferredRole();
 
-    // Always try to assign the preferred role (rider/merchant) if user doesn't have it yet
-    const roleToAssign = pendingRole || preferredRole;
+    // Always try to assign the role chosen in the UI or pending OAuth role
+    const roleToAssign = explicitRole || pendingRole || preferredRole;
 
     try {
       await assignRoleIfNeeded(userId, roleToAssign);
@@ -161,11 +161,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
 
       try {
         const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
-        if (pendingRole) {
-          await handlePostAuthRedirect(session.user.id);
-        } else {
-          await redirectByRole(session.user.id, getPreferredRole());
-        }
+        await handlePostAuthRedirect(session.user.id, pendingRole || selectedRole);
       } finally {
         setCheckingAuth(false);
       }
@@ -228,7 +224,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
         }
 
         toast({ title: "Welcome!", description: "Your account has been created. Redirecting..." });
-        await handlePostAuthRedirect(data.session.user.id);
+        await handlePostAuthRedirect(data.session.user.id, selectedRole);
         return;
       }
 
@@ -256,7 +252,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
       });
       if (error) throw error;
       toast({ title: "Welcome back!", description: "Successfully signed in." });
-      await handlePostAuthRedirect(data.user.id);
+      await handlePostAuthRedirect(data.user.id, selectedRole);
     } catch (error: any) {
       toast({ title: "Error", description: error.errors?.[0]?.message || error.message, variant: "destructive" });
     } finally {
