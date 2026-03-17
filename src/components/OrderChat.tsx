@@ -40,7 +40,7 @@ const QUICK_REPLIES: Record<string, string[]> = {
 
 const EMOJI_LIST = ["👍", "❤️", "😊", "🙏", "👋", "🔥", "✅", "⭐"];
 
-export default function OrderChat({ orderId, userType, floating = false, compact = false }: OrderChatProps) {
+export default function OrderChat({ orderId, userType, floating = false, compact = false, onClose }: OrderChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [user, setUser] = useState<any>(null);
