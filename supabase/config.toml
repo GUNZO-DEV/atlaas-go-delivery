@@ -1,13 +1,16 @@
 project_id = "fuvwfwkipsfnvpjefemt"
 
 [functions.create-test-accounts]
-verify_jwt = true
+verify_jwt = false
 
 [functions.atlaas-ai-chat]
-verify_jwt = true
+verify_jwt = false
 
 [functions.send-push-notification]
-verify_jwt = true
+verify_jwt = false
 
 [functions.send-receipt-email]
-verify_jwt = true
+verify_jwt = false
+
+[functions.ocr-menu]
+verify_jwt = false
