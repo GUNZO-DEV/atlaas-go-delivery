@@ -52,6 +52,7 @@ export type Database = {
           building_name: string
           completed_at: string | null
           created_at: string
+          customer_id: string | null
           customer_name: string
           customer_phone: string
           delivery_fee: number
@@ -68,6 +69,7 @@ export type Database = {
           building_name: string
           completed_at?: string | null
           created_at?: string
+          customer_id?: string | null
           customer_name: string
           customer_phone: string
           delivery_fee: number
@@ -84,6 +86,7 @@ export type Database = {
           building_name?: string
           completed_at?: string | null
           created_at?: string
+          customer_id?: string | null
           customer_name?: string
           customer_phone?: string
           delivery_fee?: number
