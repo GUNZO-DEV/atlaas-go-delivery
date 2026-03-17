@@ -15,7 +15,7 @@ interface PaymentMethodSelectorProps {
 
 const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }: PaymentMethodSelectorProps) => {
   const [walletBalance, setWalletBalance] = useState(0);
-  const [stripeEnabled, setStripeEnabled] = useState(false);
+  const [stripeConnectEnabled, setStripeConnectEnabled] = useState(false);
 
   useEffect(() => {
     fetchWalletBalance();
