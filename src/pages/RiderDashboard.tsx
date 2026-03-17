@@ -1222,6 +1222,14 @@ export default function RiderDashboard() {
                     </div>
                     
                     <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-shrink-0"
+                        onClick={() => navigate(`/order-chat/${order.id}`)}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Chat
+                      </Button>
                       {order.status === "picking_it_up" ? (
                         <Button 
                           className="flex-1 animate-scale-in" 
