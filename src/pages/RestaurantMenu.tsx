@@ -1092,13 +1092,13 @@ export default function RestaurantMenu() {
                 className="pl-10 bg-muted/50 border-0 focus-visible:ring-1"
               />
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-lg">
-                <Clock className="h-4 w-4 text-primary" />
-                <span>20-35 min delivery</span>
+            <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground bg-muted/50 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg whitespace-nowrap">
+                <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span>20-35 min</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-lg">
-                <Tag className="h-4 w-4 text-primary" />
+              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground bg-muted/50 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg whitespace-nowrap">
+                <Tag className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                 <span>Min. 30 MAD</span>
               </div>
             </div>
