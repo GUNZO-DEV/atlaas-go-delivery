@@ -928,23 +928,17 @@ export default function RestaurantMenu() {
       </div>
 
       {/* Floating Cart Button (Mobile) */}
-      <AnimatePresence>
-        {cart.length > 0 && restaurant.id !== 'df84d31b-0214-4a78-bd37-775422949bcf' && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-4 left-4 right-4 z-50 md:hidden"
-          >
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button className="w-full h-14 text-lg shadow-2xl rounded-2xl">
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  View Cart ({cart.reduce((sum, item) => sum + item.quantity, 0)})
-                  <span className="ml-auto font-bold">{getTotal().total.toFixed(0)} MAD</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl overflow-y-auto">
+      {cart.length > 0 && restaurant.id !== 'df84d31b-0214-4a78-bd37-775422949bcf' && (
+        <div className="fixed bottom-16 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-50 sm:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="w-full h-12 text-base shadow-2xl rounded-2xl">
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                View Cart ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+                <span className="ml-auto font-bold">{getTotal().total.toFixed(0)} MAD</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>Your Cart</SheetTitle>
                 </SheetHeader>
