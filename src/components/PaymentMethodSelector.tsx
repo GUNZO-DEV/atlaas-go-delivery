@@ -15,12 +15,10 @@ interface PaymentMethodSelectorProps {
 
 const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }: PaymentMethodSelectorProps) => {
   const [walletBalance, setWalletBalance] = useState(0);
-  const [stripeConnectEnabled, setStripeConnectEnabled] = useState(false);
 
   useEffect(() => {
     fetchWalletBalance();
-    if (restaurantId) checkStripeEnabled();
-  }, [restaurantId]);
+  }, []);
 
   const fetchWalletBalance = async () => {
     try {
@@ -37,21 +35,6 @@ const PaymentMethodSelector = ({ value, onChange, orderTotal = 0, restaurantId }
       setWalletBalance(data?.wallet_balance || 0);
     } catch (error) {
       console.error("Error fetching wallet balance:", error);
-    }
-  };
-
-  const checkStripeEnabled = async () => {
-    if (!restaurantId) return;
-    try {
-      const { data } = await supabase
-        .from("restaurants")
-        .select("stripe_account_id, stripe_onboarding_complete")
-        .eq("id", restaurantId)
-        .single();
-
-      setStripeConnectEnabled(!!data?.stripe_account_id && !!data?.stripe_onboarding_complete);
-    } catch {
-      setStripeConnectEnabled(false);
     }
   };
 
