@@ -29,6 +29,7 @@ interface OrderChatProps {
   userType: 'customer' | 'merchant' | 'rider';
   floating?: boolean;
   compact?: boolean;
+  onClose?: () => void;
 }
 
 const QUICK_REPLIES: Record<string, string[]> = {
