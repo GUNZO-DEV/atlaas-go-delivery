@@ -1130,7 +1130,7 @@ export default function RestaurantMenu() {
                 {popularItems.map((item, index) => (
                   <div key={item.id}>
                     <Card 
-                      className={`overflow-hidden cursor-pointer group relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                      className={`overflow-hidden cursor-pointer group relative transition-shadow hover:shadow-xl ${
                         addedItemId === item.id ? 'ring-2 ring-primary scale-95' : ''
                       }`}
                       onClick={() => addToCart(item)}
