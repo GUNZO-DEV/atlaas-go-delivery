@@ -225,7 +225,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
         }
 
         toast({ title: "Welcome!", description: "Your account has been created. Redirecting..." });
-        await handlePostAuthRedirect(data.session.user.id);
+        await handlePostAuthRedirect(data.session.user.id, selectedRole);
         return;
       }
 
