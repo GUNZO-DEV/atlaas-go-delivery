@@ -1223,22 +1223,18 @@ export default function RestaurantMenu() {
 
           {/* No Results */}
           {filteredMenuItems.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16"
-            >
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-                <Search className="h-8 w-8 text-muted-foreground" />
+            <div className="text-center py-12 sm:py-16">
+              <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-muted mb-4">
+                <Search className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">No items found</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="text-base sm:text-lg font-semibold mb-2">No items found</h3>
+              <p className="text-sm text-muted-foreground mb-4">
                 Try adjusting your search or browse our categories
               </p>
-              <Button variant="outline" onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}>
+              <Button variant="outline" size="sm" onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}>
                 View all items
               </Button>
-            </motion.div>
+            </div>
           )}
 
           {/* Menu Items */}
