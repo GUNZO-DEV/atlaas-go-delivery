@@ -116,8 +116,11 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
     const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
     const preferredRole = pendingRole || getPreferredRole();
 
+    // Always try to assign the preferred role (rider/merchant) if user doesn't have it yet
+    const roleToAssign = pendingRole || preferredRole;
+
     try {
-      await assignRoleIfNeeded(userId, pendingRole);
+      await assignRoleIfNeeded(userId, roleToAssign);
     } catch (error) {
       console.error("Error assigning pending role:", error);
       toast({
