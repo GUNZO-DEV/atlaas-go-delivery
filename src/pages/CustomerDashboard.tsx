@@ -31,6 +31,7 @@ interface Order {
   rider_id?: string;
   payment_method?: string;
   payment_status?: string;
+  is_auier?: boolean;
   restaurant: {
     id: string;
     name: string;
