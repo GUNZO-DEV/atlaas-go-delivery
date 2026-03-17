@@ -1,14 +1,7 @@
-import { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useCallback, useRef, useState } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
 
-// Fix Leaflet default icon paths
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+const GOOGLE_MAPS_API_KEY = 'AIzaSyBSLCUfwLEVtlKj531pvyeEygQDkED3-zU';
 
 interface RiderNavigationMapProps {
   restaurantLat?: number;
@@ -20,6 +13,21 @@ interface RiderNavigationMapProps {
   deliveryAddress?: string;
 }
 
+const containerStyle = { width: '100%', height: '100%' };
+const defaultCenter = { lat: 33.5731, lng: -7.5898 };
+
+const mapOptions: google.maps.MapOptions = {
+  disableDefaultUI: false,
+  zoomControl: true,
+  streetViewControl: false,
+  mapTypeControl: false,
+  fullscreenControl: false,
+  styles: [
+    { featureType: 'poi', stylers: [{ visibility: 'simplified' }] },
+    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  ],
+};
+
 const RiderNavigationMap = ({
   restaurantLat,
   restaurantLng,
@@ -27,107 +35,75 @@ const RiderNavigationMap = ({
   restaurantAddress,
   deliveryLat,
   deliveryLng,
-  deliveryAddress
+  deliveryAddress,
 }: RiderNavigationMapProps) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<L.Map | null>(null);
+  const { isLoaded } = useJsApiLoader({ id: 'google-map-script', googleMapsApiKey: GOOGLE_MAPS_API_KEY });
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const [, setMapLoaded] = useState(false);
 
-  // Custom icons
-  const restaurantIcon = L.divIcon({
-    html: '<div style="width: 40px; height: 40px; background: #f97316; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"><span style="font-size: 1.25rem;">🍽️</span></div>',
-    className: 'custom-icon',
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-  });
+  const onLoad = useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+    setMapLoaded(true);
 
-  const deliveryIcon = L.divIcon({
-    html: '<div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"><span style="font-size: 1.25rem;">📍</span></div>',
-    className: 'custom-icon',
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-  });
+    const bounds = new google.maps.LatLngBounds();
+    if (restaurantLat && restaurantLng) bounds.extend({ lat: restaurantLat, lng: restaurantLng });
+    if (deliveryLat && deliveryLng) bounds.extend({ lat: deliveryLat, lng: deliveryLng });
 
-  useEffect(() => {
-    if (!mapContainer.current || map.current) return;
-
-    // Default center (Morocco)
-    const center: [number, number] = [33.5731, -7.5898];
-    
-    map.current = L.map(mapContainer.current).setView(center, 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map.current);
-
-    return () => {
-      map.current?.remove();
-      map.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!map.current) return;
-
-    // Clear existing layers
-    map.current.eachLayer((layer) => {
-      if (layer instanceof L.Marker || layer instanceof L.Polyline) {
-        map.current?.removeLayer(layer);
-      }
-    });
-
-    const bounds: L.LatLngExpression[] = [];
-
-    // Add restaurant marker
-    if (restaurantLat && restaurantLng) {
-      const marker = L.marker([restaurantLat, restaurantLng], {
-        icon: restaurantIcon
-      }).addTo(map.current);
-      marker.bindPopup(`
-        <div style="padding: 8px;">
-          <h3 style="font-weight: 600; margin-bottom: 4px;">Pickup Location</h3>
-          <p style="font-size: 0.875rem; font-weight: 500;">${restaurantName || 'Restaurant'}</p>
-          <p style="font-size: 0.75rem; color: #6b7280;">${restaurantAddress || ''}</p>
-        </div>
-      `);
-      bounds.push([restaurantLat, restaurantLng]);
+    if (!bounds.isEmpty()) {
+      map.fitBounds(bounds, 60);
     }
+  }, [restaurantLat, restaurantLng, deliveryLat, deliveryLng]);
 
-    // Add delivery marker
-    if (deliveryLat && deliveryLng) {
-      const marker = L.marker([deliveryLat, deliveryLng], {
-        icon: deliveryIcon
-      }).addTo(map.current);
-      marker.bindPopup(`
-        <div style="padding: 8px;">
-          <h3 style="font-weight: 600; margin-bottom: 4px;">Delivery Location</h3>
-          <p style="font-size: 0.75rem; color: #6b7280;">${deliveryAddress || ''}</p>
-        </div>
-      `);
-      bounds.push([deliveryLat, deliveryLng]);
-    }
+  if (!isLoaded) {
+    return (
+      <div className="relative w-full h-[400px] rounded-lg overflow-hidden border flex items-center justify-center bg-muted">
+        <div className="animate-pulse text-muted-foreground">Loading map...</div>
+      </div>
+    );
+  }
 
-    // Draw route line
-    if (restaurantLat && restaurantLng && deliveryLat && deliveryLng) {
-      L.polyline(
-        [[restaurantLat, restaurantLng], [deliveryLat, deliveryLng]], 
-        {
-          color: '#3b82f6',
-          weight: 4,
-          dashArray: '10, 10',
-          opacity: 0.7
-        }
-      ).addTo(map.current);
-    }
-
-    // Fit bounds to show all markers
-    if (bounds.length > 0) {
-      map.current.fitBounds(L.latLngBounds(bounds), { padding: [50, 50] });
-    }
-  }, [restaurantLat, restaurantLng, restaurantName, restaurantAddress, deliveryLat, deliveryLng, deliveryAddress]);
+  const routeCoordinates: google.maps.LatLngLiteral[] = [];
+  if (restaurantLat && restaurantLng) routeCoordinates.push({ lat: restaurantLat, lng: restaurantLng });
+  if (deliveryLat && deliveryLng) routeCoordinates.push({ lat: deliveryLat, lng: deliveryLng });
 
   return (
     <div className="relative w-full h-[400px] rounded-lg overflow-hidden border">
-      <div ref={mapContainer} className="absolute inset-0" />
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={restaurantLat && restaurantLng ? { lat: restaurantLat, lng: restaurantLng } : defaultCenter}
+        zoom={13}
+        onLoad={onLoad}
+        options={mapOptions}
+      >
+        {restaurantLat && restaurantLng && (
+          <Marker
+            position={{ lat: restaurantLat, lng: restaurantLng }}
+            label={{ text: '🍽️', fontSize: '24px' }}
+            title={`Pickup: ${restaurantName || 'Restaurant'} - ${restaurantAddress || ''}`}
+          />
+        )}
+
+        {deliveryLat && deliveryLng && (
+          <Marker
+            position={{ lat: deliveryLat, lng: deliveryLng }}
+            label={{ text: '📍', fontSize: '24px' }}
+            title={`Delivery: ${deliveryAddress || ''}`}
+          />
+        )}
+
+        {routeCoordinates.length === 2 && (
+          <Polyline
+            path={routeCoordinates}
+            options={{
+              strokeColor: '#3b82f6',
+              strokeOpacity: 0.7,
+              strokeWeight: 4,
+              geodesic: true,
+            }}
+          />
+        )}
+      </GoogleMap>
+
       {!restaurantLat && !deliveryLat && (
         <div className="absolute inset-0 bg-muted/80 backdrop-blur-sm flex items-center justify-center">
           <p className="text-muted-foreground font-medium">

@@ -1,14 +1,7 @@
-import { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useCallback, useRef, useState } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
 
-// Fix Leaflet default icon paths
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+const GOOGLE_MAPS_API_KEY = 'AIzaSyBSLCUfwLEVtlKj531pvyeEygQDkED3-zU';
 
 interface LiveTrackingMapProps {
   restaurantLat?: number;
@@ -20,6 +13,21 @@ interface LiveTrackingMapProps {
   deliveryAddress?: string;
 }
 
+const containerStyle = { width: '100%', height: '100%' };
+const defaultCenter = { lat: 33.5731, lng: -7.5898 };
+
+const mapOptions: google.maps.MapOptions = {
+  disableDefaultUI: false,
+  zoomControl: true,
+  streetViewControl: false,
+  mapTypeControl: false,
+  fullscreenControl: false,
+  styles: [
+    { featureType: 'poi', stylers: [{ visibility: 'simplified' }] },
+    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  ],
+};
+
 const LiveTrackingMap = ({
   restaurantLat,
   restaurantLng,
@@ -27,128 +35,91 @@ const LiveTrackingMap = ({
   riderLng,
   customerLat,
   customerLng,
-  deliveryAddress
+  deliveryAddress,
 }: LiveTrackingMapProps) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<L.Map | null>(null);
-  const markers = useRef<{
-    restaurant?: L.Marker;
-    customer?: L.Marker;
-    rider?: L.Marker;
-  }>({});
-  const routeLine = useRef<L.Polyline | null>(null);
+  const { isLoaded } = useJsApiLoader({ id: 'google-map-script', googleMapsApiKey: GOOGLE_MAPS_API_KEY });
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const [, setMapLoaded] = useState(false);
 
-  // Custom icons
-  const restaurantIcon = L.divIcon({
-    html: '<div style="width: 40px; height: 40px; background: #f97316; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"><span style="font-size: 1.25rem;">🍽️</span></div>',
-    className: 'custom-icon',
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-  });
+  const onLoad = useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+    setMapLoaded(true);
 
-  const customerIcon = L.divIcon({
-    html: '<div style="width: 40px; height: 40px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"><span style="font-size: 1.25rem;">📍</span></div>',
-    className: 'custom-icon',
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-  });
+    const bounds = new google.maps.LatLngBounds();
+    if (restaurantLat && restaurantLng) bounds.extend({ lat: restaurantLat, lng: restaurantLng });
+    if (customerLat && customerLng) bounds.extend({ lat: customerLat, lng: customerLng });
+    if (riderLat && riderLng) bounds.extend({ lat: riderLat, lng: riderLng });
 
-  const riderIcon = L.divIcon({
-    html: '<div style="width: 48px; height: 48px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;"><span style="font-size: 1.5rem;">🏍️</span></div>',
-    className: 'custom-icon',
-    iconSize: [48, 48],
-    iconAnchor: [24, 48],
-  });
-
-  // Initialize map
-  useEffect(() => {
-    if (!mapContainer.current || map.current) return;
-
-    const center: [number, number] = riderLat && riderLng 
-      ? [riderLat, riderLng] 
-      : [33.5731, -7.5898];
-
-    map.current = L.map(mapContainer.current).setView(center, 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19
-    }).addTo(map.current);
-
-    return () => {
-      map.current?.remove();
-      map.current = null;
-    };
-  }, []);
-
-  // Add/update restaurant marker
-  useEffect(() => {
-    if (!map.current || !restaurantLat || !restaurantLng) return;
-
-    if (!markers.current.restaurant) {
-      markers.current.restaurant = L.marker([restaurantLat, restaurantLng], {
-        icon: restaurantIcon
-      }).addTo(map.current);
-      markers.current.restaurant.bindPopup('<div style="padding: 8px;"><h3 style="font-weight: 600;">Restaurant</h3></div>');
-    } else {
-      markers.current.restaurant.setLatLng([restaurantLat, restaurantLng]);
+    if (!bounds.isEmpty()) {
+      map.fitBounds(bounds, 60);
     }
-  }, [restaurantLat, restaurantLng]);
+  }, [restaurantLat, restaurantLng, customerLat, customerLng, riderLat, riderLng]);
 
-  // Add/update customer marker
-  useEffect(() => {
-    if (!map.current || !customerLat || !customerLng) return;
+  if (!isLoaded) {
+    return (
+      <div className="relative w-full h-full flex items-center justify-center bg-muted rounded-lg">
+        <div className="animate-pulse text-muted-foreground">Loading map...</div>
+      </div>
+    );
+  }
 
-    if (!markers.current.customer) {
-      markers.current.customer = L.marker([customerLat, customerLng], {
-        icon: customerIcon
-      }).addTo(map.current);
-      markers.current.customer.bindPopup(`<div style="padding: 8px;"><h3 style="font-weight: 600;">Delivery Location</h3><p style="font-size: 0.875rem;">${deliveryAddress || ''}</p></div>`);
-    } else {
-      markers.current.customer.setLatLng([customerLat, customerLng]);
-    }
-  }, [customerLat, customerLng, deliveryAddress]);
+  const center = riderLat && riderLng
+    ? { lat: riderLat, lng: riderLng }
+    : restaurantLat && restaurantLng
+      ? { lat: restaurantLat, lng: restaurantLng }
+      : defaultCenter;
 
-  // Add/update rider marker and route
-  useEffect(() => {
-    if (!map.current) return;
-
-    if (riderLat && riderLng) {
-      if (!markers.current.rider) {
-        markers.current.rider = L.marker([riderLat, riderLng], {
-          icon: riderIcon
-        }).addTo(map.current);
-        markers.current.rider.bindPopup('<div style="padding: 8px;"><h3 style="font-weight: 600;">Rider Location</h3><p style="font-size: 0.875rem;">Live tracking</p></div>');
-        map.current.setView([riderLat, riderLng], 14);
-      } else {
-        markers.current.rider.setLatLng([riderLat, riderLng]);
-        map.current.setView([riderLat, riderLng]);
-      }
-
-      // Draw route
-      if (restaurantLat && restaurantLng && customerLat && customerLng) {
-        const routeCoordinates: [number, number][] = [
-          [restaurantLat, restaurantLng],
-          [riderLat, riderLng],
-          [customerLat, customerLng]
-        ];
-
-        if (routeLine.current) {
-          routeLine.current.setLatLngs(routeCoordinates);
-        } else {
-          routeLine.current = L.polyline(routeCoordinates, {
-            color: '#10b981',
-            weight: 4,
-            dashArray: '5, 10'
-          }).addTo(map.current);
-        }
-      }
-    }
-  }, [riderLat, riderLng, restaurantLat, restaurantLng, customerLat, customerLng]);
+  const routeCoordinates: google.maps.LatLngLiteral[] = [];
+  if (restaurantLat && restaurantLng) routeCoordinates.push({ lat: restaurantLat, lng: restaurantLng });
+  if (riderLat && riderLng) routeCoordinates.push({ lat: riderLat, lng: riderLng });
+  if (customerLat && customerLng) routeCoordinates.push({ lat: customerLat, lng: customerLng });
 
   return (
     <div className="relative w-full h-full">
-      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={14}
+        onLoad={onLoad}
+        options={mapOptions}
+      >
+        {restaurantLat && restaurantLng && (
+          <Marker
+            position={{ lat: restaurantLat, lng: restaurantLng }}
+            label={{ text: '🍽️', fontSize: '24px' }}
+            title="Restaurant"
+          />
+        )}
+
+        {customerLat && customerLng && (
+          <Marker
+            position={{ lat: customerLat, lng: customerLng }}
+            label={{ text: '📍', fontSize: '24px' }}
+            title={deliveryAddress || 'Delivery Location'}
+          />
+        )}
+
+        {riderLat && riderLng && (
+          <Marker
+            position={{ lat: riderLat, lng: riderLng }}
+            label={{ text: '🏍️', fontSize: '28px' }}
+            title="Rider"
+          />
+        )}
+
+        {routeCoordinates.length >= 2 && (
+          <Polyline
+            path={routeCoordinates}
+            options={{
+              strokeColor: '#10b981',
+              strokeOpacity: 0.8,
+              strokeWeight: 4,
+              geodesic: true,
+            }}
+          />
+        )}
+      </GoogleMap>
+
       {!riderLat && (
         <div className="absolute inset-0 bg-muted/50 backdrop-blur-sm rounded-lg flex items-center justify-center pointer-events-none">
           <p className="text-muted-foreground font-medium">
