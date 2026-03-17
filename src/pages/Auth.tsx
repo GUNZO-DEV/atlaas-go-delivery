@@ -251,13 +251,19 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
     setLoading(true);
     try {
       const validatedData = signInSchema.parse({ email: email.trim(), password });
-      const { data, error } = await supabase.auth.signInWithPassword({
+
+      if (selectedRole === "merchant" || selectedRole === "rider") {
+        localStorage.setItem(PENDING_ROLE_KEY, selectedRole);
+      } else {
+        localStorage.removeItem(PENDING_ROLE_KEY);
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
-        password: validatedData.password,
+        password,
       });
       if (error) throw error;
       toast({ title: "Welcome back!", description: "Successfully signed in." });
-      await handlePostAuthRedirect(data.user.id, selectedRole);
     } catch (error: any) {
       toast({ title: "Error", description: error.errors?.[0]?.message || error.message, variant: "destructive" });
     } finally {
