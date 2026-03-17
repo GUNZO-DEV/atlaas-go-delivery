@@ -1248,85 +1248,73 @@ export default function RestaurantMenu() {
           )}
 
           {/* Menu Items */}
-          <AnimatePresence mode="wait">
-            {Object.entries(groupedItems).map(([category, items], categoryIndex) => (
-              <motion.div 
-                key={category} 
-                className="mb-12"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: categoryIndex * 0.1 }}
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <ChefHat className="h-5 w-5 text-primary" />
-                  </div>
-                  <h2 className="text-2xl font-bold">{category}</h2>
-                  <Badge variant="secondary">{items.length} items</Badge>
+          {Object.entries(groupedItems).map(([category, items]) => (
+            <div key={category} className="mb-8 sm:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                  <ChefHat className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {items.map((item, itemIndex) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: itemIndex * 0.05 }}
-                    >
-                      <Card 
-                        className={`overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                          addedItemId === item.id ? 'ring-2 ring-primary' : ''
-                        }`}
-                      >
-                        <div className="aspect-video relative overflow-hidden">
-                          <img
-                            src={item.image_url}
-                            alt={item.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                          <div className="absolute top-2 right-2 flex gap-1">
-                            <div className="bg-background/90 backdrop-blur rounded-full">
-                              <FavoriteButton itemId={item.id} itemType="menu_item" size="sm" />
-                            </div>
-                          </div>
-                          {/* Quick add button on hover */}
-                          <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button 
-                              size="sm" 
-                              className="rounded-full shadow-lg"
-                              onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
+                <h2 className="text-lg sm:text-2xl font-bold">{category}</h2>
+                <Badge variant="secondary" className="text-[10px] sm:text-xs">{items.length} items</Badge>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+                {items.map((item) => (
+                  <Card 
+                    key={item.id}
+                    className={`overflow-hidden group transition-shadow hover:shadow-xl ${
+                      addedItemId === item.id ? 'ring-2 ring-primary' : ''
+                    }`}
+                  >
+                    <div className="aspect-video relative overflow-hidden">
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <div className="bg-background/90 rounded-full">
+                          <FavoriteButton itemId={item.id} itemType="menu_item" size="sm" />
                         </div>
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <h3 className="font-semibold text-lg line-clamp-1">{item.name}</h3>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-[2.5rem]">
-                            {item.description || "Delicious dish prepared with fresh ingredients"}
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-xl font-bold text-primary">{item.price}</span>
-                              <span className="text-sm text-muted-foreground">MAD</span>
-                            </div>
-                            <Button 
-                              onClick={() => addToCart(item)}
-                              className="group/btn"
-                            >
-                              <Plus className="h-4 w-4 mr-1 group-hover/btn:rotate-90 transition-transform" />
-                              Add
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                      </div>
+                      {/* Quick add button */}
+                      <div className="absolute bottom-2 right-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                        <Button 
+                          size="sm" 
+                          className="rounded-full shadow-lg h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-3"
+                          onClick={(e) => { e.stopPropagation(); addToCart(item); }}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-start justify-between gap-2 mb-1 sm:mb-2">
+                        <h3 className="font-semibold text-sm sm:text-lg line-clamp-1">{item.name}</h3>
+                      </div>
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-4 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
+                        {item.description || "Delicious dish prepared with fresh ingredients"}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-base sm:text-xl font-bold text-primary">{item.price}</span>
+                          <span className="text-xs sm:text-sm text-muted-foreground">MAD</span>
+                        </div>
+                        <Button 
+                          onClick={() => addToCart(item)}
+                          size="sm"
+                          className="text-xs sm:text-sm"
+                        >
+                          <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+                          Add
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
         </main>
       )}
 
