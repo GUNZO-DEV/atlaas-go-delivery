@@ -109,11 +109,15 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
+      // Store selected role so we can assign it after OAuth callback
+      localStorage.setItem("atlaas_pending_role", selectedRole);
+      
       const { error } = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
       if (error) throw error;
     } catch (error: any) {
+      localStorage.removeItem("atlaas_pending_role");
       toast({ title: "Error", description: error.message, variant: "destructive" });
       setLoading(false);
     }
