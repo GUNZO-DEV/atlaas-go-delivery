@@ -16,17 +16,22 @@ serve(async (req) => {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) throw new Error("No authorization header");
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
     );
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData.user?.email) throw new Error("Not authenticated");
-    const user = userData.user;
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) throw new Error("Not authenticated");
+
+    const userId = claimsData.claims.sub as string;
+    const email = claimsData.claims.email as string;
+    if (!email) throw new Error("No email in token");
 
     const { amount } = await req.json();
     if (!amount || amount < 10 || amount > 10000) {
@@ -36,8 +41,7 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const origin = req.headers.get("origin") || "https://atlaas-go-delivery.lovable.app";
 
-    // Find or create customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    const customers = await stripe.customers.list({ email, limit: 1 });
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
@@ -45,7 +49,7 @@ serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
+      customer_email: customerId ? undefined : email,
       line_items: [
         {
           price_data: {
@@ -62,11 +66,7 @@ serve(async (req) => {
       mode: "payment",
       success_url: `${origin}/customer?wallet_topup=success&amount=${amount}`,
       cancel_url: `${origin}/customer?wallet_topup=cancelled`,
-      metadata: {
-        type: "wallet_topup",
-        user_id: user.id,
-        amount: String(amount),
-      },
+      metadata: { type: "wallet_topup", user_id: userId, amount: String(amount) },
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

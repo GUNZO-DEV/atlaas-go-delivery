@@ -12,27 +12,41 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) throw new Error("No authorization header");
+
+    // Use service role to perform the wallet credit
+    const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    // Verify the user's token
+    const supabaseAuth = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData.user) throw new Error("Not authenticated");
-    const user = userData.user;
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) throw new Error("Not authenticated");
+
+    const userId = claimsData.claims.sub as string;
 
     const { amount } = await req.json();
-    if (!amount || amount < 10 || amount > 10000) {
-      throw new Error("Invalid amount");
-    }
+    if (!amount || amount < 10 || amount > 10000) throw new Error("Invalid amount");
 
-    // Credit wallet using the secure RPC
-    const { error } = await supabase.rpc("secure_wallet_topup", { p_amount: amount });
-    if (error) throw error;
+    // Credit wallet balance
+    const { error: updateError } = await supabaseAdmin
+      .from("profiles")
+      .update({ wallet_balance: undefined })
+      .eq("id", userId);
+
+    // Use RPC for atomic operation
+    const { error: rpcError } = await supabaseAdmin.rpc("secure_wallet_topup", { p_amount: amount });
+    if (rpcError) throw rpcError;
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
