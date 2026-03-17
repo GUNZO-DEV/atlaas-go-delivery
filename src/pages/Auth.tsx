@@ -253,7 +253,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
       });
       if (error) throw error;
       toast({ title: "Welcome back!", description: "Successfully signed in." });
-      await handlePostAuthRedirect(data.user.id);
+      await handlePostAuthRedirect(data.user.id, selectedRole);
     } catch (error: any) {
       toast({ title: "Error", description: error.errors?.[0]?.message || error.message, variant: "destructive" });
     } finally {
