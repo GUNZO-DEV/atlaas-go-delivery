@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 type UserRole = "customer" | "merchant" | "rider";
 
+type UserRoleRow = {
+  role: UserRole | "admin" | "super_admin";
+};
+
+const PENDING_ROLE_KEY = "atlaas_pending_role";
+
 const ROLE_CONFIG: Record<UserRole, { icon: typeof MapPin; label: string; color: string; desc: string }> = {
   customer: { icon: User, label: "Customer", color: "bg-primary/10 text-primary", desc: "Order food from Morocco's best restaurants" },
   merchant: { icon: Store, label: "Restaurant", color: "bg-accent/10 text-accent-foreground", desc: "Manage your restaurant and orders" },
@@ -25,8 +31,10 @@ interface AuthProps {
 
 const Auth = ({ defaultRole }: AuthProps = {}) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
+  const authHandledRef = useRef(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -39,98 +47,146 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
 
+  const getPreferredRole = (): UserRole => {
+    const roleFromQuery = searchParams.get("role") as UserRole | null;
+    if (roleFromQuery && ROLE_CONFIG[roleFromQuery]) return roleFromQuery;
+    return defaultRole || "customer";
+  };
+
+  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const fetchUserRoles = async (userId: string, retries = 5): Promise<UserRoleRow[]> => {
+    for (let attempt = 0; attempt < retries; attempt += 1) {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+
+      if (!error && data && data.length > 0) {
+        return data as UserRoleRow[];
+      }
+
+      if (attempt < retries - 1) {
+        await wait(400);
+      }
+    }
+
+    return [];
+  };
+
+  const assignRoleIfNeeded = async (userId: string, role: UserRole | null) => {
+    if (!role || role === "customer") return;
+
+    const existingRoles = await fetchUserRoles(userId, 2);
+    if (existingRoles.some((entry) => entry.role === role)) return;
+
+    const { error } = await supabase.rpc(
+      role === "merchant" ? "assign_merchant_role" : "assign_rider_role",
+      { user_id_param: userId }
+    );
+
+    if (error) {
+      throw error;
+    }
+  };
+
+  const redirectByRole = async (userId: string, preferredRole?: UserRole | null) => {
+    const roles = await fetchUserRoles(userId);
+
+    if (preferredRole && roles.some((entry) => entry.role === preferredRole)) {
+      if (preferredRole === "merchant") {
+        navigate("/lyn-dashboard", { replace: true });
+        return;
+      }
+      if (preferredRole === "rider") {
+        navigate("/rider", { replace: true });
+        return;
+      }
+      navigate("/customer", { replace: true });
+      return;
+    }
+
+    if (roles.some((entry) => entry.role === "admin")) navigate("/admin", { replace: true });
+    else if (roles.some((entry) => entry.role === "merchant")) navigate("/lyn-dashboard", { replace: true });
+    else if (roles.some((entry) => entry.role === "rider")) navigate("/rider", { replace: true });
+    else navigate("/customer", { replace: true });
+  };
+
+  const handlePostAuthRedirect = async (userId: string) => {
+    const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
+    const preferredRole = pendingRole || getPreferredRole();
+
+    try {
+      await assignRoleIfNeeded(userId, pendingRole);
+    } catch (error) {
+      console.error("Error assigning pending role:", error);
+      toast({
+        title: "Role setup issue",
+        description: "We signed you in, but your account role could not be applied yet.",
+        variant: "destructive",
+      });
+    } finally {
+      localStorage.removeItem(PENDING_ROLE_KEY);
+    }
+
+    await redirectByRole(userId, preferredRole);
+  };
+
   useEffect(() => {
     const refCode = searchParams.get("ref");
     if (refCode) {
       setReferralCode(refCode);
       toast({ title: "Referral Code Applied!", description: "You'll get 10% off your first order!" });
     }
+
     const mode = searchParams.get("mode");
     if (mode === "signup") setActiveTab("signup");
-    const role = searchParams.get("role") as UserRole | null;
-    if (role && ROLE_CONFIG[role]) setSelectedRole(role);
-    else if (defaultRole) setSelectedRole(defaultRole);
 
-    // Listen for auth state changes (handles OAuth callback)
+    setSelectedRole(getPreferredRole());
+    authHandledRef.current = false;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        await handlePostAuthRedirect(session.user.id);
-      } else if (event === 'INITIAL_SESSION') {
-        if (session?.user) {
-          // User already logged in, redirect them
-          await redirectByRole(session.user.id);
-        } else {
+      if (!session?.user) {
+        if (event === "INITIAL_SESSION") {
           setCheckingAuth(false);
         }
+        return;
+      }
+
+      if (authHandledRef.current) return;
+      authHandledRef.current = true;
+
+      try {
+        const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
+        if (pendingRole) {
+          await handlePostAuthRedirect(session.user.id);
+        } else {
+          await redirectByRole(session.user.id, getPreferredRole());
+        }
+      } finally {
+        setCheckingAuth(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [defaultRole]);
-
-  const handlePostAuthRedirect = async (userId: string) => {
-    // Check if there's a pending role from OAuth sign-in
-    const pendingRole = localStorage.getItem("atlaas_pending_role") as UserRole | null;
-    
-    if (pendingRole && (pendingRole === "merchant" || pendingRole === "rider")) {
-      try {
-        // Check if user already has this role
-        const { data: existingRoles } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", userId);
-        
-        const alreadyHasRole = existingRoles?.some(r => r.role === pendingRole);
-        
-        if (!alreadyHasRole) {
-          if (pendingRole === "merchant") {
-            await supabase.rpc("assign_merchant_role", { user_id_param: userId });
-          } else if (pendingRole === "rider") {
-            await supabase.rpc("assign_rider_role", { user_id_param: userId });
-          }
-        }
-      } catch (error) {
-        console.error("Error assigning pending role:", error);
-      } finally {
-        localStorage.removeItem("atlaas_pending_role");
-      }
-    }
-    
-    await redirectByRole(userId);
-  };
-
-  const redirectByRole = async (userId: string) => {
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-    
-    if (!roles || roles.length === 0) {
-      // Roles might not be created yet (trigger delay), wait and retry once
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const { data: retryRoles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-      if (retryRoles?.some(r => r.role === "admin")) navigate("/admin", { replace: true });
-      else if (retryRoles?.some(r => r.role === "merchant")) navigate("/lyn-dashboard", { replace: true });
-      else if (retryRoles?.some(r => r.role === "rider")) navigate("/rider", { replace: true });
-      else navigate("/customer", { replace: true });
-      return;
-    }
-    
-    if (roles.some(r => r.role === "admin")) navigate("/admin", { replace: true });
-    else if (roles.some(r => r.role === "merchant")) navigate("/lyn-dashboard", { replace: true });
-    else if (roles.some(r => r.role === "rider")) navigate("/rider", { replace: true });
-    else navigate("/customer", { replace: true });
-  };
+  }, [defaultRole, searchParams, toast]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      // Store selected role so we can assign it after OAuth callback
-      localStorage.setItem("atlaas_pending_role", selectedRole);
-      
+      localStorage.setItem(PENDING_ROLE_KEY, selectedRole);
+
+      const params = new URLSearchParams(location.search);
+      params.set("role", selectedRole);
+      const redirectUri = `${window.location.origin}${location.pathname}?${params.toString()}`;
+
       const { error } = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: redirectUri,
       });
+
       if (error) throw error;
     } catch (error: any) {
-      localStorage.removeItem("atlaas_pending_role");
+      localStorage.removeItem(PENDING_ROLE_KEY);
       toast({ title: "Error", description: error.message, variant: "destructive" });
       setLoading(false);
     }
@@ -139,46 +195,47 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    const pendingRole = selectedRole === "merchant" || selectedRole === "rider" ? selectedRole : null;
+
     try {
       const validatedData = signUpSchema.parse({ email: email.trim(), password, fullName: fullName.trim() });
+
+      if (pendingRole) {
+        localStorage.setItem(PENDING_ROLE_KEY, pendingRole);
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email: validatedData.email,
         password: validatedData.password,
-        options: { data: { full_name: validatedData.fullName }, emailRedirectTo: `${window.location.origin}/` },
+        options: {
+          data: { full_name: validatedData.fullName },
+          emailRedirectTo: `${window.location.origin}/auth`,
+        },
       });
+
       if (error) throw error;
 
-      if (data.user) {
-        // Assign role based on selection
-        if (selectedRole === "merchant") {
-          await supabase.rpc("assign_merchant_role", { user_id_param: data.user.id });
-        } else if (selectedRole === "rider") {
-          await supabase.rpc("assign_rider_role", { user_id_param: data.user.id });
-        }
-        // customer role is assigned automatically by handle_new_user trigger
-
-        if (referralCode) {
-          const { data: result, error: refError } = await supabase.rpc("apply_referral_code", {
-            user_id: data.user.id,
+      if (data.session?.user) {
+        if (referralCode && selectedRole === "customer") {
+          await supabase.rpc("apply_referral_code", {
+            user_id: data.session.user.id,
             ref_code: referralCode.trim().toUpperCase(),
           });
-          if (!refError && result) {
-            toast({ title: "Referral Applied!", description: "You'll get 10% off your first order!" });
-          }
         }
+
+        toast({ title: "Welcome!", description: "Your account has been created. Redirecting..." });
+        await handlePostAuthRedirect(data.session.user.id);
+        return;
       }
 
-      toast({ title: "Welcome!", description: "Your account has been created. Redirecting..." });
-
-      // Auto-confirm is enabled, so sign in immediately
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: validatedData.email,
-        password: validatedData.password,
+      toast({
+        title: "Check your email",
+        description: "Confirm your email, then sign in to finish setting up your account.",
       });
-      if (!signInError && signInData.user) {
-        await redirectByRole(signInData.user.id);
-      }
+      setActiveTab("signin");
     } catch (error: any) {
+      localStorage.removeItem(PENDING_ROLE_KEY);
       toast({ title: "Error", description: error.errors?.[0]?.message || error.message, variant: "destructive" });
     } finally {
       setLoading(false);
@@ -196,7 +253,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
       });
       if (error) throw error;
       toast({ title: "Welcome back!", description: "Successfully signed in." });
-      await redirectByRole(data.user.id);
+      await handlePostAuthRedirect(data.user.id);
     } catch (error: any) {
       toast({ title: "Error", description: error.errors?.[0]?.message || error.message, variant: "destructive" });
     } finally {
