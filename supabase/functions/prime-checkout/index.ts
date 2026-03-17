@@ -14,8 +14,6 @@ const log = (step: string, details?: any) => {
 };
 
 serve(async (req) => {
-  log("Request received", { method: req.method });
-
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -23,60 +21,52 @@ serve(async (req) => {
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    log("Stripe key found");
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) throw new Error("No authorization header");
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
     );
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
-    log("Auth header present");
-
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError) {
-      log("Auth error", { message: userError.message });
-      throw new Error("Not authenticated: " + userError.message);
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      log("Claims error", { error: claimsError?.message });
+      throw new Error("Not authenticated");
     }
-    if (!userData.user?.email) throw new Error("Not authenticated or no email");
-    const user = userData.user;
-    log("User authenticated", { email: user.email });
+
+    const userId = claimsData.claims.sub as string;
+    const email = claimsData.claims.email as string;
+    if (!email) throw new Error("No email in token");
+    log("User authenticated", { userId, email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    log("Stripe initialized");
-
     const origin = req.headers.get("origin") || "https://atlaas-go-delivery.lovable.app";
 
     // Find or create customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    const customers = await stripe.customers.list({ email, limit: 1 });
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       log("Existing customer found", { customerId });
 
-      // Check if already has active subscription
       const subs = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
       if (subs.data.length > 0) {
         throw new Error("You already have an active Prime membership");
       }
-    } else {
-      log("No existing customer, will create via checkout");
     }
 
-    log("Creating checkout session", { priceId: PRIME_PRICE_ID });
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
+      customer_email: customerId ? undefined : email,
       line_items: [{ price: PRIME_PRICE_ID, quantity: 1 }],
       mode: "subscription",
       success_url: `${origin}/customer?prime=success`,
       cancel_url: `${origin}/customer?prime=cancelled`,
-      metadata: {
-        type: "prime_membership",
-        user_id: user.id,
-      },
+      metadata: { type: "prime_membership", user_id: userId },
     });
 
     log("Checkout session created", { url: session.url });
