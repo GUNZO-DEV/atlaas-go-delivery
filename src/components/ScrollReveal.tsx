@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { motion } from 'framer-motion';
 
 interface ScrollRevealProps {
   children: ReactNode;
@@ -14,6 +15,13 @@ const ScrollReveal = ({
   delay = 0,
   direction = 'up' 
 }: ScrollRevealProps) => {
+  const isMobile = useIsMobile();
+
+  // Skip animations on mobile for performance
+  if (isMobile) {
+    return <div className={className}>{children}</div>;
+  }
+
   const directionOffset = {
     up: { y: 40, x: 0 },
     down: { y: -40, x: 0 },

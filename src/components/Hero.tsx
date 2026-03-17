@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Package, Store, Percent, Headphones, MapPin, GraduationCap, Menu, User, Briefcase, HelpCircle, Clock, Shield } from "lucide-react";
+import { ArrowRight, Package, Store, Percent, GraduationCap, Menu, User, Briefcase, HelpCircle, Clock, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import atlasHero from "@/assets/atlas-mountains-hero.jpg";
 import LanguageToggle from "@/components/LanguageToggle";
@@ -8,7 +8,6 @@ import AtlaasGoLogo from "@/components/AtlaasGoLogo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { useState } from "react";
-import { motion } from "framer-motion";
 
 const Hero = () => {
   const { t } = useLanguage();
@@ -16,7 +15,7 @@ const Hero = () => {
   
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* AUIER Banner - Professional, no pulse */}
+      {/* AUIER Banner */}
       <div className="absolute top-0 left-0 right-0 z-30 bg-gradient-to-r from-amber-600 to-orange-500">
         <Link to="/auier-delivery" className="block">
           <div className="container mx-auto px-4 py-2 flex items-center justify-center gap-2 text-white font-semibold text-xs md:text-sm hover:opacity-90 transition-opacity">
@@ -33,6 +32,8 @@ const Hero = () => {
           src={atlasHero} 
           alt="Atlas Mountains Morocco - From the Atlas to Your Door" 
           className="w-full h-full object-cover"
+          loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />
       </div>
@@ -62,7 +63,7 @@ const Hero = () => {
 
           <div className="flex gap-2 items-center">
             <DarkModeToggle />
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg p-1">
+            <div className="rounded-lg p-1 bg-white/10 border border-white/20">
               <LanguageToggle />
             </div>
             <Link to="/auth?mode=login" className="hidden sm:block">
@@ -132,13 +133,9 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center pt-24 sm:pt-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <div>
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2 mb-8">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-2 mb-8">
             <span className="text-xl">🇲🇦</span>
             <span className="text-white font-medium text-sm tracking-wide">100% Moroccan Platform</span>
           </div>
@@ -162,7 +159,7 @@ const Hero = () => {
             <Link to="/restaurants" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-lg font-bold rounded-xl shadow-xl transition-all duration-200 hover:scale-105 w-full sm:w-auto"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-lg font-bold rounded-xl shadow-xl transition-transform hover:scale-105 w-full sm:w-auto"
               >
                 <Package className="mr-2 w-5 h-5" />
                 Order Now
@@ -174,38 +171,33 @@ const Hero = () => {
               <Button 
                 size="lg"
                 variant="outline"
-                className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/30 px-8 py-6 text-lg font-semibold rounded-xl w-full sm:w-auto"
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/30 px-8 py-6 text-lg font-semibold rounded-xl w-full sm:w-auto"
               >
                 <Store className="mr-2 w-5 h-5" />
                 Join as Partner
               </Button>
             </Link>
           </div>
-        </motion.div>
+        </div>
 
         {/* Trust Indicators */}
-        <motion.div 
-          className="grid grid-cols-3 gap-3 max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
+        <div className="grid grid-cols-3 gap-3 max-w-3xl mx-auto">
           {[
             { icon: Percent, value: "10%", label: "Commission", sub: "Lowest in Morocco" },
             { icon: Clock, value: "30 min", label: "Avg Delivery", sub: "Fast & reliable" },
             { icon: Shield, value: "24/7", label: "Support", sub: "Always available" },
           ].map((stat) => (
-            <div key={stat.label} className="backdrop-blur-md bg-white/10 rounded-2xl p-4 md:p-6 border border-white/15 hover:bg-white/15 transition-all duration-300">
+            <div key={stat.label} className="bg-white/10 rounded-2xl p-4 md:p-6 border border-white/15 hover:bg-white/15 transition-colors">
               <stat.icon className="w-5 h-5 text-white/60 mx-auto mb-2" />
               <div className="text-2xl md:text-4xl font-black text-white">{stat.value}</div>
               <div className="text-white/70 text-xs md:text-sm font-medium mt-1">{stat.label}</div>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 hidden sm:block">
         <div className="w-5 h-8 border-2 border-white/30 rounded-full flex justify-center p-1.5">
           <div className="w-1 h-2 bg-white/50 rounded-full animate-bounce" />
         </div>
