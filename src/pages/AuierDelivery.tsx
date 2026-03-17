@@ -68,20 +68,29 @@ export default function AuierDelivery() {
     setIsSubmitting(true);
     
     try {
-      // Use type assertion since auier_orders is a new table not in generated types
+      // Get current user if logged in
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const orderData: any = {
+        customer_name: customerName.trim(),
+        customer_phone: phoneNumber.trim(),
+        room_number: roomNumber.trim(),
+        building_name: building.trim(),
+        restaurant_name: restaurantName.trim(),
+        order_details: orderDetails.trim(),
+        delivery_type: deliveryType === "restaurant" ? "restaurant_to_dorm" : "maingate_to_dorm",
+        delivery_fee: deliveryFee,
+        status: 'pending',
+      };
+      
+      // Link to user account if logged in
+      if (user) {
+        orderData.customer_id = user.id;
+      }
+      
       const { error } = await supabase
         .from('auier_orders' as any)
-        .insert({
-          customer_name: customerName.trim(),
-          customer_phone: phoneNumber.trim(),
-          room_number: roomNumber.trim(),
-          building_name: building.trim(),
-          restaurant_name: restaurantName.trim(),
-          order_details: orderDetails.trim(),
-          delivery_type: deliveryType === "restaurant" ? "restaurant_to_dorm" : "maingate_to_dorm",
-          delivery_fee: deliveryFee,
-          status: 'pending'
-        } as any);
+        .insert(orderData as any);
 
       if (error) {
         console.error('AUIER order insert error:', error);
