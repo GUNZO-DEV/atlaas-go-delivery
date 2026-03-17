@@ -191,14 +191,14 @@ const CustomerTableMenu = () => {
       </Helmet>
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-card border-b border-border p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-            <UtensilsCrossed className="h-5 w-5 text-primary-foreground" />
+      <header className="sticky top-0 z-40 bg-card border-b border-border p-3">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shrink-0">
+            <UtensilsCrossed className="h-4 w-4 text-primary-foreground" />
           </div>
-          <div>
-            <h1 className="font-bold">{restaurant.name}</h1>
-            <p className="text-xs text-muted-foreground">Table {tableNumber}</p>
+          <div className="min-w-0">
+            <h1 className="text-sm font-semibold truncate">{restaurant.name}</h1>
+            <p className="text-[10px] text-muted-foreground">Table {tableNumber}</p>
           </div>
         </div>
       </header>
@@ -257,32 +257,33 @@ const CustomerTableMenu = () => {
 
       {/* Cart Footer */}
       {cart.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border p-4 space-y-3">
-          <Input
-            placeholder="Your name (optional)"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-          />
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border p-3 space-y-2">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Your name (optional)"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              className="h-9 text-sm"
+            />
+          </div>
           <Textarea
             placeholder="Special instructions..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            rows={2}
+            rows={1}
+            className="text-sm min-h-0"
           />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">{getCartCount()} items</p>
-              <p className="font-bold text-lg">{getCartTotal().toFixed(2)} DH</p>
-            </div>
-            <Button onClick={submitOrder} disabled={submitting} size="lg">
-              {submitting ? "Sending..." : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Send Order
-                </>
-              )}
-            </Button>
-          </div>
+          <Button onClick={submitOrder} disabled={submitting} className="w-full h-12 text-base font-bold rounded-xl">
+            {submitting ? "Sending..." : (
+              <div className="flex items-center justify-between w-full px-1">
+                <div className="flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5" />
+                  <span>{getCartCount()} items</span>
+                </div>
+                <span>{getCartTotal().toFixed(2)} DH</span>
+              </div>
+            )}
+          </Button>
         </div>
       )}
     </div>
