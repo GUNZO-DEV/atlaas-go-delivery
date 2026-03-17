@@ -1,15 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Pizza, 
-  Beef, 
-  Cake, 
-  Coffee, 
-  Salad, 
-  Sandwich,
-  Fish,
-  UtensilsCrossed,
-  X
+  Pizza, Beef, Cake, Coffee, Salad, Sandwich, Fish, UtensilsCrossed
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -29,15 +21,25 @@ const StickyCategoryNav = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      // Show after scrolling past ~600px
-      setIsVisible(window.scrollY > 600);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+  const handleScroll = useCallback(() => {
+    const shouldShow = window.scrollY > 600;
+    setIsVisible(prev => prev !== shouldShow ? shouldShow : prev);
   }, []);
+
+  useEffect(() => {
+    let ticking = false;
+    const throttled = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+      }
+    };
+    window.addEventListener('scroll', throttled, { passive: true });
+    return () => window.removeEventListener('scroll', throttled);
+  }, [handleScroll]);
 
   const handleCategoryClick = (category: string) => {
     setActiveCategory(category);
@@ -48,14 +50,10 @@ const StickyCategoryNav = () => {
     }
   };
 
+  if (!isVisible) return null;
+
   return (
-    <div
-      className={`fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b shadow-sm transition-all duration-300 ${
-        isVisible
-          ? 'opacity-100 translate-y-0'
-          : 'opacity-0 -translate-y-full pointer-events-none'
-      }`}
-    >
+    <div className="fixed top-0 left-0 right-0 z-40 bg-background/95 border-b shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-2 py-2 overflow-x-auto scrollbar-hide">
           <span className="text-sm font-semibold text-muted-foreground whitespace-nowrap mr-2">
