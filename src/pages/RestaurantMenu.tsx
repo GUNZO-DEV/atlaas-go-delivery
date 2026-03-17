@@ -646,32 +646,33 @@ export default function RestaurantMenu() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 sm:pb-0">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-                <ArrowLeft className="h-5 w-5" />
+      <header className="sticky top-0 z-50 border-b bg-background">
+        <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => navigate("/")}>
+                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
+                className="hidden sm:flex"
                 onClick={() => navigate(`/group-order/new?restaurant=${restaurant.id}`)}
               >
                 <Users className="h-4 w-4 mr-2" />
                 Start Group Order
               </Button>
             </div>
-            <h1 className="text-xl font-bold">{restaurant.name}</h1>
+            <h1 className="text-sm sm:text-xl font-bold truncate max-w-[180px] sm:max-w-none">{restaurant.name}</h1>
             {restaurant.id !== 'df84d31b-0214-4a78-bd37-775422949bcf' && (
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
+                <Button variant="outline" size="icon" className="relative h-9 w-9 sm:h-10 sm:w-10 shrink-0">
+                  <ShoppingCart className="h-5 w-5 sm:h-5 sm:w-5" />
                   {cart.length > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0">
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-[10px] sm:text-xs">
                       {cart.reduce((sum, item) => sum + item.quantity, 0)}
                     </Badge>
                   )}
