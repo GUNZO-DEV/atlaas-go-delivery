@@ -35,6 +35,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const authHandledRef = useRef(false);
+  const selectedRoleRef = useRef<UserRole>(defaultRole || "customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -136,6 +137,10 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
   };
 
   useEffect(() => {
+    selectedRoleRef.current = selectedRole;
+  }, [selectedRole]);
+
+  useEffect(() => {
     const refCode = searchParams.get("ref");
     if (refCode) {
       setReferralCode(refCode);
@@ -161,7 +166,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
 
       try {
         const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
-        await handlePostAuthRedirect(session.user.id, pendingRole || selectedRole);
+        await handlePostAuthRedirect(session.user.id, pendingRole || selectedRoleRef.current || getPreferredRole());
       } finally {
         setCheckingAuth(false);
       }
@@ -224,7 +229,6 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
         }
 
         toast({ title: "Welcome!", description: "Your account has been created. Redirecting..." });
-        await handlePostAuthRedirect(data.session.user.id, selectedRole);
         return;
       }
 
@@ -246,13 +250,19 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
     setLoading(true);
     try {
       const validatedData = signInSchema.parse({ email: email.trim(), password });
-      const { data, error } = await supabase.auth.signInWithPassword({
+
+      if (selectedRole === "merchant" || selectedRole === "rider") {
+        localStorage.setItem(PENDING_ROLE_KEY, selectedRole);
+      } else {
+        localStorage.removeItem(PENDING_ROLE_KEY);
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
-        password: validatedData.password,
+        password,
       });
       if (error) throw error;
       toast({ title: "Welcome back!", description: "Successfully signed in." });
-      await handlePostAuthRedirect(data.user.id, selectedRole);
     } catch (error: any) {
       toast({ title: "Error", description: error.errors?.[0]?.message || error.message, variant: "destructive" });
     } finally {
