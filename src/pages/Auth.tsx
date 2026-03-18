@@ -48,6 +48,8 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
 
   const getPreferredRole = (): UserRole => {
     const roleFromQuery = searchParams.get("role") as UserRole | null;
