@@ -26,11 +26,9 @@ serve(async (req) => {
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    const authHeader = req.headers.get("Authorization");
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const { phone, action } = await req.json();
+    const { phone, action, otp } = await req.json();
 
     if (!phone) {
       return new Response(
@@ -40,26 +38,20 @@ serve(async (req) => {
     }
 
     if (action === "send") {
-      // Generate 6-digit OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 min
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-      // Store OTP in database
       const { error: dbError } = await supabase
         .from("phone_verifications")
         .upsert({
           phone_number: phone,
-          otp_code: otp,
+          otp_code: otpCode,
           expires_at: expiresAt,
           verified: false,
         }, { onConflict: "phone_number" });
 
-      if (dbError) {
-        console.error("DB error:", dbError);
-        throw new Error("Failed to store OTP");
-      }
+      if (dbError) throw new Error("Failed to store OTP: " + dbError.message);
 
-      // Send SMS via Twilio
       const response = await fetch(`${GATEWAY_URL}/Messages.json`, {
         method: "POST",
         headers: {
@@ -70,7 +62,7 @@ serve(async (req) => {
         body: new URLSearchParams({
           To: phone,
           From: TWILIO_PHONE_NUMBER,
-          Body: `Your AtlaasGo verification code is: ${otp}. Valid for 10 minutes.`,
+          Body: `Your AtlaasGo verification code is: ${otpCode}. Valid for 10 minutes.`,
         }),
       });
 
@@ -86,14 +78,43 @@ serve(async (req) => {
     }
 
     if (action === "verify") {
-      const { otp } = await req.json().catch(() => ({ otp: null }));
+      if (!otp) {
+        return new Response(
+          JSON.stringify({ error: "OTP code is required" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
-      // Re-parse since we already consumed the body
-      const bodyText = JSON.stringify({ phone, action, otp: arguments[0] });
-      
+      const { data: record, error } = await supabase
+        .from("phone_verifications")
+        .select("*")
+        .eq("phone_number", phone)
+        .eq("otp_code", otp)
+        .eq("verified", false)
+        .single();
+
+      if (error || !record) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Invalid OTP code" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (new Date(record.expires_at) < new Date()) {
+        return new Response(
+          JSON.stringify({ success: false, error: "OTP expired" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      await supabase
+        .from("phone_verifications")
+        .update({ verified: true })
+        .eq("id", record.id);
+
       return new Response(
-        JSON.stringify({ error: "Use the verify endpoint properly" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: true, message: "Phone verified" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
