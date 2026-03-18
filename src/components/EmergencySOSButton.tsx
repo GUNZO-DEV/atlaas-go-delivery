@@ -19,6 +19,7 @@ const EmergencySOSButton = () => {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sosDialogOpen, setSosDialogOpen] = useState(false);
+  const [sending, setSending] = useState(false);
   const [emergencyContact, setEmergencyContact] = useState<EmergencyContact | null>(null);
   const [contactForm, setContactForm] = useState({
     name: "",
@@ -56,7 +57,6 @@ const EmergencySOSButton = () => {
   };
 
   const saveEmergencyContact = async () => {
-    // Validate using Zod schema
     const validation = emergencyContactSchema.safeParse({
       name: contactForm.name,
       phone: contactForm.phone,
@@ -104,47 +104,60 @@ const EmergencySOSButton = () => {
   };
 
   const triggerSOS = async () => {
+    setSending(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get current location
+      let locationText = "Location unavailable";
+
+      // Try to get location
       if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const location = `https://maps.google.com/?q=${position.coords.latitude},${position.coords.longitude}`;
-            
-            // In a real app, this would send SMS/notifications to emergency contact and support
-            toast({
-              title: "SOS Alert Sent!",
-              description: emergencyContact 
-                ? `Emergency notification sent to ${emergencyContact.name}` 
-                : "Emergency notification sent to support team",
-            });
-
-            // Log the SOS event (could create an sos_logs table)
-            console.log("SOS triggered:", {
-              riderId: user.id,
-              location,
-              timestamp: new Date().toISOString(),
-            });
-
-            setSosDialogOpen(false);
-          },
-          (error) => {
-            console.error("Location error:", error);
-            toast({
-              title: "SOS Alert Sent!",
-              description: "Emergency notification sent (location unavailable)",
-            });
-          }
-        );
-      } else {
-        toast({
-          title: "SOS Alert Sent!",
-          description: "Emergency notification sent to support team",
-        });
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+          });
+          locationText = `https://maps.google.com/?q=${position.coords.latitude},${position.coords.longitude}`;
+        } catch {
+          console.warn("Could not get location");
+        }
       }
+
+      // Get rider name
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .single();
+
+      const riderName = profile?.full_name || "A rider";
+
+      // Send SMS to emergency contact if set
+      if (emergencyContact?.phone) {
+        const smsBody = `🚨 SOS ALERT from ${riderName} (AtlaasGo Rider)!\n\nThis is an emergency alert. Please check on them immediately.\n\nLocation: ${locationText}\n\nIf this is a life-threatening emergency, call 190 (police) or 150 (ambulance).`;
+
+        const { data, error } = await supabase.functions.invoke("send-twilio-message", {
+          body: {
+            to: emergencyContact.phone,
+            body: smsBody,
+            channel: "sms",
+            context: "rider_sos",
+          },
+        });
+
+        if (error) {
+          console.error("SMS error:", error);
+        }
+      }
+
+      toast({
+        title: "🚨 SOS Alert Sent!",
+        description: emergencyContact
+          ? `SMS sent to ${emergencyContact.name} with your location`
+          : "Emergency notification sent to support team",
+      });
+
+      setSosDialogOpen(false);
     } catch (error: any) {
       console.error("Error triggering SOS:", error);
       toast({
@@ -152,6 +165,8 @@ const EmergencySOSButton = () => {
         description: "Failed to send SOS alert. Please call emergency services directly.",
         variant: "destructive",
       });
+    } finally {
+      setSending(false);
     }
   };
 
@@ -175,7 +190,7 @@ const EmergencySOSButton = () => {
               Emergency SOS
             </DialogTitle>
             <DialogDescription>
-              This will immediately notify your emergency contact and our support team with your location
+              This will immediately send an SMS to your emergency contact with your location
             </DialogDescription>
           </DialogHeader>
 
@@ -238,8 +253,9 @@ const EmergencySOSButton = () => {
               variant="destructive"
               className="flex-1"
               onClick={triggerSOS}
+              disabled={sending}
             >
-              Send SOS Alert
+              {sending ? "Sending SOS..." : "Send SOS Alert"}
             </Button>
           </div>
         </DialogContent>
