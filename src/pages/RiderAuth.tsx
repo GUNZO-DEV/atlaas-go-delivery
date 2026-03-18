@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Bike, ArrowLeft, Wallet, MapPin, Clock } from "lucide-react";
 import { signUpSchema, signInSchema } from "@/lib/validation";
 import { motion, AnimatePresence } from "framer-motion";
+import PhoneVerification from "@/components/PhoneVerification";
 
 const RiderAuth = () => {
   const navigate = useNavigate();
