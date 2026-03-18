@@ -29,6 +29,7 @@ interface Order {
   delivery_longitude: number | null;
   created_at: string;
   rider_id: string | null;
+  customer_id: string;
   restaurant: {
     name: string;
     address: string;
