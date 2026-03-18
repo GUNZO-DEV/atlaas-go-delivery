@@ -609,6 +609,10 @@ export default function RiderDashboard() {
 
             if (orderError) throw orderError;
 
+            // Send SMS notification
+            const order = orders.find(o => o.id === orderId);
+            if (order) sendOrderStatusSMS(orderId, "picked_up", order.customer_id);
+
             // Update tracking with current location
             const { error: trackingError } = await supabase
               .from("delivery_tracking")

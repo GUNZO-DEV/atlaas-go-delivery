@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { sendOrderStatusSMS } from "@/utils/sendOrderSMS";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
