@@ -534,6 +534,10 @@ export default function RiderDashboard() {
 
       if (orderError) throw orderError;
 
+      // Send SMS notification to customer
+      const order = orders.find(o => o.id === orderId);
+      if (order) sendOrderStatusSMS(orderId, "picking_it_up", order.customer_id);
+
       // Get current location for tracking
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
