@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Bike, ArrowLeft, Wallet, MapPin, Clock } from "lucide-react";
 import { signUpSchema, signInSchema } from "@/lib/validation";
 import { motion, AnimatePresence } from "framer-motion";
+import PhoneVerification from "@/components/PhoneVerification";
 
 const RiderAuth = () => {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ const RiderAuth = () => {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("signin");
+  const [phone, setPhone] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
 
   useEffect(() => {
     checkExistingAuth();
@@ -148,10 +151,16 @@ const RiderAuth = () => {
                     <Label htmlFor="signin-email">Email</Label>
                     <Input id="signin-email" type="email" placeholder="rider@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11 transition-all focus:scale-[1.01]" />
                   </div>
-                  <div className="space-y-2">
+                   <div className="space-y-2">
                     <Label htmlFor="signin-password">Password</Label>
                     <Input id="signin-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-11 transition-all focus:scale-[1.01]" />
                   </div>
+                  <PhoneVerification
+                    phone={phone}
+                    onPhoneChange={setPhone}
+                    onVerified={(p) => { setPhone(p); setPhoneVerified(true); }}
+                    optional
+                  />
                   <Button type="submit" className="w-full h-11 font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={loading}>
                     {loading ? (
                       <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -173,11 +182,17 @@ const RiderAuth = () => {
                     <Label htmlFor="signup-email">Email</Label>
                     <Input id="signup-email" type="email" placeholder="rider@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11 transition-all focus:scale-[1.01]" />
                   </div>
-                  <div className="space-y-2">
+                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
                     <Input id="signup-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} className="h-11 transition-all focus:scale-[1.01]" />
                     <p className="text-xs text-muted-foreground">8+ characters with uppercase, lowercase, and number</p>
                   </div>
+                  <PhoneVerification
+                    phone={phone}
+                    onPhoneChange={setPhone}
+                    onVerified={(p) => { setPhone(p); setPhoneVerified(true); }}
+                    optional
+                  />
                   <Button type="submit" className="w-full h-11 font-semibold bg-accent hover:bg-accent/90 text-accent-foreground transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={loading}>
                     {loading ? (
                       <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

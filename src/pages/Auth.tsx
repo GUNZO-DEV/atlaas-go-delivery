@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, ArrowLeft, Shield, Zap, Sparkles, Store, Bike, User, Mail } from "lucide-react";
+import PhoneVerification from "@/components/PhoneVerification";
 import { signUpSchema, signInSchema } from "@/lib/validation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -47,6 +48,8 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
 
   const getPreferredRole = (): UserRole => {
     const roleFromQuery = searchParams.get("role") as UserRole | null;
@@ -441,7 +444,7 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
                         <Label htmlFor="signin-email">Email</Label>
                         <Input id="signin-email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11 transition-all focus:scale-[1.01]" />
                       </div>
-                      <div className="space-y-2">
+                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <Label htmlFor="signin-password">Password</Label>
                           <button
@@ -454,6 +457,12 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
                         </div>
                         <Input id="signin-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-11 transition-all focus:scale-[1.01]" />
                       </div>
+                      <PhoneVerification
+                        phone={phone}
+                        onPhoneChange={setPhone}
+                        onVerified={(p) => { setPhone(p); setPhoneVerified(true); }}
+                        optional
+                      />
                       <Button type="submit" className="w-full h-11 font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={loading}>
                         {loading ? (
                           <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -475,11 +484,17 @@ const Auth = ({ defaultRole }: AuthProps = {}) => {
                         <Label htmlFor="signup-email">Email</Label>
                         <Input id="signup-email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11 transition-all focus:scale-[1.01]" />
                       </div>
-                      <div className="space-y-2">
+                       <div className="space-y-2">
                         <Label htmlFor="signup-password">Password</Label>
                         <Input id="signup-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} className="h-11 transition-all focus:scale-[1.01]" />
                         <p className="text-xs text-muted-foreground">8+ characters with uppercase, lowercase, and number</p>
                       </div>
+                      <PhoneVerification
+                        phone={phone}
+                        onPhoneChange={setPhone}
+                        onVerified={(p) => { setPhone(p); setPhoneVerified(true); }}
+                        optional
+                      />
                       {selectedRole === "customer" && (
                         <div className="space-y-2">
                           <Label htmlFor="referral-code">Referral Code (Optional)</Label>
