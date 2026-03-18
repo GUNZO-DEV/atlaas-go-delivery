@@ -13,6 +13,7 @@ import SupportTicketDialog from "@/components/SupportTicketDialog";
 import RiderApplicationForm from "@/components/RiderApplicationForm";
 import RiderNavigationMap from "@/components/RiderNavigationMap";
 import OrderStatusTimeline from "@/components/OrderStatusTimeline";
+import { sendOrderStatusSMS } from "@/utils/sendOrderSMS";
 import RiderPerformanceBadges from "@/components/RiderPerformanceBadges";
 import WeatherPrayerWidget from "@/components/WeatherPrayerWidget";
 import EmergencySOSButton from "@/components/EmergencySOSButton";
