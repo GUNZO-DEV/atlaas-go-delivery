@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, ArrowLeft, Shield, Zap, Sparkles, Store, Bike, User, Mail } from "lucide-react";
+import PhoneVerification from "@/components/PhoneVerification";
 import { signUpSchema, signInSchema } from "@/lib/validation";
 import { motion, AnimatePresence } from "framer-motion";
 
