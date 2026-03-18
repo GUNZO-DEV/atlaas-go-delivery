@@ -1821,6 +1821,33 @@ export type Database = {
         }
         Relationships: []
       }
+      phone_verifications: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          otp_code: string
+          phone_number: string
+          verified: boolean
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          otp_code: string
+          phone_number: string
+          verified?: boolean
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          otp_code?: string
+          phone_number?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           id: string
