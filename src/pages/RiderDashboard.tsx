@@ -13,6 +13,7 @@ import SupportTicketDialog from "@/components/SupportTicketDialog";
 import RiderApplicationForm from "@/components/RiderApplicationForm";
 import RiderNavigationMap from "@/components/RiderNavigationMap";
 import OrderStatusTimeline from "@/components/OrderStatusTimeline";
+import { sendOrderStatusSMS } from "@/utils/sendOrderSMS";
 import RiderPerformanceBadges from "@/components/RiderPerformanceBadges";
 import WeatherPrayerWidget from "@/components/WeatherPrayerWidget";
 import EmergencySOSButton from "@/components/EmergencySOSButton";
@@ -28,6 +29,7 @@ interface Order {
   delivery_longitude: number | null;
   created_at: string;
   rider_id: string | null;
+  customer_id: string;
   restaurant: {
     name: string;
     address: string;
@@ -532,6 +534,10 @@ export default function RiderDashboard() {
 
       if (orderError) throw orderError;
 
+      // Send SMS notification to customer
+      const order = orders.find(o => o.id === orderId);
+      if (order) sendOrderStatusSMS(orderId, "picking_it_up", order.customer_id);
+
       // Get current location for tracking
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
@@ -603,6 +609,10 @@ export default function RiderDashboard() {
 
             if (orderError) throw orderError;
 
+            // Send SMS notification
+            const order = orders.find(o => o.id === orderId);
+            if (order) sendOrderStatusSMS(orderId, "picked_up", order.customer_id);
+
             // Update tracking with current location
             const { error: trackingError } = await supabase
               .from("delivery_tracking")
@@ -661,6 +671,10 @@ export default function RiderDashboard() {
         .eq("id", orderId);
 
       if (orderError) throw orderError;
+
+      // Send SMS notification to customer
+      const order = orders.find(o => o.id === orderId);
+      if (order) sendOrderStatusSMS(orderId, "delivered", order.customer_id);
 
       const { error: trackingError } = await supabase
         .from("delivery_tracking")

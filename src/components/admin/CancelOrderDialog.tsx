@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { sendOrderStatusSMS } from "@/utils/sendOrderSMS";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -70,6 +71,9 @@ export function CancelOrderDialog({
         .eq("id", orderId);
 
       if (orderError) throw orderError;
+
+      // Send cancellation SMS to customer
+      sendOrderStatusSMS(orderId, "cancelled", customerId);
 
       // Process refund if payment was made
       if (paymentStatus === "paid" || paymentStatus === "completed") {

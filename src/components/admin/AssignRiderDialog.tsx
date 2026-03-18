@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { sendOrderStatusSMS } from "@/utils/sendOrderSMS";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -101,6 +102,14 @@ export function AssignRiderDialog({
         .eq("id", orderId);
 
       if (orderError) throw orderError;
+
+      // Send SMS to customer about rider assignment
+      const { data: orderData } = await supabase
+        .from("orders")
+        .select("customer_id")
+        .eq("id", orderId)
+        .single();
+      if (orderData) sendOrderStatusSMS(orderId, "picking_it_up", orderData.customer_id);
 
       // Create notification for rider
       const { error: notificationError } = await supabase.rpc(
