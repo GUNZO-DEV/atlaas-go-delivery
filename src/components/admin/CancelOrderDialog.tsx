@@ -72,6 +72,9 @@ export function CancelOrderDialog({
 
       if (orderError) throw orderError;
 
+      // Send cancellation SMS to customer
+      sendOrderStatusSMS(orderId, "cancelled", customerId);
+
       // Process refund if payment was made
       if (paymentStatus === "paid" || paymentStatus === "completed") {
         const { error: walletError } = await supabase
