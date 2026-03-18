@@ -103,6 +103,14 @@ export function AssignRiderDialog({
 
       if (orderError) throw orderError;
 
+      // Send SMS to customer about rider assignment
+      const { data: orderData } = await supabase
+        .from("orders")
+        .select("customer_id")
+        .eq("id", orderId)
+        .single();
+      if (orderData) sendOrderStatusSMS(orderId, "picking_it_up", orderData.customer_id);
+
       // Create notification for rider
       const { error: notificationError } = await supabase.rpc(
         "create_notification",
