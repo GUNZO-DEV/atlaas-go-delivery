@@ -2852,6 +2852,7 @@ export type Database = {
         Returns: undefined
       }
       secure_wallet_topup: { Args: { p_amount: number }; Returns: undefined }
+      send_email_hook: { Args: { event: Json }; Returns: Json }
       update_application_status: {
         Args: { p_application_id: string; p_notes?: string; p_status: string }
         Returns: undefined
