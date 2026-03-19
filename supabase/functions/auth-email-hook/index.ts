@@ -135,7 +135,14 @@ Deno.serve(async (req) => {
     const resend = new Resend(resendApiKey)
     const payload: AuthEmailPayload = await req.json()
 
-    console.log('Auth email hook received:', payload.email_data?.email_action_type, payload.user?.email)
+    // Health check / empty payload guard
+    if (!payload?.user?.email || !payload?.email_data?.email_action_type) {
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    console.log('Auth email hook received:', payload.email_data.email_action_type, payload.user.email)
 
     const rendered = renderAuthEmail(payload)
     if (!rendered) {
