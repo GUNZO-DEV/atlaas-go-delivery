@@ -72,42 +72,39 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 222 47% 6%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 222 47% 9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 47% 9%;
     --popover-foreground: 210 40% 98%;
 
-    /* Moroccan Cedar Green - Primary (lighter for dark mode) */
-    --primary: 168 58% 39%;
-    --primary-glow: 168 58% 49%;
+    --primary: 219 100% 50%;
+    --primary-glow: 219 100% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Moroccan Sand Beige - Secondary */
-    --secondary: 44 41% 63%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 44 91% 50%;
+    --secondary-foreground: 222 47% 11%;
 
-    /* Moroccan Clay Orange - Accent */
-    --accent: 15 60% 58%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 44 91% 50%;
+    --accent-foreground: 222 47% 11%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 217 33% 15%;
+    --muted-foreground: 215 20% 65%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 168 58% 49%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 219 100% 50%;
 
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
+    --chart-1: 219 100% 50%;
+    --chart-2: 44 91% 57%;
+    --chart-3: 168 58% 45%;
+    --chart-4: 15 60% 55%;
     --chart-5: 340 75% 55%;
   }
 }
