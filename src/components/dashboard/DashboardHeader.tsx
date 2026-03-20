@@ -28,8 +28,8 @@ const DashboardHeader = () => {
     fetchCount();
   }, [userId]);
 
-  const toggleLang = () => setLanguage(language === "fr" ? "ar" as any : language === "ar" as any ? "en" : "fr");
-  const langLabel = language === "fr" ? "FR" : language === ("ar" as any) ? "عر" : "EN";
+  const toggleLang = () => setLanguage(language === "en" ? "fr" : "en");
+  const langLabel = language === "fr" ? "FR" : "EN";
 
   return (
     <header className="sticky top-0 z-50">
