@@ -1,22 +1,65 @@
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import BentoCategories from "@/components/dashboard/BentoCategories";
-import QuickOrders from "@/components/dashboard/QuickOrders";
-import FeaturedCards from "@/components/dashboard/FeaturedCards";
-import PromoBanner from "@/components/dashboard/PromoBanner";
-import SloganBanner from "@/components/dashboard/SloganBanner";
+import Hero from "@/components/Hero";
+import FeaturedRestaurants from "@/components/FeaturedRestaurants";
+import AuierHighlightSection from "@/components/AuierHighlightSection";
+import SpecialOffersBanner from "@/components/SpecialOffersBanner";
+import PopularCategories from "@/components/PopularCategories";
+import SocialProofStrip from "@/components/SocialProofStrip";
+import PartnerCTA from "@/components/PartnerCTA";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import FloatingOrderButton from "@/components/FloatingOrderButton";
+import StickyCategoryNav from "@/components/StickyCategoryNav";
 import Footer from "@/components/Footer";
+import ScrollReveal from "@/components/ScrollReveal";
+import HowItWorksSection from "@/components/HowItWorksSection";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-      <PromoBanner />
-      <BentoCategories />
-      <QuickOrders />
-      <SloganBanner />
-      <FeaturedCards />
+    <div className="min-h-screen">
+      <Hero />
+
+      {/* Special Offer Banner */}
+      <SpecialOffersBanner />
+
+      {/* Categories */}
+      <ScrollReveal>
+        <PopularCategories />
+      </ScrollReveal>
+
+      {/* Featured Restaurants */}
+      <ScrollReveal>
+        <FeaturedRestaurants />
+      </ScrollReveal>
+
+      {/* How It Works */}
+      <ScrollReveal>
+        <HowItWorksSection />
+      </ScrollReveal>
+
+      {/* AUIER Campus */}
+      <ScrollReveal>
+        <AuierHighlightSection />
+      </ScrollReveal>
+
+      {/* Testimonials */}
+      <ScrollReveal>
+        <TestimonialsSection />
+      </ScrollReveal>
+
+      {/* Social Proof */}
+      <ScrollReveal>
+        <SocialProofStrip />
+      </ScrollReveal>
+
+      {/* Partner CTA */}
+      <ScrollReveal>
+        <PartnerCTA />
+      </ScrollReveal>
+
       <Footer />
+      
+      <StickyCategoryNav />
+      <FloatingOrderButton />
       <AtlaasAIChat />
     </div>
   );
