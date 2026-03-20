@@ -183,7 +183,7 @@ const Hero = () => {
         {/* Trust Indicators */}
         <div className="grid grid-cols-3 gap-3 max-w-3xl mx-auto">
           {[
-            { icon: Percent, value: "10%", label: "Commission", sub: "Lowest in Morocco" },
+            { icon: Package, value: "Free", label: "Delivery", sub: "On your 1st order" },
             { icon: Clock, value: "30 min", label: "Avg Delivery", sub: "Fast & reliable" },
             { icon: Shield, value: "24/7", label: "Support", sub: "Always available" },
           ].map((stat) => (
