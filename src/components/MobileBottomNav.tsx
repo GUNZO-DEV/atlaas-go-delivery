@@ -68,25 +68,21 @@ const MobileBottomNav = () => {
               to={item.path}
               className={cn(
                 "relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-colors",
-                item.featured 
-                  ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-110 -mt-5 rounded-2xl"
-                  : active
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                active ? "text-primary" : "text-muted-foreground"
               )}
             >
               <div className="relative">
-                {active && !item.featured && (
+                {active && (
                   <div className="absolute -inset-2 bg-primary/10 rounded-xl" />
                 )}
-                <item.icon className={cn("w-5 h-5 relative z-10", item.featured && "w-6 h-6")} />
+                <item.icon className="w-5 h-5 relative z-10" />
                 {item.badge > 0 && (
                   <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1">
                     {item.badge > 99 ? '99+' : item.badge}
                   </span>
                 )}
               </div>
-              <span className={cn("text-[10px] font-medium relative z-10", item.featured && "font-bold text-xs")}>{item.label}</span>
+              <span className="text-[10px] font-medium relative z-10">{item.label}</span>
             </Link>
           );
         })}
