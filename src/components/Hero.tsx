@@ -159,12 +159,12 @@ const Hero = () => {
           </motion.h1>
 
           {/* Subtitle */}
-          <motion.p {...fadeUp(0.6)} className="text-lg sm:text-xl md:text-2xl text-white/80 font-medium mb-10 max-w-2xl mx-auto">
+          <motion.p {...fadeUp(0.6)} className="text-lg sm:text-xl md:text-2xl text-white/80 font-medium mb-8 max-w-2xl mx-auto">
             Morocco's food delivery platform. Fast delivery, fair commissions, local restaurants.
           </motion.p>
 
           {/* CTA */}
-          <motion.div {...fadeUp(0.8)} className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-16 px-4">
+          <motion.div {...fadeUp(0.8)} className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-10 px-4">
             <Link to="/restaurants" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
