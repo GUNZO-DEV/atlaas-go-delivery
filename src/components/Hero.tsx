@@ -8,6 +8,13 @@ import AtlaasGoLogo from "@/components/AtlaasGoLogo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { useState } from "react";
+import { motion } from "framer-motion";
+
+const fadeUp = (delay: number) => ({
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] },
+});
 
 const Hero = () => {
   const { t } = useLanguage();
@@ -26,14 +33,16 @@ const Hero = () => {
         </Link>
       </div>
 
-      {/* Background */}
+      {/* Background with Ken Burns */}
       <div className="absolute inset-0 z-0">
-        <img 
+        <motion.img 
           src={atlasHero} 
           alt="Atlas Mountains Morocco - From the Atlas to Your Door" 
           className="w-full h-full object-cover"
           loading="eager"
           fetchPriority="high"
+          animate={{ scale: [1, 1.08, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />
       </div>
@@ -135,27 +144,27 @@ const Hero = () => {
       <div className="relative z-10 container mx-auto px-4 text-center pt-24 sm:pt-8">
         <div>
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-2 mb-8">
+          <motion.div {...fadeUp(0.2)} className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-2 mb-8">
             <span className="text-xl">🇲🇦</span>
             <span className="text-white font-medium text-sm tracking-wide">100% Moroccan Platform</span>
-          </div>
+          </motion.div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 leading-[1.1] tracking-tight">
+          <motion.h1 {...fadeUp(0.4)} className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 leading-[1.1] tracking-tight">
             <span className="font-light">From the </span>
             <span className="font-black text-accent">Atlas</span>
             <br />
             <span className="font-light">to Your </span>
             <span className="font-black text-primary-foreground bg-primary/80 px-4 py-1 rounded-lg inline-block">Door</span>
-          </h1>
+          </motion.h1>
 
           {/* Subtitle */}
-          <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-medium mb-10 max-w-2xl mx-auto">
+          <motion.p {...fadeUp(0.6)} className="text-lg sm:text-xl md:text-2xl text-white/80 font-medium mb-10 max-w-2xl mx-auto">
             Morocco's food delivery platform. Fast delivery, fair commissions, local restaurants.
-          </p>
+          </motion.p>
 
           {/* CTA */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-16 px-4">
+          <motion.div {...fadeUp(0.8)} className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-16 px-4">
             <Link to="/restaurants" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
@@ -177,7 +186,7 @@ const Hero = () => {
                 Join as Partner
               </Button>
             </Link>
-          </div>
+          </motion.div>
         </div>
 
         {/* Trust Indicators */}
@@ -186,22 +195,36 @@ const Hero = () => {
             { icon: Package, value: "Free", label: "Delivery", sub: "On your 1st order" },
             { icon: Clock, value: "30 min", label: "Avg Delivery", sub: "Fast & reliable" },
             { icon: Shield, value: "24/7", label: "Support", sub: "Always available" },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-white/10 rounded-2xl p-4 md:p-6 border border-white/15 hover:bg-white/15 transition-colors">
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              {...fadeUp(1.0 + i * 0.15)}
+              whileHover={{ scale: 1.05, y: -4 }}
+              className="bg-white/10 rounded-2xl p-4 md:p-6 border border-white/15 hover:bg-white/15 transition-colors cursor-default"
+            >
               <stat.icon className="w-5 h-5 text-white/60 mx-auto mb-2" />
               <div className="text-2xl md:text-4xl font-black text-white">{stat.value}</div>
               <div className="text-white/70 text-xs md:text-sm font-medium mt-1">{stat.label}</div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 hidden sm:block">
+      <motion.div
+        className="absolute bottom-6 left-1/2 transform -translate-x-1/2 hidden sm:block"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.8, duration: 0.8 }}
+      >
         <div className="w-5 h-8 border-2 border-white/30 rounded-full flex justify-center p-1.5">
-          <div className="w-1 h-2 bg-white/50 rounded-full animate-bounce" />
+          <motion.div 
+            className="w-1 h-2 bg-white/50 rounded-full"
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          />
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };
