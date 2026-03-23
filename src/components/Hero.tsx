@@ -144,7 +144,7 @@ const Hero = () => {
       <div className="relative z-10 container mx-auto px-4 text-center pt-24 sm:pt-16">
         <div>
           {/* Badge */}
-          <motion.div {...fadeUp(0.2)} className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-2 mb-8">
+          <motion.div {...fadeUp(0.2)} className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-2 mb-6">
             <span className="text-xl">🇲🇦</span>
             <span className="text-white font-medium text-sm tracking-wide">100% Moroccan Platform</span>
           </motion.div>
