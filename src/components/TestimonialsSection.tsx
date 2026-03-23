@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -29,6 +30,14 @@ const testimonials = [
   }
 ];
 
+const cardVariants = {
+  hidden: { opacity: 0, y: 30, rotateX: 8 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0, rotateX: 0,
+    transition: { delay: i * 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+  }),
+};
+
 const TestimonialsSection = () => {
   const { t } = useLanguage();
   
@@ -44,44 +53,65 @@ const TestimonialsSection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto" style={{ perspective: '800px' }}>
           {testimonials.map((testimonial, index) => (
-            <Card 
-              key={index} 
-              className="border hover:border-primary/20 hover:shadow-md transition-all duration-200 bg-card"
+            <motion.div
+              key={index}
+              custom={index}
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-40px" }}
+              whileHover={{ y: -6, boxShadow: "0 12px 30px -8px hsl(var(--primary) / 0.15)" }}
             >
-              <CardContent className="p-6">
-                <div className="flex gap-0.5 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-primary text-primary" />
-                  ))}
-                </div>
-
-                <p className="text-sm text-foreground mb-5 leading-relaxed">
-                  "{testimonial.text}"
-                </p>
-
-                <div className="flex items-center gap-3 pt-4 border-t border-border">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                    {testimonial.avatar}
+              <Card className="border hover:border-primary/20 transition-all duration-200 bg-card h-full">
+                <CardContent className="p-6">
+                  <div className="flex gap-0.5 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, scale: 0 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.15 + i * 0.05 + 0.3, duration: 0.3, type: "spring" }}
+                      >
+                        <Star className="w-4 h-4 fill-primary text-primary" />
+                      </motion.div>
+                    ))}
                   </div>
-                  <div>
-                    <p className="font-semibold text-sm">{testimonial.name}</p>
-                    <p className="text-xs text-muted-foreground">{testimonial.role} • {testimonial.location}</p>
+
+                  <p className="text-sm text-foreground mb-5 leading-relaxed">
+                    "{testimonial.text}"
+                  </p>
+
+                  <div className="flex items-center gap-3 pt-4 border-t border-border">
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                      {testimonial.avatar}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm">{testimonial.name}</p>
+                      <p className="text-xs text-muted-foreground">{testimonial.role} • {testimonial.location}</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
 
         {/* Trust Badge */}
-        <div className="mt-10 text-center">
+        <motion.div
+          className="mt-10 text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
           <div className="inline-flex items-center gap-2 bg-primary/5 text-primary px-5 py-2.5 rounded-full border border-primary/15 text-sm font-medium">
             <Star className="w-4 h-4 fill-primary" />
             <span>Rated 4.8/5 by over 10,000 users</span>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

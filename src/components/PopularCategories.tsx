@@ -9,6 +9,7 @@ import {
   UtensilsCrossed,
   Fish
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const categories = [
   { name: 'All', icon: UtensilsCrossed, gradient: 'from-primary/15 to-primary/5' },
@@ -20,6 +21,21 @@ const categories = [
   { name: 'Sandwiches', icon: Sandwich, gradient: 'from-yellow-500/15 to-yellow-500/5' },
   { name: 'Seafood', icon: Fish, gradient: 'from-blue-500/15 to-blue-500/5' },
 ];
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.06 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.9 },
+  visible: { 
+    opacity: 1, y: 0, scale: 1,
+    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
 
 const PopularCategories = () => {
   const navigate = useNavigate();
@@ -37,22 +53,31 @@ const PopularCategories = () => {
         </div>
 
         <div className="max-w-3xl mx-auto">
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
+          <motion.div 
+            className="grid grid-cols-4 md:grid-cols-8 gap-4"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+          >
             {categories.map((category) => (
-              <button
+              <motion.button
                 key={category.name}
+                variants={itemVariants}
+                whileHover={{ scale: 1.15, y: -4 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => handleCategoryClick(category.name)}
                 className="flex flex-col items-center gap-2.5 group"
               >
-                <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center transition-all duration-200 group-hover:scale-110 group-hover:shadow-md border border-border/50`}>
+                <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center transition-all duration-200 group-hover:shadow-md border border-border/50`}>
                   <category.icon className="w-6 h-6 md:w-7 md:h-7 text-foreground/70 group-hover:text-foreground transition-colors" />
                 </div>
                 <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                   {category.name}
                 </span>
-              </button>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
