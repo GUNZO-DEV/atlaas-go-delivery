@@ -11,6 +11,7 @@ import StickyCategoryNav from "@/components/StickyCategoryNav";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import HowItWorksSection from "@/components/HowItWorksSection";
+import InstallAppSection from "@/components/InstallAppSection";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 
 const Index = () => {
@@ -49,6 +50,11 @@ const Index = () => {
       {/* Social Proof */}
       <ScrollReveal>
         <SocialProofStrip />
+      </ScrollReveal>
+
+      {/* Install App */}
+      <ScrollReveal>
+        <InstallAppSection />
       </ScrollReveal>
 
       {/* Partner CTA */}
