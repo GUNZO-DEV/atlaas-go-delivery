@@ -52,6 +52,11 @@ const Index = () => {
         <SocialProofStrip />
       </ScrollReveal>
 
+      {/* Install App */}
+      <ScrollReveal>
+        <InstallAppSection />
+      </ScrollReveal>
+
       {/* Partner CTA */}
       <ScrollReveal>
         <PartnerCTA />
