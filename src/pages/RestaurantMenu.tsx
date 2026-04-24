@@ -941,13 +941,28 @@ export default function RestaurantMenu() {
                   ))}
 
                   <div className="pt-4 border-t space-y-3">
-                    <div>
+                    <div className="space-y-2">
                       <Label>Delivery Address *</Label>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal h-auto py-3" onClick={() => setAddressSelectorOpen(true)}>
-                        <MapPin className="mr-2 h-4 w-4 shrink-0" />
-                        <span className="flex-1 text-left truncate">{deliveryAddress || "Select delivery address"}</span>
-                      </Button>
+                      <SavedAddressesPicker
+                        userId={user?.id || null}
+                        selectedAddressId={selectedSavedAddressId}
+                        onSelect={(addr) => {
+                          setSelectedSavedAddressId(addr.id);
+                          setDeliveryAddress(addr.address);
+                          setDeliveryLat(addr.latitude);
+                          setDeliveryLng(addr.longitude);
+                        }}
+                        onAddNew={() => setAddressSelectorOpen(true)}
+                      />
+                      {deliveryAddress && (
+                        <div className="rounded-md border p-2 text-sm flex items-start gap-2">
+                          <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                          <span className="flex-1 break-words">{deliveryAddress}</span>
+                        </div>
+                      )}
                     </div>
+
+                    <ScheduleDeliveryPicker value={scheduledDate} onChange={setScheduledDate} />
 
                     <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} orderTotal={getTotal().total} restaurantId={restaurant?.id} />
 
