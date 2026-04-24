@@ -1,5 +1,5 @@
 import { Resend } from 'https://esm.sh/resend@2.0.0'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'npm:@supabase/supabase-js@2.75.1'
 
 const resendApiKey = Deno.env.get('RESEND_API_KEY')
 const SENDER_FROM = 'Atlaas Go <noreply@notify.atlaasgo.com>'
