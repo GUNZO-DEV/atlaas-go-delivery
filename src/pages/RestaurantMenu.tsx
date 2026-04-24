@@ -36,6 +36,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import AddressSelector from "@/components/AddressSelector";
+import SavedAddressesPicker from "@/components/SavedAddressesPicker";
+import ScheduleDeliveryPicker from "@/components/ScheduleDeliveryPicker";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
 import OrderNotesInput from "@/components/OrderNotesInput";
@@ -115,6 +117,7 @@ export default function RestaurantMenu() {
   const [itemInstructions, setItemInstructions] = useState<Record<string, string>>({});
   const [addressSelectorOpen, setAddressSelectorOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedSavedAddressId, setSelectedSavedAddressId] = useState<string | null>(null);
   const [auierDelivery, setAuierDelivery] = useState<{
     isAuier: boolean;
     deliveryType: string;
@@ -745,55 +748,33 @@ export default function RestaurantMenu() {
                       </div>
 
                       <div className="space-y-4 pt-4 border-t">
-                        <div>
+                        <div className="space-y-2">
                           <Label>Delivery Address *</Label>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start text-left font-normal h-auto py-3"
-                            onClick={() => setAddressSelectorOpen(true)}
-                          >
-                            <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
-                            <span className="flex-1 text-left">
-                              {deliveryAddress || "Select delivery address on map"}
-                            </span>
-                          </Button>
-                          <AddressSelector
-                            open={addressSelectorOpen}
-                            onOpenChange={setAddressSelectorOpen}
-                            initialAddress={deliveryAddress}
-                            onSelectAddress={(address, lat, lng) => {
-                              setDeliveryAddress(address);
-                              setDeliveryLat(lat);
-                              setDeliveryLng(lng);
+                          <SavedAddressesPicker
+                            userId={user?.id || null}
+                            selectedAddressId={selectedSavedAddressId}
+                            onSelect={(addr) => {
+                              setSelectedSavedAddressId(addr.id);
+                              setDeliveryAddress(addr.address);
+                              setDeliveryLat(addr.latitude);
+                              setDeliveryLng(addr.longitude);
                             }}
+                            onAddNew={() => setAddressSelectorOpen(true)}
                           />
+                          {deliveryAddress && !selectedSavedAddressId && (
+                            <div className="rounded-md border p-2 text-sm flex items-start gap-2">
+                              <MapPin className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                              <span className="flex-1 break-words">{deliveryAddress}</span>
+                            </div>
+                          )}
                           {deliveryAddress && (
-                            <div className="mt-4 h-40">
+                            <div className="mt-2 h-40">
                               <LiveTrackingMap customerLat={deliveryLat!} customerLng={deliveryLng!} deliveryAddress={deliveryAddress} />
                             </div>
                           )}
                         </div>
 
-                        <div>
-                          <Label>Schedule Order (Optional)</Label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                <Calendar className="mr-2 h-4 w-4" />
-                                {scheduledDate ? format(scheduledDate, "PPP p") : "Order now"}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <CalendarComponent
-                                mode="single"
-                                selected={scheduledDate}
-                                onSelect={setScheduledDate}
-                                disabled={(date) => date < new Date()}
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        </div>
+                        <ScheduleDeliveryPicker value={scheduledDate} onChange={setScheduledDate} />
 
                         <PaymentMethodSelector 
                           value={paymentMethod}
