@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import InstallAppSection from "@/components/InstallAppSection";
+import RecommendedForYou from "@/components/RecommendedForYou";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
 
 const Index = () => {
@@ -25,6 +26,11 @@ const Index = () => {
       {/* Categories */}
       <ScrollReveal>
         <PopularCategories />
+      </ScrollReveal>
+
+      {/* Personalized Recommendations */}
+      <ScrollReveal>
+        <RecommendedForYou />
       </ScrollReveal>
 
       {/* Featured Restaurants */}
