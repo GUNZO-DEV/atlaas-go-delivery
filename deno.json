@@ -1,0 +1,12 @@
+{
+  "name": "atlaas-go-edge-functions",
+  "version": "1.0.0",
+  "imports": {
+    "npm:@supabase/supabase-js": "npm:@supabase/supabase-js@2.75.1"
+  },
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true
+  }
+}
