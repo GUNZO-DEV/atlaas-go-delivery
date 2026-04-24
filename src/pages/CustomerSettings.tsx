@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, User, Lock, Bell, MapPin, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import NotificationSettings from "@/components/NotificationSettings";
+import SavedAddressesManager from "@/components/SavedAddressesManager";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -263,6 +264,20 @@ export default function CustomerSettings() {
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Update Password
             </Button>
+          </CardContent>
+        </Card>
+
+        {/* Saved Addresses */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Delivery Addresses
+            </CardTitle>
+            <CardDescription>Save addresses to check out faster</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {user?.id && <SavedAddressesManager userId={user.id} />}
           </CardContent>
         </Card>
 
