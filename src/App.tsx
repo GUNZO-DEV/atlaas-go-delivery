@@ -44,6 +44,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const LynRestaurantDashboard = lazy(() => import("./pages/LynRestaurantDashboard"));
 const CustomerTableMenu = lazy(() => import("./pages/CustomerTableMenu"));
 const OrderChatPage = lazy(() => import("./pages/OrderChatPage"));
+const Services = lazy(() => import("./pages/Services"));
 
 // Lazy-load heavier components
 const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
@@ -105,6 +106,7 @@ const App = () => (
               <Route path="/lyn-dashboard" element={<ProtectedRoute requiredRole="merchant"><LynRestaurantDashboard /></ProtectedRoute>} />
               <Route path="/order/:restaurantId/:tableNumber?" element={<CustomerTableMenu />} />
               <Route path="/order-chat/:orderId" element={<ProtectedRoute><OrderChatPage /></ProtectedRoute>} />
+              <Route path="/services" element={<Services />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
