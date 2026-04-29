@@ -120,7 +120,7 @@ export default function CommunityDashboard() {
       }
       const top = Array.from(tally.values())
         .sort((a, b) => b.total_qty - a.total_qty)
-        .slice(0, 5);
+        .slice(0, 20);
 
       // Fallback: if no order history yet, surface 5 highest-rated restaurants' first menu item
       if (top.length === 0 && list.length > 0) {
