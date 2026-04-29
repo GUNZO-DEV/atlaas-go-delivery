@@ -108,6 +108,7 @@ const App = () => (
               <Route path="/order/:restaurantId/:tableNumber?" element={<CustomerTableMenu />} />
               <Route path="/order-chat/:orderId" element={<ProtectedRoute><OrderChatPage /></ProtectedRoute>} />
               <Route path="/services" element={<Services />} />
+              <Route path="/dashboard" element={<CommunityDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
