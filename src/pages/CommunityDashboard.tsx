@@ -38,6 +38,40 @@ export default function CommunityDashboard() {
   const [popular, setPopular] = useState<PopularItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Filters
+  const [cuisine, setCuisine] = useState<string>("all");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, PRICE_MAX]);
+
+  const cuisines = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of allRestaurants) if (r.cuisine_type) set.add(r.cuisine_type);
+    return Array.from(set).sort();
+  }, [allRestaurants]);
+
+  const filteredRestaurants = useMemo(() => {
+    return allRestaurants.filter((r) => {
+      if (cuisine !== "all" && r.cuisine_type !== cuisine) return false;
+      // Restaurant-level price filter only applies when restaurant has any items in range.
+      // Without per-restaurant price metadata loaded, keep all that pass cuisine.
+      return true;
+    });
+  }, [allRestaurants, cuisine]);
+
+  const filteredLegends = useMemo(() => filteredRestaurants.slice(0, 6), [filteredRestaurants]);
+
+  const filteredPopular = useMemo(() => {
+    return popular.filter((p) => {
+      if (cuisine !== "all") {
+        const r = allRestaurants.find((x) => x.id === p.restaurant_id);
+        if (!r || r.cuisine_type !== cuisine) return false;
+      }
+      if (p.price < priceRange[0] || p.price > priceRange[1]) return false;
+      return true;
+    });
+  }, [popular, cuisine, priceRange, allRestaurants]);
+
+  const filtersActive = cuisine !== "all" || priceRange[0] !== 0 || priceRange[1] !== PRICE_MAX;
+
   useEffect(() => {
     document.title = "Community Choice — Atlaasgo Ifrane";
     void loadAll();
