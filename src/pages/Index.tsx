@@ -14,11 +14,21 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import InstallAppSection from "@/components/InstallAppSection";
 import RecommendedForYou from "@/components/RecommendedForYou";
 import { AtlaasAIChat } from "@/components/AtlaasAIChat";
+import LocalLegends from "@/components/LocalLegends";
+import ServiceToggle from "@/components/ServiceToggle";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Hero />
+
+      {/* Food / Services toggle */}
+      <ServiceToggle active="food" />
+
+      {/* Local Legends — exclusive verified Ifrane partners */}
+      <ScrollReveal>
+        <LocalLegends />
+      </ScrollReveal>
 
       {/* Special Offer Banner */}
       <SpecialOffersBanner />

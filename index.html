@@ -15,7 +15,25 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="ATLAAS GO" />
     <link rel="apple-touch-icon" href="/atlaas-icon-512.png?v=3" />
-    <meta name="theme-color" content="#D97706" />
+    <meta name="theme-color" content="#FF5722" />
+
+    <!-- Premium Tech typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Respect OS dark-mode preference on first paint -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('lyn-theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (stored === 'dark' || (!stored && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
 
     
     

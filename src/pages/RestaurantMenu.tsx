@@ -126,6 +126,8 @@ export default function RestaurantMenu() {
   const [searchQuery, setSearchQuery] = useState("");
   const [addedItemId, setAddedItemId] = useState<string | null>(null);
   const [dietaryFilter, setDietaryFilter] = useState<string | null>(null);
+  const [dormBuilding, setDormBuilding] = useState("");
+  const [dormRoom, setDormRoom] = useState("");
 
   useEffect(() => {
     checkAuth();
@@ -445,7 +447,13 @@ export default function RestaurantMenu() {
           restaurant_id: restaurant!.id,
           total_amount: subtotal,
           delivery_fee: deliveryFee,
-          delivery_address: deliveryAddress,
+          delivery_address: [
+            deliveryAddress,
+            dormBuilding && `Building: ${dormBuilding}`,
+            dormRoom && `Room: ${dormRoom}`,
+          ]
+            .filter(Boolean)
+            .join(" — "),
           delivery_latitude: deliveryLat,
           delivery_longitude: deliveryLng,
           order_notes: notes || null,
@@ -960,6 +968,36 @@ export default function RestaurantMenu() {
                           <span className="flex-1 break-words">{deliveryAddress}</span>
                         </div>
                       )}
+
+                      {/* Dorm Drop — campus-aware fields */}
+                      <div className="rounded-2xl border border-primary/30 bg-primary/5 p-3 space-y-2">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                          DORM DROP — for AUI campus & Ifrane housing
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label htmlFor="dormBuilding" className="text-xs">Building / Dorm</Label>
+                            <Input
+                              id="dormBuilding"
+                              placeholder="e.g. Dorm 3"
+                              value={dormBuilding}
+                              onChange={(e) => setDormBuilding(e.target.value)}
+                              className="h-9"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="dormRoom" className="text-xs">Room #</Label>
+                            <Input
+                              id="dormRoom"
+                              placeholder="e.g. 214"
+                              value={dormRoom}
+                              onChange={(e) => setDormRoom(e.target.value)}
+                              className="h-9"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <ScheduleDeliveryPicker value={scheduledDate} onChange={setScheduledDate} />
