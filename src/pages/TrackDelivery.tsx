@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Navigation, Clock, Phone } from "lucide-react";
+import { Loader2, MapPin, Navigation, Clock, Phone, ArrowLeft, Bike } from "lucide-react";
 import OrderChat from "@/components/OrderChat";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
 import OrderStatusProgress from "@/components/OrderStatusProgress";
