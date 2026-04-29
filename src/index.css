@@ -120,7 +120,14 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "kern" 1, "liga" 1;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "kern" 1, "liga" 1, "ss01" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.015em;
   }
 
   /* Moroccan Zellij Pattern Background */
