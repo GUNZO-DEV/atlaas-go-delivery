@@ -8,46 +8,47 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Moroccan Color Palette - Atlas Mountains & Desert */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Atlaasgo Premium Tech — Light Mode */
+    --background: 0 0% 99%;
+    --foreground: 222 30% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 30% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 30% 8%;
 
-    /* Moroccan Cedar Green - Primary */
-    --primary: 168 58% 29%;
-    --primary-glow: 168 58% 39%;
+    /* Action Color: Deep Orange #FF5722 -> hsl(14 100% 57%) */
+    --primary: 14 100% 57%;
+    --primary-glow: 14 100% 67%;
     --primary-foreground: 0 0% 100%;
 
-    /* Moroccan Sand Beige - Secondary */
-    --secondary: 44 41% 73%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Cool slate secondary */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 30% 12%;
 
-    /* Moroccan Clay Orange - Accent */
-    --accent: 15 60% 48%;
+    /* Accent matches primary family */
+    --accent: 14 100% 57%;
     --accent-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 168 58% 29%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 14 100% 57%;
 
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-1: 14 100% 57%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 262 83% 58%;
+    --chart-4: 142 71% 45%;
+    --chart-5: 38 92% 50%;
 
-    --radius: 0.5rem;
+    /* Premium tech: 20px rounded cards (=1.25rem) */
+    --radius: 1.25rem;
 
     /* Moroccan Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
