@@ -44,6 +44,8 @@ import OrderNotesInput from "@/components/OrderNotesInput";
 import FavoriteButton from "@/components/FavoriteButton";
 import MenuCategorySelector from "@/components/MenuCategorySelector";
 import { motion } from "framer-motion";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AUI_DORMS } from "@/lib/dorms";
 
 interface MenuItem {
   id: string;
