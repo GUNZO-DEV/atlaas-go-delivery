@@ -398,4 +398,34 @@ html {
   .hero-text-shadow {
     text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
   }
+
+  /* Premium Tech glassmorphism navbar */
+  .glass-nav {
+    background: hsl(var(--background) / 0.65);
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    border-bottom: 1px solid hsl(var(--border) / 0.6);
+  }
+
+  .glass-surface {
+    background: hsl(var(--card) / 0.55);
+    backdrop-filter: saturate(160%) blur(18px);
+    -webkit-backdrop-filter: saturate(160%) blur(18px);
+    border: 1px solid hsl(var(--border) / 0.55);
+  }
+
+  /* Verified Local badge */
+  .verified-local-badge {
+    background: linear-gradient(135deg, hsl(14 100% 57%), hsl(28 100% 60%));
+    color: white;
+    box-shadow: 0 6px 18px hsl(14 100% 57% / 0.45);
+  }
+
+  /* Disable heavy blur on mobile for perf */
+  @media (max-width: 640px) {
+    .glass-nav, .glass-surface, .glass-card {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+  }
 }
