@@ -978,13 +978,16 @@ export default function RestaurantMenu() {
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <Label htmlFor="dormBuilding" className="text-xs">Building / Dorm</Label>
-                            <Input
-                              id="dormBuilding"
-                              placeholder="e.g. Dorm 3"
-                              value={dormBuilding}
-                              onChange={(e) => setDormBuilding(e.target.value)}
-                              className="h-9"
-                            />
+                            <Select value={dormBuilding} onValueChange={setDormBuilding}>
+                              <SelectTrigger id="dormBuilding" className="h-9">
+                                <SelectValue placeholder="Select building" />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-64">
+                                {AUI_DORMS.map((d) => (
+                                  <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                           <div>
                             <Label htmlFor="dormRoom" className="text-xs">Room #</Label>
