@@ -184,6 +184,68 @@ export default function CommunityDashboard() {
               </div>
             </motion.div>
 
+            {/* Filters */}
+            <div className="rounded-[1.25rem] border border-border bg-card p-4 space-y-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Filters</p>
+                {filtersActive && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setCuisine("all"); setPriceRange([0, PRICE_MAX]); }}
+                    className="h-7 text-xs"
+                  >
+                    <X className="h-3 w-3 mr-1" /> Clear
+                  </Button>
+                )}
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold mb-2">Cuisine</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setCuisine("all")}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
+                      cuisine === "all"
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background border-border hover:border-primary/40"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {cuisines.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setCuisine(c)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
+                        cuisine === c
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background border-border hover:border-primary/40"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-semibold">Price range (Quick Order)</p>
+                  <p className="text-xs text-muted-foreground">
+                    {priceRange[0]}–{priceRange[1]} DH
+                  </p>
+                </div>
+                <Slider
+                  min={0}
+                  max={PRICE_MAX}
+                  step={5}
+                  value={priceRange}
+                  onValueChange={(v) => setPriceRange([v[0], v[1]] as [number, number])}
+                />
+              </div>
+            </div>
+
             {/* Community Choice grid */}
             <section>
               <div className="flex items-end justify-between mb-4">
