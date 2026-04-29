@@ -53,7 +53,7 @@ const StickyCategoryNav = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-40 bg-background/95 border-b shadow-sm">
+    <div className="fixed top-0 left-0 right-0 z-40 glass-nav">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-2 py-2 overflow-x-auto scrollbar-hide">
           <span className="text-sm font-semibold text-muted-foreground whitespace-nowrap mr-2">

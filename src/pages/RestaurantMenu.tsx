@@ -126,6 +126,8 @@ export default function RestaurantMenu() {
   const [searchQuery, setSearchQuery] = useState("");
   const [addedItemId, setAddedItemId] = useState<string | null>(null);
   const [dietaryFilter, setDietaryFilter] = useState<string | null>(null);
+  const [dormBuilding, setDormBuilding] = useState("");
+  const [dormRoom, setDormRoom] = useState("");
 
   useEffect(() => {
     checkAuth();
