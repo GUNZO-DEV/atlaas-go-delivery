@@ -268,7 +268,7 @@ export default function CommunityDashboard() {
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {legends.map((r, i) => (
+                  {filteredLegends.map((r, i) => (
                     <motion.button
                       key={r.id}
                       initial={{ opacity: 0, y: 14 }}
@@ -314,11 +314,11 @@ export default function CommunityDashboard() {
             </section>
 
             {/* All restaurants strip */}
-            {!loading && allRestaurants.length > 6 && (
+            {!loading && filteredRestaurants.length > 6 && (
               <section>
                 <h3 className="text-lg font-heading font-bold mb-3">More on the platform</h3>
                 <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x">
-                  {allRestaurants.slice(6).map((r) => (
+                  {filteredRestaurants.slice(6).map((r) => (
                     <button
                       key={r.id}
                       onClick={() => navigate(`/restaurant/${r.id}`)}
@@ -355,11 +355,11 @@ export default function CommunityDashboard() {
                     <Skeleton key={i} className="h-16 rounded-xl" />
                   ))}
                 </div>
-              ) : popular.length === 0 ? (
+              ) : filteredPopular.length === 0 ? (
                 <p className="text-xs text-muted-foreground">No data yet — order history unlocks this.</p>
               ) : (
                 <ul className="space-y-2">
-                  {popular.map((p, i) => (
+                  {filteredPopular.slice(0,5).map((p, i) => (
                     <li key={p.menu_item_id}>
                       <button
                         onClick={() => navigate(`/restaurant/${p.restaurant_id}`)}
