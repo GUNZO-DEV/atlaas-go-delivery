@@ -88,7 +88,6 @@ export default function CommunityDashboard() {
 
       const list = (rests || []) as Restaurant[];
       setAllRestaurants(list);
-      setLegends(list.slice(0, 6));
 
       // Top 5 most-ordered items in last 30 days
       const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
