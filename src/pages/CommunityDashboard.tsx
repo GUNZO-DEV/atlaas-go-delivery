@@ -33,7 +33,7 @@ interface PopularItem {
 
 export default function CommunityDashboard() {
   const navigate = useNavigate();
-  const [legends, setLegends] = useState<Restaurant[]>([]);
+  
   const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
   const [popular, setPopular] = useState<PopularItem[]>([]);
   const [loading, setLoading] = useState(true);
