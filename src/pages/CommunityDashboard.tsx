@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Flame, MapPin, Star, Sparkles, Plus, ChevronRight } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { ArrowLeft, Flame, MapPin, Star, Sparkles, Plus, ChevronRight, X } from "lucide-react";
+
+const PRICE_MAX = 200; // DH
 
 interface Restaurant {
   id: string;
@@ -30,10 +33,44 @@ interface PopularItem {
 
 export default function CommunityDashboard() {
   const navigate = useNavigate();
-  const [legends, setLegends] = useState<Restaurant[]>([]);
+  
   const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
   const [popular, setPopular] = useState<PopularItem[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Filters
+  const [cuisine, setCuisine] = useState<string>("all");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, PRICE_MAX]);
+
+  const cuisines = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of allRestaurants) if (r.cuisine_type) set.add(r.cuisine_type);
+    return Array.from(set).sort();
+  }, [allRestaurants]);
+
+  const filteredRestaurants = useMemo(() => {
+    return allRestaurants.filter((r) => {
+      if (cuisine !== "all" && r.cuisine_type !== cuisine) return false;
+      // Restaurant-level price filter only applies when restaurant has any items in range.
+      // Without per-restaurant price metadata loaded, keep all that pass cuisine.
+      return true;
+    });
+  }, [allRestaurants, cuisine]);
+
+  const filteredLegends = useMemo(() => filteredRestaurants.slice(0, 6), [filteredRestaurants]);
+
+  const filteredPopular = useMemo(() => {
+    return popular.filter((p) => {
+      if (cuisine !== "all") {
+        const r = allRestaurants.find((x) => x.id === p.restaurant_id);
+        if (!r || r.cuisine_type !== cuisine) return false;
+      }
+      if (p.price < priceRange[0] || p.price > priceRange[1]) return false;
+      return true;
+    });
+  }, [popular, cuisine, priceRange, allRestaurants]);
+
+  const filtersActive = cuisine !== "all" || priceRange[0] !== 0 || priceRange[1] !== PRICE_MAX;
 
   useEffect(() => {
     document.title = "Community Choice — Atlaasgo Ifrane";
@@ -51,7 +88,6 @@ export default function CommunityDashboard() {
 
       const list = (rests || []) as Restaurant[];
       setAllRestaurants(list);
-      setLegends(list.slice(0, 6));
 
       // Top 5 most-ordered items in last 30 days
       const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -83,7 +119,7 @@ export default function CommunityDashboard() {
       }
       const top = Array.from(tally.values())
         .sort((a, b) => b.total_qty - a.total_qty)
-        .slice(0, 5);
+        .slice(0, 20);
 
       // Fallback: if no order history yet, surface 5 highest-rated restaurants' first menu item
       if (top.length === 0 && list.length > 0) {
@@ -148,6 +184,68 @@ export default function CommunityDashboard() {
               </div>
             </motion.div>
 
+            {/* Filters */}
+            <div className="rounded-[1.25rem] border border-border bg-card p-4 space-y-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Filters</p>
+                {filtersActive && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setCuisine("all"); setPriceRange([0, PRICE_MAX]); }}
+                    className="h-7 text-xs"
+                  >
+                    <X className="h-3 w-3 mr-1" /> Clear
+                  </Button>
+                )}
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold mb-2">Cuisine</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setCuisine("all")}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
+                      cuisine === "all"
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background border-border hover:border-primary/40"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {cuisines.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setCuisine(c)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
+                        cuisine === c
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background border-border hover:border-primary/40"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-semibold">Price range (Quick Order)</p>
+                  <p className="text-xs text-muted-foreground">
+                    {priceRange[0]}–{priceRange[1]} DH
+                  </p>
+                </div>
+                <Slider
+                  min={0}
+                  max={PRICE_MAX}
+                  step={5}
+                  value={priceRange}
+                  onValueChange={(v) => setPriceRange([v[0], v[1]] as [number, number])}
+                />
+              </div>
+            </div>
+
             {/* Community Choice grid */}
             <section>
               <div className="flex items-end justify-between mb-4">
@@ -170,7 +268,7 @@ export default function CommunityDashboard() {
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {legends.map((r, i) => (
+                  {filteredLegends.map((r, i) => (
                     <motion.button
                       key={r.id}
                       initial={{ opacity: 0, y: 14 }}
@@ -216,11 +314,11 @@ export default function CommunityDashboard() {
             </section>
 
             {/* All restaurants strip */}
-            {!loading && allRestaurants.length > 6 && (
+            {!loading && filteredRestaurants.length > 6 && (
               <section>
                 <h3 className="text-lg font-heading font-bold mb-3">More on the platform</h3>
                 <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x">
-                  {allRestaurants.slice(6).map((r) => (
+                  {filteredRestaurants.slice(6).map((r) => (
                     <button
                       key={r.id}
                       onClick={() => navigate(`/restaurant/${r.id}`)}
@@ -257,11 +355,11 @@ export default function CommunityDashboard() {
                     <Skeleton key={i} className="h-16 rounded-xl" />
                   ))}
                 </div>
-              ) : popular.length === 0 ? (
+              ) : filteredPopular.length === 0 ? (
                 <p className="text-xs text-muted-foreground">No data yet — order history unlocks this.</p>
               ) : (
                 <ul className="space-y-2">
-                  {popular.map((p, i) => (
+                  {filteredPopular.slice(0,5).map((p, i) => (
                     <li key={p.menu_item_id}>
                       <button
                         onClick={() => navigate(`/restaurant/${p.restaurant_id}`)}
