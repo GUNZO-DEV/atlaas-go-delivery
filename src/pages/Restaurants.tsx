@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, SlidersHorizontal, MapPin } from "lucide-react";
+import { Loader2, ArrowLeft, SlidersHorizontal, MapPin, Clock, Search } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import SmartSearch from "@/components/SmartSearch";
 import FavoriteButton from "@/components/FavoriteButton";
@@ -106,103 +107,127 @@ export default function Restaurants() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-50 glass-nav">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-full">
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold">Restaurants</h1>
+            <div>
+              <h1 className="font-display text-xl md:text-2xl font-bold">Restaurants</h1>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-primary" />
+                Ifrane — AUI Campus & Surrounds
+              </p>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6 md:py-8">
         <div className="mb-6">
           <SmartSearch />
         </div>
 
-        <div className="mb-8 -mx-4">
+        <div className="mb-6 -mx-4">
           <CategorySelector
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
           />
         </div>
 
-        <div className="mb-8 space-y-4">
-          <Input
-            placeholder="Filter current page..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Sort by:</span>
-            </div>
+        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search restaurants, cuisines..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-11 glass-surface"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="h-4 w-4 text-muted-foreground shrink-0" />
             <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[160px] h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="rating">Top Rated</SelectItem>
-                <SelectItem value="name">Name (A-Z)</SelectItem>
+                <SelectItem value="name">Name (A–Z)</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
         {filteredRestaurants.length === 0 ? (
-          <Card>
+          <Card className="border-dashed">
             <CardContent className="py-16 text-center space-y-3">
-              <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-xl font-semibold">No restaurants found</h3>
+              <div className="text-6xl mb-2">🔍</div>
+              <h3 className="font-display text-xl font-semibold">No restaurants found</h3>
               <p className="text-muted-foreground max-w-md mx-auto">
                 {selectedCategory !== "all"
-                  ? `We couldn't find any ${selectedCategory} restaurants. Try selecting a different category.`
-                  : "Try adjusting your search filters or check back later for new restaurants."}
+                  ? `We couldn't find any ${selectedCategory} restaurants. Try another category.`
+                  : "Try adjusting your search filters or check back later."}
               </p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRestaurants.map((restaurant) => (
-              <Card
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+            {filteredRestaurants.map((restaurant, idx) => (
+              <motion.div
                 key={restaurant.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
-                onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: Math.min(idx * 0.04, 0.4), ease: [0.22, 1, 0.36, 1] }}
               >
-                <div className="relative aspect-video">
-                  <img
-                    src={restaurant.image_url || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400"}
-                    alt={restaurant.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-2 right-2 bg-white/90 rounded-full">
-                    <FavoriteButton itemId={restaurant.id} itemType="restaurant" />
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-lg mb-1">{restaurant.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                    {restaurant.description}
-                  </p>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary">{restaurant.cuisine_type}</Badge>
-                    <div className="flex items-center gap-1">
-                      <StarRating rating={restaurant.average_rating || 0} size="sm" />
-                      <span className="text-xs text-muted-foreground">
-                        ({restaurant.review_count || 0})
-                      </span>
+                <Card
+                  className="overflow-hidden cursor-pointer group border-border/60 hover:border-primary/40 hover:shadow-elevation hover:-translate-y-1 transition-all duration-300"
+                  onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                    <img
+                      src={restaurant.image_url || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80"}
+                      alt={restaurant.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                    <div className="absolute top-3 right-3 rounded-full glass-surface p-1">
+                      <FavoriteButton itemId={restaurant.id} itemType="restaurant" />
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 text-white">
+                      <h3 className="font-display font-bold text-lg leading-tight drop-shadow">
+                        {restaurant.name}
+                      </h3>
+                      <Badge className="bg-primary text-primary-foreground border-0 shrink-0">
+                        {restaurant.cuisine_type}
+                      </Badge>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {restaurant.address}
-                  </p>
-                </CardContent>
-              </Card>
+                  <CardContent className="p-4 space-y-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+                      {restaurant.description || "Discover authentic flavors delivered to your dorm."}
+                    </p>
+                    <div className="flex items-center justify-between pt-1 border-t border-border/60">
+                      <div className="flex items-center gap-1">
+                        <StarRating rating={restaurant.average_rating || 0} size="sm" />
+                        <span className="text-xs text-muted-foreground">
+                          ({restaurant.review_count || 0})
+                        </span>
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        25–35 min
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                      <MapPin className="w-3 h-3 text-primary shrink-0" />
+                      {restaurant.address}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         )}
