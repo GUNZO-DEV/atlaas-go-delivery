@@ -198,117 +198,84 @@ export default function TrackDelivery() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate("/customer")}>
-            ← Back to Orders
+      <header className="sticky top-0 z-40 glass-nav">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <Button variant="ghost" onClick={() => navigate("/customer")} className="rounded-full">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Orders
           </Button>
+          <div className="text-xs text-muted-foreground">
+            #{orderId?.slice(0, 8)}
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold mb-2">Live Tracking in Real-Time</h1>
-          <p className="text-muted-foreground text-lg">
-            Watch your order journey from restaurant to your door. Just like magic, but better — it's real.
+      <main className="container mx-auto px-4 py-6 md:py-10 max-w-5xl">
+        {/* Hero */}
+        <div className="text-center mb-6 md:mb-10 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            LIVE TRACKING
+          </div>
+          <h1 className="font-display text-2xl md:text-4xl font-bold mb-2">
+            Your order is on its way
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Real-time updates every step from kitchen to your dorm.
           </p>
         </div>
 
-        {/* Order Status Progress */}
+        {/* Status Timeline */}
         {order && (
-          <Card className="mb-6 animate-fade-in">
+          <Card className="mb-6 border-border/60">
             <CardContent className="pt-6">
               <OrderStatusProgress currentStatus={order.status} />
             </CardContent>
           </Card>
         )}
 
-        {/* Main Tracking Card */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-6">
-          {/* Map Section */}
-          <Card className="lg:col-span-2 animate-scale-in">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Navigation className="h-5 w-5 text-primary" />
-                Your Order Journey
-              </CardTitle>
-              <CardDescription>Order #{orderId?.slice(0, 8)}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Status Badge */}
-              <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg border border-primary/20">
-                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center animate-pulse">
-                  <Navigation className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold capitalize">Status: {tracking.status}</p>
-                  {tracking.estimated_delivery_time && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                      <Clock className="h-3 w-3" />
-                      ETA: {new Date(tracking.estimated_delivery_time).toLocaleTimeString()}
-                    </p>
-                  )}
-                </div>
-              </div>
+        {/* Live ETA + Distance strip */}
+        <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6">
+          <Card className="border-border/60 overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent pointer-events-none" />
+            <CardContent className="p-4 md:p-5 relative">
+              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                <Clock className="h-3 w-3" /> Estimated arrival
+              </p>
+              <p className="font-display text-2xl md:text-3xl font-bold text-foreground">
+                {tracking.estimated_delivery_time
+                  ? `${Math.max(1, Math.ceil((new Date(tracking.estimated_delivery_time).getTime() - Date.now()) / 60000))} min`
+                  : "12 min"}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-border/60 overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent pointer-events-none" />
+            <CardContent className="p-4 md:p-5 relative">
+              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                <Navigation className="h-3 w-3" /> Distance
+              </p>
+              <p className="font-display text-2xl md:text-3xl font-bold text-foreground">2.4 km</p>
+            </CardContent>
+          </Card>
+        </div>
 
-              {/* Map Container */}
-              <div className="relative">
-                <div className="h-[500px] rounded-lg overflow-hidden border-2 border-border shadow-lg">
-                  <LiveTrackingMap
-                    riderLat={tracking.current_latitude || undefined}
-                    riderLng={tracking.current_longitude || undefined}
-                    restaurantLat={order?.restaurant?.latitude}
-                    restaurantLng={order?.restaurant?.longitude}
-                    customerLat={order?.delivery_latitude || undefined}
-                    customerLng={order?.delivery_longitude || undefined}
-                    deliveryAddress={order?.delivery_address}
-                  />
-                </div>
-
-                {/* Map Legend */}
-                <div className="grid grid-cols-3 gap-2 mt-4">
-                  <div className="flex items-center gap-2 p-2 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                    <span className="text-2xl">🍽️</span>
-                    <div>
-                      <p className="text-xs font-medium">Restaurant</p>
-                      <p className="text-xs text-muted-foreground">Preparing</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 p-2 bg-green-500/10 rounded-lg border border-green-500/20 animate-pulse">
-                    <span className="text-2xl">🏍️</span>
-                    <div>
-                      <p className="text-xs font-medium">Driver</p>
-                      <p className="text-xs text-muted-foreground">On the way</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                    <span className="text-2xl">📍</span>
-                    <div>
-                      <p className="text-xs font-medium">You</p>
-                      <p className="text-xs text-muted-foreground">Waiting</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Time & Distance */}
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-sm text-muted-foreground mb-1">Estimated Time</p>
-                    <p className="text-2xl font-bold text-primary">
-                      {tracking.estimated_delivery_time 
-                        ? `${Math.ceil((new Date(tracking.estimated_delivery_time).getTime() - new Date().getTime()) / 60000)} min`
-                        : '12 min'}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-sm text-muted-foreground mb-1">Distance</p>
-                    <p className="text-2xl font-bold text-primary">2.4 km</p>
-                  </div>
-                </div>
-              </div>
-
-              {tracking.current_latitude && tracking.current_longitude && (
+        {/* Map + Rider */}
+        <div className="grid lg:grid-cols-3 gap-5 mb-6">
+          <Card className="lg:col-span-2 border-border/60 overflow-hidden">
+            <div className="h-[420px] md:h-[500px]">
+              <LiveTrackingMap
+                riderLat={tracking.current_latitude || undefined}
+                riderLng={tracking.current_longitude || undefined}
+                restaurantLat={order?.restaurant?.latitude}
+                restaurantLng={order?.restaurant?.longitude}
+                customerLat={order?.delivery_latitude || undefined}
+                customerLng={order?.delivery_longitude || undefined}
+                deliveryAddress={order?.delivery_address}
+              />
+            </div>
+            {tracking.current_latitude && tracking.current_longitude && (
+              <CardContent className="p-3">
                 <Button
                   variant="outline"
                   className="w-full"
@@ -319,98 +286,72 @@ export default function TrackDelivery() {
                     )
                   }
                 >
+                  <Navigation className="h-4 w-4 mr-2" />
                   Open in Google Maps
                 </Button>
-              )}
-            </CardContent>
+              </CardContent>
+            )}
           </Card>
 
-          {/* Features Sidebar */}
           <div className="space-y-4">
-            {/* Rider Info Card */}
-            {rider && (
-              <Card className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            {rider ? (
+              <Card className="border-border/60 overflow-hidden">
+                <div className="h-1.5 bg-gradient-to-r from-primary to-primary-glow" />
                 <CardHeader>
-                  <CardTitle className="text-lg">Your Rider</CardTitle>
+                  <CardTitle className="font-display text-lg">Your rider</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold">
-                      {rider.full_name?.charAt(0) || '?'}
+                    <div className="h-14 w-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-xl font-bold font-display">
+                      {rider.full_name?.charAt(0) || "?"}
                     </div>
-                    <div>
-                      <p className="font-medium">{rider.full_name || 'Rider'}</p>
-                      <p className="text-sm text-muted-foreground">Professional Driver</p>
+                    <div className="min-w-0">
+                      <p className="font-semibold truncate">{rider.full_name || "Rider"}</p>
+                      <p className="text-xs text-muted-foreground">Verified Atlaasgo rider</p>
                     </div>
                   </div>
                   {rider.phone && (
-                    <Button variant="outline" className="w-full" asChild>
+                    <Button className="w-full" asChild>
                       <a href={`tel:${rider.phone}`}>
                         <Phone className="h-4 w-4 mr-2" />
-                        Call Rider
+                        Call rider
                       </a>
                     </Button>
                   )}
                 </CardContent>
               </Card>
+            ) : (
+              <Card className="border-dashed border-border/60">
+                <CardContent className="p-6 text-center">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 animate-pulse">
+                    <Bike className="h-5 w-5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold">Finding a rider…</p>
+                  <p className="text-xs text-muted-foreground mt-1">We'll show their details here as soon as one accepts.</p>
+                </CardContent>
+              </Card>
             )}
 
-            <Card className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <MapPin className="h-5 w-5 text-primary animate-pulse" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Live Location Updates</h3>
-                    <p className="text-sm text-muted-foreground">
-                      See exactly where your food is with animated markers that update in real-time.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Navigation className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Moving Driver Icon</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Watch your driver move smoothly across the map in real-time.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Clock className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Real-Time Notifications</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Get instant updates when your order status changes or rider moves.
-                    </p>
-                  </div>
-                </div>
+            <Card className="border-border/60">
+              <CardHeader>
+                <CardTitle className="font-display text-base flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  Drop-off
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm break-words">{order?.delivery_address || "—"}</p>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Chat Section */}
+        {/* Chat */}
         {order && (
-          <Card className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+          <Card className="border-border/60">
             <CardHeader>
-              <CardTitle>Order Chat</CardTitle>
-              <CardDescription>Communicate with your driver in real-time</CardDescription>
+              <CardTitle className="font-display">Order chat</CardTitle>
+              <CardDescription>Talk to your rider in real time</CardDescription>
             </CardHeader>
             <CardContent>
               <OrderChat orderId={orderId!} userType="customer" />
