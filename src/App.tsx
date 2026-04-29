@@ -45,6 +45,7 @@ const LynRestaurantDashboard = lazy(() => import("./pages/LynRestaurantDashboard
 const CustomerTableMenu = lazy(() => import("./pages/CustomerTableMenu"));
 const OrderChatPage = lazy(() => import("./pages/OrderChatPage"));
 const Services = lazy(() => import("./pages/Services"));
+const CommunityDashboard = lazy(() => import("./pages/CommunityDashboard"));
 
 // Lazy-load heavier components
 const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
