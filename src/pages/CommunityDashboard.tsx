@@ -39,7 +39,7 @@ export default function CommunityDashboard() {
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [cuisine, setCuisine] = useState<string>("all");
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, PRICE_MAX]);
 
   const cuisines = useMemo(() => {
