@@ -68,7 +68,7 @@ export default function CommunityDashboard() {
     });
   }, [popular, selectedCuisines, priceRange, allRestaurants]);
 
-  const filtersActive = cuisine !== "all" || priceRange[0] !== 0 || priceRange[1] !== PRICE_MAX;
+  const filtersActive = selectedCuisines.length > 0 || priceRange[0] !== 0 || priceRange[1] !== PRICE_MAX;
 
   useEffect(() => {
     document.title = "Community Choice — Atlaasgo Ifrane";
