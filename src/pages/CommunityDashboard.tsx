@@ -39,7 +39,7 @@ export default function CommunityDashboard() {
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [cuisine, setCuisine] = useState<string>("all");
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, PRICE_MAX]);
 
   const cuisines = useMemo(() => {
@@ -50,27 +50,25 @@ export default function CommunityDashboard() {
 
   const filteredRestaurants = useMemo(() => {
     return allRestaurants.filter((r) => {
-      if (cuisine !== "all" && r.cuisine_type !== cuisine) return false;
-      // Restaurant-level price filter only applies when restaurant has any items in range.
-      // Without per-restaurant price metadata loaded, keep all that pass cuisine.
+      if (selectedCuisines.length > 0 && !selectedCuisines.includes(r.cuisine_type || "")) return false;
       return true;
     });
-  }, [allRestaurants, cuisine]);
+  }, [allRestaurants, selectedCuisines]);
 
   const filteredLegends = useMemo(() => filteredRestaurants.slice(0, 6), [filteredRestaurants]);
 
   const filteredPopular = useMemo(() => {
     return popular.filter((p) => {
-      if (cuisine !== "all") {
+      if (selectedCuisines.length > 0) {
         const r = allRestaurants.find((x) => x.id === p.restaurant_id);
-        if (!r || r.cuisine_type !== cuisine) return false;
+        if (!r || !selectedCuisines.includes(r.cuisine_type || "")) return false;
       }
       if (p.price < priceRange[0] || p.price > priceRange[1]) return false;
       return true;
     });
-  }, [popular, cuisine, priceRange, allRestaurants]);
+  }, [popular, selectedCuisines, priceRange, allRestaurants]);
 
-  const filtersActive = cuisine !== "all" || priceRange[0] !== 0 || priceRange[1] !== PRICE_MAX;
+  const filtersActive = selectedCuisines.length > 0 || priceRange[0] !== 0 || priceRange[1] !== PRICE_MAX;
 
   useEffect(() => {
     document.title = "Community Choice — Atlaasgo Ifrane";
@@ -192,7 +190,7 @@ export default function CommunityDashboard() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => { setCuisine("all"); setPriceRange([0, PRICE_MAX]); }}
+                    onClick={() => { setSelectedCuisines([]); setPriceRange([0, PRICE_MAX]); }}
                     className="h-7 text-xs"
                   >
                     <X className="h-3 w-3 mr-1" /> Clear
@@ -204,9 +202,9 @@ export default function CommunityDashboard() {
                 <p className="text-xs font-semibold mb-2">Cuisine</p>
                 <div className="flex flex-wrap gap-2">
                   <button
-                    onClick={() => setCuisine("all")}
+                    onClick={() => setSelectedCuisines([])}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                      cuisine === "all"
+                      selectedCuisines.length === 0
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-background border-border hover:border-primary/40"
                     }`}
@@ -216,9 +214,13 @@ export default function CommunityDashboard() {
                   {cuisines.map((c) => (
                     <button
                       key={c}
-                      onClick={() => setCuisine(c)}
+                      onClick={() =>
+                        setSelectedCuisines((prev) =>
+                          prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+                        )
+                      }
                       className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                        cuisine === c
+                        selectedCuisines.includes(c)
                           ? "bg-primary text-primary-foreground border-primary"
                           : "bg-background border-border hover:border-primary/40"
                       }`}
