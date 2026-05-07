@@ -59,14 +59,14 @@ export default function CommunityDashboard() {
 
   const filteredPopular = useMemo(() => {
     return popular.filter((p) => {
-      if (cuisine !== "all") {
+      if (selectedCuisines.length > 0) {
         const r = allRestaurants.find((x) => x.id === p.restaurant_id);
-        if (!r || r.cuisine_type !== cuisine) return false;
+        if (!r || !selectedCuisines.includes(r.cuisine_type || "")) return false;
       }
       if (p.price < priceRange[0] || p.price > priceRange[1]) return false;
       return true;
     });
-  }, [popular, cuisine, priceRange, allRestaurants]);
+  }, [popular, selectedCuisines, priceRange, allRestaurants]);
 
   const filtersActive = cuisine !== "all" || priceRange[0] !== 0 || priceRange[1] !== PRICE_MAX;
 
