@@ -107,6 +107,7 @@ export type Database = {
           id: string
           message: string
           order_id: string
+          read_at: string | null
           sender_id: string
           sender_type: string
         }
@@ -115,6 +116,7 @@ export type Database = {
           id?: string
           message: string
           order_id: string
+          read_at?: string | null
           sender_id: string
           sender_type: string
         }
@@ -123,6 +125,7 @@ export type Database = {
           id?: string
           message?: string
           order_id?: string
+          read_at?: string | null
           sender_id?: string
           sender_type?: string
         }
