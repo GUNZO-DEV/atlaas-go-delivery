@@ -190,7 +190,7 @@ export default function CommunityDashboard() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => { setCuisine("all"); setPriceRange([0, PRICE_MAX]); }}
+                    onClick={() => { setSelectedCuisines([]); setPriceRange([0, PRICE_MAX]); }}
                     className="h-7 text-xs"
                   >
                     <X className="h-3 w-3 mr-1" /> Clear
@@ -202,9 +202,9 @@ export default function CommunityDashboard() {
                 <p className="text-xs font-semibold mb-2">Cuisine</p>
                 <div className="flex flex-wrap gap-2">
                   <button
-                    onClick={() => setCuisine("all")}
+                    onClick={() => setSelectedCuisines([])}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                      cuisine === "all"
+                      selectedCuisines.length === 0
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-background border-border hover:border-primary/40"
                     }`}
@@ -214,9 +214,13 @@ export default function CommunityDashboard() {
                   {cuisines.map((c) => (
                     <button
                       key={c}
-                      onClick={() => setCuisine(c)}
+                      onClick={() =>
+                        setSelectedCuisines((prev) =>
+                          prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+                        )
+                      }
                       className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                        cuisine === c
+                        selectedCuisines.includes(c)
                           ? "bg-primary text-primary-foreground border-primary"
                           : "bg-background border-border hover:border-primary/40"
                       }`}
