@@ -50,12 +50,10 @@ export default function CommunityDashboard() {
 
   const filteredRestaurants = useMemo(() => {
     return allRestaurants.filter((r) => {
-      if (cuisine !== "all" && r.cuisine_type !== cuisine) return false;
-      // Restaurant-level price filter only applies when restaurant has any items in range.
-      // Without per-restaurant price metadata loaded, keep all that pass cuisine.
+      if (selectedCuisines.length > 0 && !selectedCuisines.includes(r.cuisine_type || "")) return false;
       return true;
     });
-  }, [allRestaurants, cuisine]);
+  }, [allRestaurants, selectedCuisines]);
 
   const filteredLegends = useMemo(() => filteredRestaurants.slice(0, 6), [filteredRestaurants]);
 
