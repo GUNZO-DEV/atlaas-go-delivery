@@ -13,7 +13,7 @@ interface TestResult {
   actual: string;
 }
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -70,10 +70,8 @@ serve(async (req: Request) => {
     { email: "customer@test.com", password: "customer123", label: "outsider" },
   ];
 
-  const sessions: Record<
-    string,
-    { client: ReturnType<typeof createClient>; uid: string }
-  > = {};
+  type SupaClient = ReturnType<typeof createClient>;
+  const sessions: Record<string, { client: SupaClient; uid: string }> = {};
 
   for (const acct of testEmails) {
     const c = createClient(SUPABASE_URL, ANON_KEY);
@@ -83,13 +81,8 @@ serve(async (req: Request) => {
     });
     if (error) {
       return new Response(
-        JSON.stringify({
-          error: `Login failed for ${acct.email}: ${error.message}`,
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        JSON.stringify({ error: `Login failed for ${acct.email}: ${error.message}` }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
     sessions[acct.label] = { client: c, uid: data.user.id };
@@ -108,7 +101,6 @@ serve(async (req: Request) => {
   if (existingOrder) {
     testOrderId = existingOrder.id;
   } else {
-    // Pick any order owned by the customer and assign the rider
     const { data: anyOrder } = await admin
       .from("orders")
       .select("id")
@@ -123,7 +115,6 @@ serve(async (req: Request) => {
         .eq("id", anyOrder.id);
       testOrderId = anyOrder.id;
     } else {
-      // Create a minimal order via service role
       const { data: restaurant } = await admin
         .from("restaurants")
         .select("id")
@@ -147,10 +138,7 @@ serve(async (req: Request) => {
       if (orderErr) {
         return new Response(
           JSON.stringify({ error: `Cannot create test order: ${orderErr.message}` }),
-          {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       testOrderId = newOrder!.id;
@@ -159,78 +147,46 @@ serve(async (req: Request) => {
 
   // --- Run tests ---
   const results: TestResult[] = [];
-
-  // Helper
-  const test = (name: string, pass: boolean, expected: string, actual: string) =>
+  const t = (name: string, pass: boolean, expected: string, actual: string) =>
     results.push({ name, pass, expected, actual });
 
   // 1. Customer INSERT
   const { error: e1 } = await sessions.customer.client
     .from("chat_messages")
-    .insert({
-      order_id: testOrderId,
-      sender_id: sessions.customer.uid,
-      sender_type: "customer",
-      message: "[RLS-TEST] customer insert",
-    });
-  test("Customer INSERT", !e1, "success", e1 ? e1.message : "success");
+    .insert({ order_id: testOrderId, sender_id: sessions.customer.uid, sender_type: "customer", message: "[RLS-TEST] customer insert" });
+  t("Customer INSERT", !e1, "success", e1 ? e1.message : "success");
 
   // 2. Rider INSERT
   const { error: e2 } = await sessions.rider.client
     .from("chat_messages")
-    .insert({
-      order_id: testOrderId,
-      sender_id: sessions.rider.uid,
-      sender_type: "rider",
-      message: "[RLS-TEST] rider insert",
-    });
-  test("Rider INSERT", !e2, "success", e2 ? e2.message : "success");
+    .insert({ order_id: testOrderId, sender_id: sessions.rider.uid, sender_type: "rider", message: "[RLS-TEST] rider insert" });
+  t("Rider INSERT", !e2, "success", e2 ? e2.message : "success");
 
   // 3. Outsider INSERT → blocked
   const { error: e3 } = await sessions.outsider.client
     .from("chat_messages")
-    .insert({
-      order_id: testOrderId,
-      sender_id: sessions.outsider.uid,
-      sender_type: "customer",
-      message: "[RLS-TEST] outsider insert",
-    });
-  test("Outsider INSERT blocked", !!e3, "RLS error", e3 ? "blocked" : "allowed!");
+    .insert({ order_id: testOrderId, sender_id: sessions.outsider.uid, sender_type: "customer", message: "[RLS-TEST] outsider insert" });
+  t("Outsider INSERT blocked", !!e3, "RLS error", e3 ? "blocked" : "allowed!");
 
   // 4. Spoofed sender_id → blocked
   const { error: e4 } = await sessions.rider.client
     .from("chat_messages")
-    .insert({
-      order_id: testOrderId,
-      sender_id: sessions.customer.uid,
-      sender_type: "customer",
-      message: "[RLS-TEST] spoofed sender",
-    });
-  test("Spoofed sender_id blocked", !!e4, "RLS error", e4 ? "blocked" : "allowed!");
+    .insert({ order_id: testOrderId, sender_id: sessions.customer.uid, sender_type: "customer", message: "[RLS-TEST] spoofed sender" });
+  t("Spoofed sender_id blocked", !!e4, "RLS error", e4 ? "blocked" : "allowed!");
 
   // 5. Customer SELECT → sees messages
   const { data: d5 } = await sessions.customer.client
     .from("chat_messages")
     .select("id")
     .eq("order_id", testOrderId);
-  test(
-    "Customer SELECT visible",
-    (d5?.length ?? 0) > 0,
-    ">0 rows",
-    `${d5?.length ?? 0} rows`
-  );
+  t("Customer SELECT visible", (d5?.length ?? 0) > 0, ">0 rows", `${d5?.length ?? 0} rows`);
 
   // 6. Outsider SELECT → 0 rows
   const { data: d6 } = await sessions.outsider.client
     .from("chat_messages")
     .select("id")
     .eq("order_id", testOrderId);
-  test(
-    "Outsider SELECT empty",
-    d6?.length === 0,
-    "0 rows",
-    `${d6?.length ?? "?"} rows`
-  );
+  t("Outsider SELECT empty", d6?.length === 0, "0 rows", `${d6?.length ?? "?"} rows`);
 
   // 7. Rider UPDATE read_at → works
   const { data: d7, error: e7 } = await sessions.rider.client
@@ -239,12 +195,7 @@ serve(async (req: Request) => {
     .eq("order_id", testOrderId)
     .neq("sender_id", sessions.rider.uid)
     .select("id");
-  test(
-    "Rider UPDATE read_at",
-    !e7 && (d7?.length ?? 0) > 0,
-    "rows updated",
-    e7 ? e7.message : `${d7?.length ?? 0} rows`
-  );
+  t("Rider UPDATE read_at", !e7 && (d7?.length ?? 0) > 0, "rows updated", e7 ? e7.message : `${d7?.length ?? 0} rows`);
 
   // 8. Outsider UPDATE → 0 rows
   const { data: d8 } = await sessions.outsider.client
@@ -252,12 +203,7 @@ serve(async (req: Request) => {
     .update({ read_at: new Date().toISOString() })
     .eq("order_id", testOrderId)
     .select("id");
-  test(
-    "Outsider UPDATE blocked",
-    d8?.length === 0,
-    "0 rows",
-    `${d8?.length ?? "?"} rows`
-  );
+  t("Outsider UPDATE blocked", d8?.length === 0, "0 rows", `${d8?.length ?? "?"} rows`);
 
   // --- Clean up test messages ---
   await admin
@@ -282,7 +228,3 @@ serve(async (req: Request) => {
     }
   );
 });
-
-function serve(handler: (req: Request) => Promise<Response>) {
-  Deno.serve(handler);
-}
