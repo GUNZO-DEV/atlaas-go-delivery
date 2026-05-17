@@ -214,16 +214,6 @@ const AdminSetup = () => {
             </div>
           </form>
 
-          <div className="mt-6 p-4 rounded-lg bg-muted">
-            <p className="text-sm text-muted-foreground">
-              <strong>Default Credentials:</strong><br />
-              Email: admin@atlaasgo.ma<br />
-              Password: Admin@2024
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              You can change these before creating the account
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
