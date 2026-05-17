@@ -12,9 +12,9 @@ const AdminSetup = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [email, setEmail] = useState("admin@atlaasgo.ma");
-  const [password, setPassword] = useState("Admin@2024");
-  const [fullName, setFullName] = useState("AtlaasGo Admin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
 
   useEffect(() => {
     checkExistingAdmin();
@@ -214,16 +214,6 @@ const AdminSetup = () => {
             </div>
           </form>
 
-          <div className="mt-6 p-4 rounded-lg bg-muted">
-            <p className="text-sm text-muted-foreground">
-              <strong>Default Credentials:</strong><br />
-              Email: admin@atlaasgo.ma<br />
-              Password: Admin@2024
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              You can change these before creating the account
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

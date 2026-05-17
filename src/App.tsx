@@ -16,7 +16,7 @@ const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard"));
 const RiderDashboard = lazy(() => import("./pages/RiderDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const TrackDelivery = lazy(() => import("./pages/TrackDelivery"));
-const TestSetup = lazy(() => import("./pages/TestSetup"));
+
 const RestaurantMenu = lazy(() => import("./pages/RestaurantMenu"));
 const Restaurants = lazy(() => import("./pages/Restaurants"));
 const GroupOrder = lazy(() => import("./pages/GroupOrder"));
@@ -86,7 +86,7 @@ const App = () => (
               <Route path="/rider" element={<ProtectedRoute requiredRole="rider"><RiderDashboard /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
               <Route path="/track/:orderId" element={<ProtectedRoute><TrackDelivery /></ProtectedRoute>} />
-              <Route path="/test-setup" element={<TestSetup />} />
+              
               <Route path="/restaurant/:restaurantId?" element={<RestaurantMenu />} />
               <Route path="/group-order/:mode?" element={<GroupOrder />} />
               <Route path="/merchant/analytics" element={<ProtectedRoute requiredRole="merchant"><MerchantAnalytics /></ProtectedRoute>} />
