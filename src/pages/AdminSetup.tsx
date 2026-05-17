@@ -12,9 +12,9 @@ const AdminSetup = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [email, setEmail] = useState("admin@atlaasgo.ma");
-  const [password, setPassword] = useState("Admin@2024");
-  const [fullName, setFullName] = useState("AtlaasGo Admin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
 
   useEffect(() => {
     checkExistingAdmin();

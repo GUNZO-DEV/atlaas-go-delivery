@@ -1,7 +1,7 @@
 project_id = "fuvwfwkipsfnvpjefemt"
 
 [functions.create-test-accounts]
-verify_jwt = false
+verify_jwt = true
 
 [functions.atlaas-ai-chat]
 verify_jwt = false
